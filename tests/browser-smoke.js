@@ -79,6 +79,8 @@ async function assertNoHorizontalOverflow(page, route) {
     assert((await page.locator('#device-parameters .parameter-row').count()) >= 12, 'device details must expose full parameter rows');
     await page.locator('#menu-trigger').click();
     assert(await page.locator('body').evaluate((body) => body.classList.contains('side-menu-open')), 'menu trigger must open the left menu');
+    assert.equal(await page.locator('.menu-switch-btn').count(), 1, 'sidebar must lead with 切换其他产品');
+    assert.match(await page.locator('.menu-switch-btn').textContent(), /切换其他产品/);
     assert.equal(await page.locator('.side-nav-item').count(), 3, 'sidebar must merge settings into quick config, device details and more config');
     assert.equal(await page.locator('.side-nav-item', { hasText: '更多配置' }).count(), 1, 'sidebar must merge remaining settings into 更多配置');
     assert.equal(await page.locator('.side-app-btn').count(), 2, 'sidebar must expose prominent tools and mine entries');

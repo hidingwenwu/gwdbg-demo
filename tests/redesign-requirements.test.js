@@ -135,10 +135,10 @@ assert(detailPage.includes('id="menu-trigger"') && detailPage.includes('id="side
 assert(morePage.includes('id="more-page"') && morePage.includes('id="more-quick"') && morePage.includes('id="more-settings"'), 'more page must aggregate remaining settings');
 assert(morePage.includes('device-flow.js') && morePage.includes('workbench.js') && morePage.includes('connection-state.js'), 'more page must use the shared workbench shell');
 assert(deviceFlow.includes('renderMore'), 'device flow must render the more-functions page');
-for (const text of ['快速配置', '设备参数详情', '更多配置', 'side-app-btn', 'side-app-label">工具', 'side-app-label">我的', 'tab-tools.html', 'tab-mine.html']) {
+for (const text of ['快速配置', '设备参数详情', '更多配置', '切换其他产品', 'menu-switch-btn', 'side-app-btn', 'side-app-label">工具', 'side-app-label">我的', 'tab-tools.html', 'tab-mine.html', 'tab-device-bt.html']) {
   assert(workbench.includes(text), `sidebar must include ${text}`);
 }
-assert(workbench.includes('side-nav-divider'), 'sidebar must separate device functions from app entries');
+assert(workbench.includes('side-nav-label">应用'), 'sidebar must separate device functions from app entries');
 assert(deviceFlow.includes('hero-disconnect') && deviceFlow.includes('断开连接'), 'Bluetooth products must move disconnect next to the connected status');
 assert(settingPage.includes('id="setting-content"'), 'setting page must render capability-aware settings');
 assert(deviceFlow.includes('保存并检测通讯') && deviceFlow.includes('检测通讯中') && deviceFlow.includes('通讯正常'), 'server settings must support automatic communication checks');
