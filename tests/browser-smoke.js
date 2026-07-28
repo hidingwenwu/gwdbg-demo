@@ -67,6 +67,8 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.locator('[data-expansion-model="A01F"] .connect-button').first().click();
     await page.waitForLoadState('networkidle');
     assert.match(await page.locator('#page-title').textContent(), /A01F/);
+    assert.match(await page.locator('.menu-pill').textContent(), /更多功能/, 'debug pages must label the sidebar trigger as 更多功能');
+    assert.equal(await page.locator('#nav-back').count(), 1, 'debug pages must expose a back button');
     assert.equal(await page.locator('#quick-tasks .task-row').count(), 4, 'A01F must expose four quick tasks');
     assert.equal(await page.getByText('跳过快速配置').count(), 0, 'quick setup must not expose the removed skip action');
     await page.locator('#detail-link').click();
@@ -83,6 +85,7 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.locator('[data-modal-close]').last().click();
 
     await open(page, baseUrl, 'pages/device-setting.html?model=A01F&device=A01F-3F903E&mode=bt&setting=brand-batch');
+    assert.equal(await page.locator('#nav-back').count(), 1, 'setting sub-page must expose a back button');
     assert.equal(await page.locator('[data-channel]').count(), 4, 'A01F must expose four independently configurable channels');
     assert.equal(await page.locator('[data-channel] input[type=checkbox]:checked').count(), 4, 'all channels must be enabled by default');
     await page.locator('[data-channel="1"] .channel-brand').selectOption({ label: '模拟器' });

@@ -136,6 +136,20 @@
     if (trigger) trigger.addEventListener('click', openMenu);
     var overlay = document.getElementById('side-menu-overlay');
     if (overlay) overlay.addEventListener('click', closeMenu);
+    var navBack = document.getElementById('nav-back');
+    if (navBack) {
+      navBack.addEventListener('click', function () {
+        if (root.history.length > 1) { root.history.back(); return; }
+        var pathname = root.location.pathname;
+        if (product.family === 'fd01g') {
+          root.location.href = pathname.indexOf('device-fd01g-more') >= 0 ? link('device-fd01g.html') : 'tab-device-bt.html';
+        } else if (pathname.indexOf('device-quick') >= 0) {
+          root.location.href = 'tab-device-bt.html';
+        } else {
+          root.location.href = link('device-quick.html');
+        }
+      });
+    }
     document.addEventListener('click', function (event) {
       if (event.target.closest('[data-modal-close]')) hideConfirm();
       if (event.target.id === 'connection-confirm' && confirmAction) {
