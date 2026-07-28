@@ -64,7 +64,6 @@
     var active = currentKey();
     host.innerHTML = '<div class="side-menu-body">' +
       '<div class="menu-switch-wrap"><a class="menu-switch-btn" href="tab-device-bt.html"><span class="switch-icon">⇄</span>切换其他产品</a></div>' +
-      '<div class="side-device-line"><strong>' + product.model + '</strong><span class="side-device-id"></span><em>' + (mode === '4g' ? '4G · 已连接' : '蓝牙 · 已连接') + '</em></div>' +
       '<div class="side-nav-label">设备功能</div>' +
       '<nav class="side-nav">' + menuItems().map(function (item) {
         return '<a class="side-nav-item' + (active === item[0] ? ' active' : '') + '" href="' + itemHref(item) + '"><i class="side-nav-ic ' + item[4] + '">' + item[3] + '</i><span>' + item[1] + '</span><b>›</b></a>';
@@ -74,7 +73,6 @@
       '<a class="side-app-btn" href="tab-tools.html"><span class="side-app-icon">工</span><span class="side-app-label">工具</span><b class="side-app-arrow">›</b></a>' +
       '<a class="side-app-btn" href="tab-mine.html"><span class="side-app-icon">我</span><span class="side-app-label">我的</span><b class="side-app-arrow">›</b></a>' +
       '</div></div>';
-    host.querySelector('.side-device-id').textContent = device;
   }
 
   var confirmAction = null;

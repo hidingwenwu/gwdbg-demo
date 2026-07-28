@@ -304,7 +304,6 @@
     }).join('');
     host.innerHTML = '<div class="side-menu-body">' +
       '<div class="menu-switch-wrap"><a class="menu-switch-btn" href="tab-device-bt.html"><span class="switch-icon">⇄</span>切换其他产品</a></div>' +
-      '<div class="side-device-line"><strong>E50</strong><span class="side-device-id">' + device + '</span><em>' + commMode + ' · 已连接</em></div>' +
       '<div class="side-nav-label">设备功能</div>' +
       '<nav class="side-nav">' + nav + '</nav>' +
       '<div class="side-nav-label">应用</div>' +
