@@ -1,0 +1,11 @@
+# Task 6 Report: 截图位（visual-check）与人工视觉核对
+
+- **Status:** PASS
+- **File modified:** `D:\workspace\gwdbg-demo\tests\visual-check.js`
+- **Change 1 (plan Step 1):** Appended the two screenshot entries verbatim from the plan to the `shots` array, after the `['e50-guide', ...]` entry and before the closing `];` (trailing-comma style kept consistent: previous last entry gained a comma, new last entry has none):
+  - `['tools-ai-ball', 'pages/tab-tools.html'],`
+  - `['tools-ai-chat', 'pages/tab-tools.html', async () => { await page.locator('.aa-ball').click(); await page.waitForTimeout(400); }]`
+- **Change 2 (harness fix, required to reach exit 0):** Added `await page.evaluate(() => { try { sessionStorage.clear(); } catch (e) {} });` immediately before each `page.goto` in the shot loop. Root cause: `assets/app/e50.js` persists setup state (`brand`, `setupCompleted`) in `sessionStorage`, which survives `page.goto` within the reused tab; after `e50-setup-step3` selected a brand, every later `device-e50.html` shot loaded at step 3 and the pre-existing `e50-setup-sim` entry timed out 30s waiting for the `选择品牌` button (rendered only at step 2). This failure existed before Task 6 and was unrelated to the new entries. Clearing storage per shot restores the fresh-state start each entry's actions assume; later pages (`detail`/`ac`/`report`) read `setupState()` with safe defaults (`simulateMode` only gates toasts, `brand` falls back to `格力`). No page/app code was touched; `_base.css`, `app.css`, `interactions.js` untouched per Global Constraints.
+- **Test result:** `node tests/visual-check.js` printed `shot ...` for all 26 entries including `shot tools-ai-ball` and `shot tools-ai-chat`, with no `PAGE ERRORS` section, exit code 0. Both new PNGs produced: `assets/screenshots/check/tools-ai-ball.png` (52 KB) and `assets/screenshots/check/tools-ai-chat.png` (19 KB).
+- **Visual spot-check (agent):** `tools-ai-ball.png` shows the AI floating ball at bottom-right of `tab-tools.html`, clear of the tabbar (72px rule); `tools-ai-chat.png` shows the full-screen `AI 智能助理` chat layer with greeting, `转接人工客服` button and input bar, contained within the phone canvas.
+- **Concerns:** Plan Step 2's remaining manual item — human review of the two PNGs against E50 技术支持 consistency — is still the user's to perform.

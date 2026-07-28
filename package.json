@@ -1,0 +1,13 @@
+{
+  "name": "gwdbg-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "飞奕网关调试小程序原型",
+  "scripts": {
+    "test": "node tests/redesign-requirements.test.js && node tests/ui-regression-check.js && node tests/browser-smoke.js"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "1.61"
+  }
+}

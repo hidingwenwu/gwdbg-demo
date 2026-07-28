@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>故障码查询</title>
+  <link rel="stylesheet" href="../_base.css">
+  <style>
+    .search-bar { margin: 4px 0 12px; }
+    .brand-chips { margin-bottom: 16px; }
+
+    .ec-head {
+      padding: 16px;
+      background: rgba(255, 59, 48, 0.06);
+      border-bottom: 0.5px solid var(--line-soft);
+    }
+    .ec-head .ec-code { font-size: 22px; font-weight: 700; color: var(--ios-red); letter-spacing: 0.5px; }
+    .ec-head .ec-name { font-size: var(--fs-label); font-weight: 600; margin-top: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="phone-shell">
+<div class="phone-screen">
+
+  <div class="wx-statusbar">
+    <span>17:41</span>
+    <span class="sb-right"><span>68%</span></span>
+  </div>
+  <div class="wx-navbar">
+    <a class="nav-back" href="tab-tools.html">‹</a>
+    <div class="nav-title">故障码查询</div>
+    <div class="nav-capsule">
+      <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
+      <span class="cap-sep"></span><span class="cap-circle"></span>
+    </div>
+  </div>
+
+  <div class="page-body no-tabbar">
+
+    <div class="search-bar">
+      <span class="sb-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+      <input id="ec-input" placeholder="输入故障码，如 U4">
+    </div>
+    <div class="brand-chips chip-group" data-select="single">
+      <span class="chip active">大金</span>
+      <span class="chip">格力</span>
+      <span class="chip">美的</span>
+      <span class="chip">日立</span>
+    </div>
+
+    <div class="card">
+      <div class="ec-head">
+        <div class="ec-code">U4</div>
+        <div class="ec-name">内外机通讯异常</div>
+      </div>
+      <div class="kv-list">
+        <div class="kv-item kv-double">
+          <span class="kv-label">常见原因</span>
+          <span class="kv-value subvalue">F1/F2 接线松动或极性接反；外机电源未上电；通讯线与强电并走产生干扰</span>
+        </div>
+        <div class="kv-item kv-double">
+          <span class="kv-label">现场排查步骤</span>
+          <span class="kv-value subvalue">1. 检查 F1/F2 端子紧固与极性 → 2. 确认外机上电 → 3. 断电 5 分钟后重新上电复位 → 4. 万用表测通讯线电压（正常约 DC 15-25V 波动）</span>
+        </div>
+        <div class="kv-item">
+          <span class="kv-label">关联网关侧表现</span>
+          <span class="kv-value">通道内机全部离线</span>
+        </div>
+        <a class="kv-item" href="#" onclick="showToast('正在打开文章');return false;">
+          <span class="kv-label">相关文章</span>
+          <span class="kv-value kv-arrow text-brand">大金 U4 故障处理实录</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+  <script src="../interactions.js"></script>
+  <script src="../assets/app/ai-assistant.js"></script>
+  <script>
+    document.getElementById('ec-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') showToast(this.value.trim() ? '已查询：' + this.value.trim() : '请输入故障码');
+    });
+  </script>
+</body>
+</html>

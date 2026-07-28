@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>接线指导 · 文章聚合</title>
+  <link rel="stylesheet" href="../_base.css">
+  <style>
+    .seg-filter {
+      display: flex; padding: 2px;
+      background: var(--ios-fill);
+      border-radius: var(--radius-ios);
+      margin-bottom: 16px;
+      overflow-x: auto; scrollbar-width: none;
+      flex-wrap: nowrap; gap: 0;
+    }
+    .seg-filter::-webkit-scrollbar { display: none; }
+    .seg-filter .chip {
+      flex: 1 0 auto; white-space: nowrap;
+      padding: 8px 10px;
+      background: transparent; border-radius: 8px;
+      font-size: var(--fs-label); font-weight: 500; color: var(--text-primary);
+      box-shadow: none;
+    }
+    .seg-filter .chip.active {
+      background: #fff; font-weight: 600; color: var(--text-primary);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .art-cell {
+      display: block; position: relative;
+      padding: 13px 16px;
+      border-top: 0.5px solid var(--line-soft);
+      color: inherit;
+    }
+    .art-cell:first-child { border-top: 0; }
+    .art-cell .a-title {
+      font-size: var(--fs-label); font-weight: 600; line-height: 1.5;
+      padding-right: 14px;
+    }
+    .art-cell .a-meta {
+      display: flex; gap: 8px; align-items: center;
+      margin-top: 6px;
+      font-size: var(--fs-tiny); color: var(--text-secondary);
+    }
+    .art-cell .a-arrow {
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--text-placeholder); font-size: 18px; font-family: Arial;
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone-shell">
+<div class="phone-screen">
+
+  <div class="wx-statusbar">
+    <span>17:41</span>
+    <span class="sb-right"><span>68%</span></span>
+  </div>
+  <div class="wx-navbar">
+    <a class="nav-back" href="tab-tools.html">‹</a>
+    <div class="nav-title">接线指导</div>
+    <div class="nav-capsule">
+      <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
+      <span class="cap-sep"></span><span class="cap-circle"></span>
+    </div>
+  </div>
+
+  <div class="page-body no-tabbar">
+
+    <div class="seg-filter chip-group" data-select="single">
+      <span class="chip active">全部</span>
+      <span class="chip">大金</span>
+      <span class="chip">格力</span>
+      <span class="chip">美的</span>
+      <span class="chip">日立</span>
+      <span class="chip">东芝</span>
+      <span class="chip">海尔</span>
+    </div>
+
+    <div class="card">
+      <a class="art-cell press" href="#" onclick="showToast('正在打开文章');return false;">
+        <div class="a-title">大金 VRV 系列内外机 F1/F2 接线全图解</div>
+        <div class="a-meta"><span class="badge badge-success">公众号</span><span>阅读 3,208</span><span>2026-05-12</span></div>
+        <span class="a-arrow">›</span>
+      </a>
+      <a class="art-cell press" href="#" onclick="showToast('正在打开文章');return false;">
+        <div class="a-title">格力多联机 CAN 总线接线与端接电阻设置</div>
+        <div class="a-meta"><span class="badge badge-success">公众号</span><span>阅读 2,871</span><span>2026-04-28</span></div>
+        <span class="a-arrow">›</span>
+      </a>
+      <a class="art-cell press" href="#" onclick="showToast('正在打开文章');return false;">
+        <div class="a-title">美的 V6 系列网关接线注意事项（XYE 端子）</div>
+        <div class="a-meta"><span class="badge badge-success">公众号</span><span>阅读 2,140</span><span>2026-04-02</span></div>
+        <span class="a-arrow">›</span>
+      </a>
+      <a class="art-cell press" href="#" onclick="showToast('正在打开文章');return false;">
+        <div class="a-title">日立 VRF H-LINK 接线与地址拨码速查</div>
+        <div class="a-meta"><span class="badge badge-success">公众号</span><span>阅读 1,933</span><span>2026-03-15</span></div>
+        <span class="a-arrow">›</span>
+      </a>
+      <a class="art-cell press" href="#" onclick="showToast('正在打开文章');return false;">
+        <div class="a-title">A01 集控主机 RS485 双通道接线规范</div>
+        <div class="a-meta"><span class="badge badge-success">公众号</span><span>阅读 4,502</span><span>2026-02-20</span></div>
+        <span class="a-arrow">›</span>
+      </a>
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+  <script src="../interactions.js"></script>
+  <script src="../assets/app/ai-assistant.js"></script>
+</body>
+</html>

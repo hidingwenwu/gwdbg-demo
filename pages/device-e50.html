@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>E50 配置产品</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell" id="e50-setup">
+    <div class="statusbar"><span>15:48</span><span class="status-icons">● ● 95%</span></div>
+    <div class="setup-hero-zone">
+      <div class="hero-float-row">
+        <button class="hero-menu-float" id="menu-trigger" type="button" aria-label="打开菜单"><span class="hero-menu-icon">☰</span><span class="hero-menu-label">更多功能</span></button>
+        <a class="hero-menu-float" id="guide-link" href="device-e50-guide.html"><span class="hero-menu-label">操作指引</span><span class="hero-menu-icon">▶</span></a>
+        <div class="capsule">··· ○</div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-text">
+          <div class="hero-title-row"><strong class="hero-title" id="hero-title">配置产品</strong><button class="device-params-link" id="device-info-link" type="button" hidden><span>设备信息</span><b>›</b></button></div>
+          <p class="hero-sub" id="hero-sub">请按照以下步骤连接和使用产品</p>
+        </div>
+        <img class="hero-device" src="../assets/products/e50.png" alt="E50">
+      </div>
+    </div>
+    <div class="page setup-body" id="setup-body"></div>
+
+    <div class="sheet-mask" id="sheet-mask"></div>
+    <section class="picker-sheet" id="ble-sheet">
+      <div class="sheet-handle"></div>
+      <div class="cs-header"><span class="picker-title">选择设备</span><button class="sheet-close" id="ble-close" type="button">×</button></div>
+      <div class="ble-list" id="ble-list"></div>
+    </section>
+    <section class="picker-sheet" id="brand-sheet">
+      <div class="sheet-handle"></div>
+      <div class="picker-title">选择品牌</div>
+      <div class="brand-picker" id="brand-picker"></div>
+    </section>
+    <section class="picker-sheet" id="sim-sheet">
+      <div class="sheet-handle"></div>
+      <div class="cs-header"><span class="picker-title" id="sim-title">模拟内机</span><button class="sheet-close" id="sim-close" type="button">×</button></div>
+      <div class="sim-body">
+        <img class="sim-img" id="sim-img" src="../assets/products/neiji.png" alt="">
+        <div class="sim-count-row" id="sim-count-row">
+          <span>模拟内机数量</span>
+          <div class="sim-stepper"><button id="sim-dec" type="button">−</button><strong id="sim-count">3</strong><button id="sim-inc" type="button">+</button></div>
+        </div>
+        <button class="button primary sim-go" id="sim-go" type="button">搜索外机</button>
+      </div>
+    </section>
+
+    <div class="modal-layer" id="device-info-modal">
+      <div class="modal-mask" data-info-close></div>
+      <section class="confirm-dialog device-info-dialog">
+        <div class="device-info-head"><h2>设备信息</h2><button class="sheet-close" data-info-close type="button">×</button></div>
+        <div class="device-info-rows" id="device-info-rows"></div>
+      </section>
+    </div>
+
+    <div class="side-menu-overlay" id="side-menu-overlay"></div><aside class="side-menu-panel" id="side-menu" aria-label="设备功能"></aside>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/connection-state.js"></script><script src="../assets/app/e50.js"></script>
+  <script>
+  (function () {
+    var E = window.GWDBG_E50;
+    var saved = E.setupState();
+    var state = {
+      currentStep: saved.setupCompleted ? 3 : (saved.brand ? 3 : 2),
+      step1Done: true,
+      step2Done: !!saved.brand,
+      step3Done: !!saved.setupCompleted,
+      connectedDevice: E.device,
+      selectedBrand: saved.brand || '',
+      scanning: false,
+      connecting: false,
+      connectingDevice: '',
+      searching: false,
+      searchProgress: 0,
+      searchLabel: '',
+      acFound: !!saved.setupCompleted,
+      commMode: E.commMode
+    };
+    if (saved.setupCompleted) state.currentStep = 3;
+
+    var body = document.getElementById('setup-body');
+    var sheet = E.bindSheet('sheet-mask', ['ble-sheet', 'brand-sheet', 'sim-sheet']);
+    var simType = 'indoor', simCount = 3, searchTimer = null;
+
+    function esc(value) {
+      return String(value).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; });
+    }
+
+    function stepHead(num, done, title, subHtml, redoLabel, redoAct) {
+      return '<div class="step-head">' +
+        '<div class="step-num' + (done ? ' done' : '') + '">' + (done ? '✓' : num) + '</div>' +
+        '<div class="step-title-wrap"><span class="step-title">' + title + '</span>' + subHtml + '</div>' +
+        (done ? '<button class="step-redo-btn" data-act="' + redoAct + '" type="button">' + redoLabel + '</button>' : '') +
+        '</div>';
+    }
+
+    function render() {
+      var html = '';
+      
+      var sub1 = state.step1Done
+        ? '<span class="step-sub">已连接 ' + esc(state.connectedDevice) + '</span>'
+        : '<span class="step-sub">连接附近的 E50 设备</span>';
+      html += '<section class="card setup-step' + (state.step1Done ? ' done' : (state.currentStep === 1 ? ' active' : '')) + '">' +
+        stepHead(1, state.step1Done, '连接设备', sub1, '重新搜索', 'redo1');
+      if (state.step1Done) {
+        html += '<div class="transport-switch"><button type="button" data-act="mode" data-mode="蓝牙" class="' + (state.commMode === '蓝牙' ? 'active' : '') + '">蓝牙</button>' +
+          '<button type="button" data-act="mode" data-mode="4G" class="' + (state.commMode === '4G' ? 'active' : '') + '">4G</button></div>';
+      }
+      if (state.currentStep === 1 && !state.step1Done) {
+        html += '<div class="step-body"><p class="step-desc">确保手机蓝牙已开启，E50 处于配对模式（长按配对键 3 秒，蓝牙灯快闪）。</p>';
+        if (state.scanning) html += '<div class="scanning-tip"><div class="scanning-dots"><i></i><i></i><i></i></div><span>扫描中…</span></div>';
+        else if (state.connecting) html += '<div class="scanning-tip connecting"><div class="scanning-dots"><i></i><i></i><i></i></div><span>正在连接 ' + esc(state.connectingDevice) + '…</span></div>';
+        else html += '<button class="button primary" data-act="scan" type="button" style="width:100%">搜索附近设备</button>';
+        html += '</div>';
+      }
+      html += '</section>';
+
+      
+      var sub2 = state.step2Done
+        ? '<span class="step-sub-row"><span class="step-sub">已选择 ' + esc(state.selectedBrand) + '</span><a class="wiring-link" data-act="wiring">查看接线图</a></span>'
+        : '<span class="step-sub">选择当前现场的空调品牌</span>';
+      html += '<section class="card setup-step' + (state.step2Done ? ' done' : (state.currentStep === 2 ? ' active' : ' locked')) + '">' +
+        stepHead(2, state.step2Done, '选择空调品牌', sub2, '重新选择', 'redo2');
+      if (state.currentStep === 2 && !state.step2Done) {
+        html += '<div class="step-body"><p class="step-desc">选择当前现场的空调品牌。</p>' +
+          '<button class="button primary" data-act="brand" type="button" style="width:100%">选择品牌</button></div>';
+      }
+      html += '</section>';
+
+      
+      var sub3 = '<span class="step-sub">选择模拟模式或搜索空调系统</span>';
+      html += '<section class="card setup-step' + (state.step3Done ? ' done' : (state.currentStep === 3 ? ' active' : ' locked')) + '">' +
+        stepHead(3, state.step3Done, '搜索空调', sub3, '重新搜索', 'redo3');
+      if (state.currentStep === 3 && !state.step3Done && !state.searching) {
+        html += '<div class="step-body">';
+        if (state.selectedBrand === '模拟器') {
+          html += '<div class="mock-count-wrap"><span class="mock-count-label">模拟内机数量</span>' +
+            '<input class="mock-count-input" id="mock-count" type="number" min="1" max="160" placeholder="请输入内机数量（1-160）" inputmode="numeric"></div>';
+        }
+        html += '<div class="mode-btn-list">' +
+          '<button class="button mode-btn" data-act="sim" data-type="indoor" type="button">模拟内机</button>' +
+          '<button class="button mode-btn" data-act="sim" data-type="outdoor" type="button">模拟外机</button>' +
+          '<button class="button primary mode-btn" data-act="search" type="button">搜索空调</button></div>';
+        html += '</div>';
+      }
+      html += '</section>';
+
+      
+      if (state.searching) {
+        html += '<div class="ac-searching"><div class="search-bar-wrap"><div class="search-bar-fill" style="width:' + state.searchProgress + '%"></div></div>' +
+          '<p class="search-label">' + esc(state.searchLabel) + '</p></div>';
+      }
+
+      
+      if (state.acFound) {
+        E.acSystems.forEach(function (sys) {
+          html += '<div class="ac-system-group"><span class="ac-system-title">' + sys.title + '</span><div class="ac-unit-cards">' +
+            '<a class="side-ac-row" data-act="outdoor" data-role="主"><span class="side-ac-icon-wrap"><img class="side-ac-icon" src="../assets/products/waiji.png" alt=""></span><span class="side-ac-label">室外机模块（主）</span><span class="side-ac-btn">查看参数</span></a>' +
+            '<a class="side-ac-row" data-act="outdoor" data-role="从"><span class="side-ac-icon-wrap"><img class="side-ac-icon" src="../assets/products/waiji.png" alt=""></span><span class="side-ac-label">室外机模块（从）</span><span class="side-ac-btn">查看参数</span></a>' +
+            '<a class="side-ac-row" data-act="indoor"><span class="side-ac-icon-wrap"><img class="side-ac-icon" src="../assets/products/neiji.png" alt=""></span><span class="side-ac-label">室内机数量（' + sys.indoorCount + '）</span><span class="side-ac-btn">查看参数</span></a>' +
+            '</div></div>';
+        });
+        html += '<p class="end-text">- 到底了 -</p>';
+      }
+      body.innerHTML = html;
+
+      document.getElementById('hero-title').textContent = state.acFound ? '连接成功' : '配置产品';
+      document.getElementById('hero-sub').textContent = state.acFound ? '查看空调系统中的内机或外机参数' : '请按照以下步骤连接和使用产品';
+      document.getElementById('device-info-link').hidden = !(state.acFound && state.commMode === '蓝牙');
+    }
+
+    function persist() {
+      E.patchSetup({ brand: state.selectedBrand, setupCompleted: state.acFound });
+    }
+
+    function startScan() {
+      state.scanning = true;
+      render();
+      setTimeout(function () {
+        state.scanning = false;
+        render();
+        openBleSheet();
+      }, 1500);
+    }
+
+    function openBleSheet() {
+      document.getElementById('ble-list').innerHTML = E.bleDevices.map(function (item) {
+        return '<button class="ble-item" type="button" data-ble="' + item.id + '"><img src="../assets/products/fe50-product.png" alt="">' +
+          '<span class="ble-info"><strong>' + item.name + '</strong><small>' + item.mac + '</small></span>' +
+          '<span class="ble-signal">' + item.signal + ' dBm</span></button>';
+      }).join('');
+      sheet.open('ble-sheet');
+    }
+
+    function openBrandSheet() {
+      document.getElementById('brand-picker').innerHTML = E.brands.map(function (brand) {
+        return '<button class="picker-option' + (state.selectedBrand === brand ? ' active' : '') + '" type="button" data-brand="' + brand + '"><span><strong>' + brand + '</strong></span><b>✓</b></button>';
+      }).join('');
+      sheet.open('brand-sheet');
+    }
+
+    function openSimSheet(type) {
+      simType = type;
+      simCount = 3;
+      document.getElementById('sim-title').textContent = type === 'indoor' ? '模拟内机' : '模拟外机';
+      document.getElementById('sim-img').src = type === 'indoor' ? '../assets/products/neiji.png' : '../assets/products/waiji.png';
+      document.getElementById('sim-count-row').style.display = type === 'indoor' ? '' : 'none';
+      document.getElementById('sim-count').textContent = simCount;
+      document.getElementById('sim-go').textContent = type === 'indoor' ? '搜索外机' : '搜索内机';
+      sheet.open('sim-sheet');
+    }
+
+    function startSearch(simulateMode, mockIndoorCount) {
+      var brand = state.selectedBrand || '格力';
+      var totalMs = 5000, totalSec = 120, tickMs = 200, elapsed = 0;
+      state.searching = true;
+      state.searchProgress = 0;
+      state.searchLabel = brand + '品牌空调搜索预计时间2分钟，剩余2分0秒';
+      render();
+      if (searchTimer) clearInterval(searchTimer);
+      searchTimer = setInterval(function () {
+        elapsed += tickMs;
+        if (elapsed >= totalMs) {
+          clearInterval(searchTimer);
+          searchTimer = null;
+          state.searchProgress = 100;
+          state.searchLabel = '已识别空调系统，正在加载…';
+          render();
+          setTimeout(function () {
+            state.searching = false;
+            state.acFound = true;
+            state.step3Done = true;
+            E.patchSetup({ setupCompleted: true, simulateMode: simulateMode, mockIndoorCount: mockIndoorCount || 0 });
+            render();
+          }, 300);
+          return;
+        }
+        var remainSec = Math.max(0, totalSec - Math.floor(elapsed * totalSec / totalMs));
+        state.searchProgress = Math.floor(elapsed / totalMs * 100);
+        state.searchLabel = brand + '品牌空调搜索预计时间2分钟，剩余' + Math.floor(remainSec / 60) + '分' + (remainSec % 60) + '秒';
+        var fill = body.querySelector('.search-bar-fill'), label = body.querySelector('.search-label');
+        if (fill) fill.style.width = state.searchProgress + '%';
+        if (label) label.textContent = state.searchLabel;
+      }, tickMs);
+    }
+
+    function switchCommMode(next) {
+      if (next === state.commMode) return;
+      E.confirm({
+        title: '切换连接模式',
+        message: '是否切换为' + next + '模式？',
+        confirmText: '确认切换',
+        onConfirm: function () {
+          var nextMode = next === '4G' ? '4g' : 'bt';
+          if (window.GWDBG_CONNECTION) window.GWDBG_CONNECTION.switchTransport(nextMode, { model: 'E50', device: E.device });
+          location.href = 'device-e50.html?' + new URLSearchParams({ model: 'E50', device: E.device, mode: nextMode }).toString();
+        }
+      });
+    }
+
+    function renderDeviceInfo() {
+      var rows = [
+        ['设备标识', '38182BF707EE'],
+        ['SN', '1bb93a1bc78df1790a9f38182bf707ec'],
+        ['软件版本', '0.42.0.0.36'],
+        ['授权状态', '已授权'],
+        ['空调品牌', state.selectedBrand || '格力'],
+        ['4G信号', '■■■■ (-67)']
+      ];
+      document.getElementById('device-info-rows').innerHTML = rows.map(function (row) {
+        return '<div class="device-info-row"><span>' + row[0] + '</span><strong>' + row[1] + '</strong></div>';
+      }).join('');
+    }
+
+    body.addEventListener('click', function (event) {
+      var target = event.target.closest('[data-act]');
+      if (!target) return;
+      var act = target.dataset.act;
+      if (act === 'scan') startScan();
+      else if (act === 'redo1') {
+        E.patchSetup({ brand: '', setupCompleted: false, simulateMode: null, mockIndoorCount: 0 });
+        state.step1Done = false; state.step2Done = false; state.step3Done = false;
+        state.selectedBrand = ''; state.connectedDevice = ''; state.currentStep = 1; state.acFound = false;
+        startScan();
+      } else if (act === 'redo2') {
+        state.step2Done = false; state.step3Done = false;
+        state.selectedBrand = ''; state.currentStep = 2; state.acFound = false;
+        E.patchSetup({ brand: '', setupCompleted: false });
+        render();
+        openBrandSheet();
+      } else if (act === 'redo3') {
+        state.step3Done = false; state.currentStep = 3; state.acFound = false;
+        E.patchSetup({ setupCompleted: false });
+        render();
+      } else if (act === 'mode') switchCommMode(target.dataset.mode);
+      else if (act === 'brand') openBrandSheet();
+      else if (act === 'wiring') { event.preventDefault(); location.href = 'tool-wiring.html'; }
+      else if (act === 'sim') openSimSheet(target.dataset.type);
+      else if (act === 'search') {
+        if (state.selectedBrand === '模拟器') {
+          var input = document.getElementById('mock-count');
+          var count = input ? parseInt(input.value, 10) : 0;
+          if (!count) { E.toast('请输入模拟内机数量'); return; }
+          startSearch(null, count);
+        } else startSearch(null, 0);
+      } else if (act === 'outdoor') {
+        location.href = E.link('device-e50-detail.html', { type: 'outdoor', role: target.dataset.role });
+      } else if (act === 'indoor') {
+        location.href = E.link('device-e50-ac.html');
+      }
+    });
+
+    document.getElementById('ble-list').addEventListener('click', function (event) {
+      var item = event.target.closest('[data-ble]');
+      if (!item) return;
+      var device = E.bleDevices.find(function (entry) { return String(entry.id) === item.dataset.ble; });
+      sheet.close();
+      state.connecting = true;
+      state.connectingDevice = device.name;
+      render();
+      setTimeout(function () {
+        state.connecting = false;
+        state.connectedDevice = device.name;
+        state.step1Done = true;
+        state.currentStep = 2;
+        if (window.GWDBG_CONNECTION) window.GWDBG_CONNECTION.connect({ model: 'E50', device: device.name, transport: 'bt' });
+        if (state.commMode !== '蓝牙') {
+          location.href = 'device-e50.html?' + new URLSearchParams({ model: 'E50', device: device.name, mode: 'bt' }).toString();
+          return;
+        }
+        render();
+      }, 1800);
+    });
+    document.getElementById('ble-close').onclick = function () { sheet.close(); state.scanning = false; render(); };
+
+    document.getElementById('brand-picker').addEventListener('click', function (event) {
+      var option = event.target.closest('[data-brand]');
+      if (!option) return;
+      state.selectedBrand = option.dataset.brand;
+      state.step2Done = true;
+      state.currentStep = 3;
+      sheet.close();
+      persist();
+      render();
+    });
+
+    document.getElementById('sim-dec').onclick = function () { simCount = Math.max(1, simCount - 1); document.getElementById('sim-count').textContent = simCount; };
+    document.getElementById('sim-inc').onclick = function () { simCount = Math.min(160, simCount + 1); document.getElementById('sim-count').textContent = simCount; };
+    document.getElementById('sim-close').onclick = sheet.close;
+    document.getElementById('sim-go').onclick = function () {
+      sheet.close();
+      startSearch(simType, simType === 'indoor' ? simCount : 0);
+    };
+
+    document.getElementById('device-info-link').onclick = function () {
+      if (!state.acFound || state.commMode !== '蓝牙') return;
+      renderDeviceInfo();
+      document.getElementById('device-info-modal').classList.add('show');
+    };
+    document.getElementById('device-info-modal').addEventListener('click', function (event) {
+      if (event.target.closest('[data-info-close]')) this.classList.remove('show');
+    });
+
+    document.getElementById('guide-link').href = E.link('device-e50-guide.html');
+    E.bindMenu('');
+    render();
+  })();
+  </script>
+</body></html>

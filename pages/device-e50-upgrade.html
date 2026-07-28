@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>固件升级</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell" id="e50-upgrade">
+    <div class="statusbar"><span>14:08</span><span class="status-icons">● ● 77%</span></div>
+    <header class="topbar"><button class="back" id="nav-back" type="button" aria-label="返回">‹</button><div class="topbar-title">固件升级</div><div class="capsule">··· ○</div></header>
+    <div class="page">
+      <section class="card device-card">
+        <div class="device-info-row"><span>型号</span><strong>E50</strong></div>
+        <div class="device-info-row"><span>当前版本</span><strong id="current-ver">V1.3.2</strong></div>
+      </section>
+      <section class="card upgrade-panel" id="upgrade-panel"></section>
+    </div>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/connection-state.js"></script><script src="../assets/app/e50.js"></script>
+  <script>
+  (function () {
+    var E = window.GWDBG_E50;
+    var currentVer = 'V1.3.2', newVer = 'V1.4.0';
+    var panel = document.getElementById('upgrade-panel');
+    var timer = null;
+
+    function renderNew() {
+      panel.innerHTML = '<div class="upgrade-state">' +
+        '<span class="section-label">发现新版本</span><strong class="new-ver">' + newVer + '</strong><span class="new-size">包大小：1.2 MB</span>' +
+        '<div class="release-notes"><span class="release-note-item">新增格力品牌支持</span><span class="release-note-item">修复 4G 断连问题</span></div>' +
+        '<button class="button primary" id="start-upgrade" type="button" style="width:100%">立即升级</button></div>';
+      document.getElementById('start-upgrade').onclick = startUpgrade;
+    }
+
+    function startUpgrade() {
+      var progress = 0;
+      renderProgress(0, '下载中...');
+      if (timer) clearInterval(timer);
+      timer = setInterval(function () {
+        progress = Math.min(100, progress + 2);
+        var phase = progress < 50 ? '下载中...' : progress < 90 ? '烧录中...' : '重启中...';
+        renderProgress(progress, phase);
+        if (progress >= 100) {
+          clearInterval(timer);
+          timer = null;
+          setTimeout(function () {
+            currentVer = newVer;
+            document.getElementById('current-ver').textContent = currentVer;
+            renderSuccess();
+          }, 300);
+        }
+      }, 100);
+    }
+
+    function renderProgress(progress, phase) {
+      panel.innerHTML = '<div class="upgrade-state"><div class="phase-row-wrap">' +
+        '<div class="between-row"><span class="progress-phase-text">' + phase + '</span><span class="progress-pct">' + progress + '%</span></div>' +
+        '<div class="phase-steps">' +
+        '<span class="phase-step ' + (progress >= 50 ? 'done' : progress > 0 ? 'active' : '') + '">下载</span>' +
+        '<span class="phase-step ' + (progress >= 82 ? 'done' : progress >= 50 ? 'active' : '') + '">烧录</span>' +
+        '<span class="phase-step ' + (progress >= 100 ? 'done' : progress >= 90 ? 'active' : '') + '">重启</span></div></div>' +
+        '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + progress + '%"></div></div>' +
+        '<span class="progress-hint warning-text">升级进行中，请勿关闭小程序</span></div>';
+    }
+
+    function renderSuccess() {
+      panel.innerHTML = '<div class="upgrade-state"><div class="success-mark">✓</div><strong class="success-label">升级成功</strong>' +
+        '<span class="success-ver">当前版本 ' + currentVer + '</span>' +
+        '<button class="button" id="reset-upgrade" type="button" style="width:100%">重新检测</button></div>';
+      document.getElementById('reset-upgrade').onclick = renderNew;
+    }
+
+    renderNew();
+    document.getElementById('nav-back').onclick = function () {
+      if (history.length > 1) history.back();
+      else location.href = E.link('device-e50.html');
+    };
+  })();
+  </script>
+</body></html>

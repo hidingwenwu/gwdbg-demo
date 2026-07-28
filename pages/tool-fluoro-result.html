@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>氟机支持查询 · 结果</title>
+  <link rel="stylesheet" href="../_base.css">
+  <style>
+    .rs-hero { text-align: center; padding: 26px 16px 22px; }
+    .rs-hero .icon-big {
+      width: 64px; height: 64px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      background: var(--ios-green);
+      color: #fff; font-size: 32px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 20px rgba(52, 199, 89, 0.28);
+    }
+    .rs-hero .rh-model { font-size: 18px; font-weight: 700; letter-spacing: 0.2px; }
+    .rs-hero .rh-brand { font-size: var(--fs-small); color: var(--text-secondary); margin-top: 4px; }
+    .rs-hero .rh-verdict { margin-top: 10px; font-size: var(--fs-label); font-weight: 600; color: #1E7C42; }
+
+    .gw-card { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+    .gw-card .gw-main { flex: 1; min-width: 0; }
+    .gw-card .gw-name { font-size: var(--fs-body); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .gw-card .gw-note { font-size: var(--fs-small); color: var(--text-secondary); margin-top: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="phone-shell">
+<div class="phone-screen">
+
+  <div class="wx-statusbar">
+    <span>17:41</span>
+    <span class="sb-right"><span>68%</span></span>
+  </div>
+  <div class="wx-navbar">
+    <a class="nav-back" href="tool-fluoro-input.html">‹</a>
+    <div class="nav-title">查询结果</div>
+    <div class="nav-capsule">
+      <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
+      <span class="cap-sep"></span><span class="cap-circle"></span>
+    </div>
+  </div>
+
+  <div class="page-body no-tabbar has-footer-btn">
+
+    <div class="card rs-hero">
+      <div class="icon-big">✓</div>
+      <div class="rh-model" id="rh-model">RUXYQ12BA</div>
+      <div class="rh-brand" id="rh-brand">大金 · 多联机外机</div>
+      <div class="rh-verdict">支持接入飞奕网关</div>
+    </div>
+
+    <div class="section-title"><span>适配网关</span></div>
+    <div class="card gw-card">
+      <div class="gw-main">
+        <div class="gw-name">A01 集控主机 <span class="badge badge-info">推荐</span></div>
+        <div class="gw-note">单通道 64 内机</div>
+      </div>
+    </div>
+    <div class="card gw-card">
+      <div class="gw-main">
+        <div class="gw-name">A03 集控主机</div>
+        <div class="gw-note">双通道 128 内机</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 12px;">
+      <div class="card-title"><span class="card-title-main">调试要点</span></div>
+      <div class="kv-list">
+        <div class="kv-item"><span class="kv-label">接线位置</span><span class="kv-value">外机 F1/F2 端子</span></div>
+        <a class="kv-item" href="tool-wiring.html"><span class="kv-label">接线指导</span><span class="kv-value kv-arrow text-brand" id="wiring-link">大金 VRV 接线图文</span></a>
+        <a class="kv-item" href="#" onclick="showToast('主从判断方法');return false;"><span class="kv-label">主从判断</span><span class="kv-value kv-arrow text-brand">查看判断方法</span></a>
+        <a class="kv-item" href="tool-videos.html"><span class="kv-label">安装调试视频</span><span class="kv-value kv-arrow text-brand">观看演示</span></a>
+        <div class="kv-item"><span class="kv-label">波特率</span><span class="kv-value">9600（默认）</span></div>
+      </div>
+    </div>
+
+    <div class="text-secondary" style="font-size: var(--fs-tiny); padding: 4px 4px 0; line-height: 1.7;">
+      数据基于飞奕适配库 2026-07 版；现场如遇通讯异常，请通过"留言反馈"提交型号与现象。
+    </div>
+
+  </div>
+
+  <div class="footer-bar">
+    <a class="btn btn-ghost" style="flex:1;" href="tool-fluoro-input.html">再查一个</a>
+    <a class="btn btn-primary-solid" style="flex:1.5;" href="product-catalog.html">查看产品方案</a>
+  </div>
+
+</div>
+</div>
+
+  <script src="../interactions.js"></script>
+  <script src="../assets/app/ai-assistant.js"></script>
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search);
+      var brand = q.get('brand') || '大金';
+      var model = q.get('model') || 'RUXYQ12BA';
+      document.getElementById('rh-model').textContent = model;
+      document.getElementById('rh-brand').textContent = brand + ' · 多联机外机';
+      document.getElementById('wiring-link').textContent = brand + ' 接线图文';
+    })();
+  </script>
+</body>
+</html>

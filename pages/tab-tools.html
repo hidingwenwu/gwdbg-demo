@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>工具</title>
+  <link rel="stylesheet" href="../assets/app/app.css">
+</head>
+<body>
+  <main class="app-shell">
+    <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
+    <header class="topbar home"><div class="topbar-title">工具</div><div class="capsule">··· ○</div></header>
+    <div class="page">
+      <a class="card tool-hero-card" id="tool-hero"></a>
+      <div class="section-label">常用工具</div>
+      <div class="tool-grid" id="tool-cards"></div>
+      <div class="section-label">更多服务</div>
+      <section class="card list-card" id="tool-menu"></section>
+    </div>
+    <nav class="tabbar">
+      <a class="tab" href="tab-device-bt.html">设备</a><a class="tab active" href="tab-tools.html">工具</a><a class="tab" href="tab-mine.html">我的</a>
+    </nav>
+  </main>
+  <div class="toast" id="toast"></div>
+  <script src="../assets/app/product-data.js"></script>
+  <script src="../assets/app/ai-assistant.js"></script>
+  <script>
+    var hero = document.getElementById('tool-hero');
+    hero.href = GWDBG_DATA.toolHero.href;
+    hero.innerHTML = '<span class="tool-hero-icon">' + GWDBG_DATA.toolHero.icon + '</span>' +
+      '<span class="tool-hero-main"><strong>' + GWDBG_DATA.toolHero.title + '</strong><small>' + GWDBG_DATA.toolHero.desc + '</small></span>' +
+      '<span class="tool-hero-arrow">›</span>';
+
+    document.getElementById('tool-cards').innerHTML = GWDBG_DATA.toolCards.map(function (item) {
+      return '<a class="card tool-mini press" href="' + item.href + '"><span class="list-icon">' + item.icon + '</span><strong>' + item.title + '</strong><small>' + item.desc + '</small></a>';
+    }).join('');
+
+    document.getElementById('tool-menu').innerHTML = GWDBG_DATA.toolMenu.map(function (item) {
+      var attrs = item.href ? 'href="' + item.href + '"' : 'href="#" data-action="' + item.action + '"';
+      return '<a class="list-row" ' + attrs + '><span class="list-icon">' + item.icon + '</span><span class="list-title">' + item.title + '</span><span class="row-arrow">›</span></a>';
+    }).join('');
+
+    document.getElementById('tool-menu').addEventListener('click', function (event) {
+      var action = event.target.closest('[data-action]');
+      if (!action) return;
+      event.preventDefault();
+      var toast = document.getElementById('toast');
+      toast.textContent = action.dataset.action === 'wechat' ? '飞奕公众号' : '使用说明';
+      toast.classList.add('show');
+      setTimeout(function () { toast.classList.remove('show'); }, 1300);
+    });
+  </script>
+</body>
+</html>

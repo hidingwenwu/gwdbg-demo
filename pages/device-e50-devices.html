@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>我的设备</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell" id="e50-devices">
+    <div class="statusbar"><span>14:10</span><span class="status-icons">● ● 77%</span></div>
+    <header class="topbar"><button class="back" id="nav-back" type="button" aria-label="返回">‹</button><div class="topbar-title">我的设备</div><div class="capsule">··· ○</div></header>
+    <div class="page"><section class="card list-card" id="device-list"></section></div>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/connection-state.js"></script><script src="../assets/app/e50.js"></script>
+  <script>
+  (function () {
+    var E = window.GWDBG_E50;
+    var devices = [
+      { id: 'A8C4', name: 'FE50G-A8C4', online: true, meta: '4G · 添加于 2024-06-01' },
+      { id: '91D0F4', name: 'E50-91D0F4', online: false, meta: '蓝牙 · 添加于 2024-07-15' }
+    ];
+    var host = document.getElementById('device-list');
+    function render() {
+      host.innerHTML = devices.map(function (d) {
+        return '<div class="list-row device-cell"><img class="device-cell-img" src="../assets/products/fe50-product.png" alt="">' +
+          '<span class="device-cell-main"><strong>' + d.name + '</strong><small>' + d.meta + '</small></span>' +
+          '<span class="device-cell-side"><span class="online-badge ' + (d.online ? 'online' : 'offline') + '"><i></i>' + (d.online ? '在线' : '离线') + '</span>' +
+          '<button class="unbind-btn" data-unbind="' + d.id + '" type="button">解绑</button></span></div>';
+      }).join('');
+    }
+    render();
+    document.getElementById('nav-back').onclick = function () {
+      if (history.length > 1) history.back();
+      else location.href = E.link('device-e50.html');
+    };
+    host.addEventListener('click', function (event) {
+      var btn = event.target.closest('[data-unbind]');
+      if (!btn) return;
+      var target = devices.filter(function (d) { return d.id === btn.dataset.unbind; })[0];
+      E.confirm({
+        title: '解绑设备',
+        message: '确定解绑 ' + target.name + ' 吗？解绑后需重新添加才能使用。',
+        confirmText: '确认解绑',
+        onConfirm: function () {
+          devices = devices.filter(function (d) { return d.id !== target.id; });
+          render();
+          E.toast('已解绑 ' + target.name);
+        }
+      });
+    });
+  })();
+  </script>
+</body></html>

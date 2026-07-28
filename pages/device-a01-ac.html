@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>空调管理</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell workbench" id="ac-page">
+    <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
+    <header class="topbar"><button class="back menu-trigger" id="menu-trigger" type="button" aria-label="打开菜单">☰</button><div class="topbar-title">空调管理</div><div class="capsule">··· ○</div></header>
+    <div class="page no-tab ac-page-body">
+      <section class="ac-toolbar card"><label class="check-action"><input id="select-all" type="checkbox"><span>全选</span></label><div><button class="text-button" id="all-on" type="button">全开</button><button class="text-button danger-text" id="all-off" type="button">全关</button></div></section>
+      <div id="ac-groups"></div>
+    </div>
+    <div class="selection-bar" id="selection-bar"><span id="selection-count">已选 0 台</span><button class="button" id="view-parameters" type="button">参数查看</button><button class="button primary" id="batch-control" type="button">批量控制</button></div>
+    <div class="sheet-mask" id="control-mask"></div>
+    <section class="control-sheet" id="control-sheet">
+      <div class="sheet-handle"></div><div class="sheet-heading"><div><h2>空调控制</h2><p id="control-target">内机 01</p></div><button class="sheet-close" id="sheet-close" type="button" aria-label="关闭">×</button></div>
+      <div class="control-sheet-body"><div class="temp-stepper"><button id="temp-down" type="button">−</button><strong><span id="temp-value">26</span><small>℃</small></strong><button id="temp-up" type="button">+</button></div>
+        <div class="control-section"><span>运行模式</span><div class="chip-row" data-chip-group><button class="chip active" type="button">制冷</button><button class="chip" type="button">制热</button><button class="chip" type="button">除湿</button><button class="chip" type="button">送风</button><button class="chip" type="button">自动</button></div></div>
+        <div class="control-section"><span>风速</span><div class="chip-row" data-chip-group><button class="chip active" type="button">自动</button><button class="chip" type="button">低</button><button class="chip" type="button">中</button><button class="chip" type="button">高</button></div></div>
+        <label class="control-power switch-field"><span>空调开关</span><input id="control-power" type="checkbox" checked><i></i></label>
+      </div><button class="button primary sheet-confirm" id="send-control" type="button">确定</button>
+    </section>
+    <div class="side-menu-overlay" id="side-menu-overlay"></div><aside class="side-menu-panel" id="side-menu" aria-label="设备功能"></aside>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/product-data.js"></script><script src="../assets/app/connection-state.js"></script><script src="../assets/app/workbench.js"></script>
+  <script>
+  (function () {
+    var context = window.GWDBG_WORKBENCH, product = context.product;
+    var host = document.getElementById('ac-groups'), channels = product.channels || 1;
+    var unitsPerChannel = product.family === 'indoor' ? 1 : 2;
+    function unitCard(channel, unit) {
+      var id = String((channel - 1) * unitsPerChannel + unit).padStart(2, '0');
+      return '<article class="indoor-card" data-unit="' + id + '" data-channel="' + channel + '"><div class="indoor-card-top"><label class="unit-check"><input type="checkbox"><span></span></label><b class="unit-power on">开</b></div><div class="unit-visual"><div class="unit-machine"><i></i></div><strong>内机 ' + id + '</strong><small>地址 ' + id + '</small></div><div class="unit-state"><strong>26℃</strong><span>回风 24.8℃</span><span>制冷 · 自动风</span></div><div class="unit-actions"><button class="small-button unit-detail" type="button">参数</button><button class="small-button unit-control" type="button">控制</button></div></article>';
+    }
+    var html = '';
+    for (var channel = 1; channel <= channels; channel += 1) {
+      html += '<section class="channel-group"><div class="channel-group-title"><span>通道 ' + channel + '</span><small>' + unitsPerChannel + ' 台内机</small></div><div class="indoor-grid">';
+      for (var unit = 1; unit <= unitsPerChannel; unit += 1) html += unitCard(channel, unit);
+      html += '</div></section>';
+    }
+    host.innerHTML = html;
+    var cards = Array.from(document.querySelectorAll('.indoor-card'));
+    var selectAll = document.getElementById('select-all');
+    function selected() { return cards.filter(function (card) { return card.querySelector('input').checked; }); }
+    function updateSelection() {
+      var count = selected().length;
+      cards.forEach(function (card) { card.classList.toggle('selected', card.querySelector('input').checked); });
+      document.getElementById('selection-count').textContent = '已选 ' + count + ' 台';
+      document.getElementById('selection-bar').classList.toggle('show', count > 0);
+      selectAll.checked = count === cards.length;
+      selectAll.indeterminate = count > 0 && count < cards.length;
+    }
+    selectAll.onchange = function () { cards.forEach(function (card) { card.querySelector('input').checked = selectAll.checked; }); updateSelection(); };
+    cards.forEach(function (card) {
+      card.querySelector('.unit-check input').onchange = updateSelection;
+      card.querySelector('.unit-control').onclick = function () { openControl([card]); };
+      card.querySelector('.unit-detail').onclick = function () { showToast('内机 ' + card.dataset.unit + '：运行正常，回风温度 24.8℃'); };
+    });
+    function setAll(on) {
+      cards.forEach(function (card) { var power = card.querySelector('.unit-power'); power.textContent = on ? '开' : '关'; power.classList.toggle('on', on); });
+      showToast(on ? '全部内机已开启' : '全部内机已关闭');
+    }
+    document.getElementById('all-on').onclick = function () { setAll(true); };
+    document.getElementById('all-off').onclick = function () { setAll(false); };
+    document.getElementById('batch-control').onclick = function () { openControl(selected()); };
+    document.getElementById('view-parameters').onclick = function () { showToast('已选择 ' + selected().length + ' 台内机进行参数对比'); };
+    var sheet = document.getElementById('control-sheet'), mask = document.getElementById('control-mask'), targets = [];
+    function openControl(nextTargets) { targets = nextTargets; document.getElementById('control-target').textContent = targets.length > 1 ? targets.length + ' 台内机' : '内机 ' + targets[0].dataset.unit; sheet.classList.add('show'); mask.classList.add('show'); }
+    function closeControl() { sheet.classList.remove('show'); mask.classList.remove('show'); }
+    mask.onclick = closeControl; document.getElementById('sheet-close').onclick = closeControl;
+    document.querySelectorAll('[data-chip-group]').forEach(function (group) { group.onclick = function (event) { var chip = event.target.closest('.chip'); if (!chip) return; group.querySelectorAll('.chip').forEach(function (item) { item.classList.toggle('active', item === chip); }); }; });
+    document.getElementById('temp-down').onclick = function () { var value = document.getElementById('temp-value'); value.textContent = Math.max(16, +value.textContent - 1); };
+    document.getElementById('temp-up').onclick = function () { var value = document.getElementById('temp-value'); value.textContent = Math.min(30, +value.textContent + 1); };
+    document.getElementById('send-control').onclick = function () { var on = document.getElementById('control-power').checked; targets.forEach(function (card) { var power = card.querySelector('.unit-power'); power.textContent = on ? '开' : '关'; power.classList.toggle('on', on); }); closeControl(); showToast('控制指令已下发'); };
+    function showToast(message) { var toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(function () { toast.classList.remove('show'); }, 1500); }
+  })();
+  </script>
+</body></html>

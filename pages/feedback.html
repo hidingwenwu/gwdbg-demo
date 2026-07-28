@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>留言反馈</title>
+  <link rel="stylesheet" href="../_base.css">
+  <style>
+    .seg-filter {
+      display: flex; padding: 2px;
+      background: var(--ios-fill);
+      border-radius: var(--radius-ios);
+      margin-bottom: 16px;
+      gap: 0;
+    }
+    .seg-filter .chip {
+      flex: 1; white-space: nowrap;
+      padding: 8px 4px;
+      background: transparent; border-radius: 8px;
+      font-size: var(--fs-small); font-weight: 500; color: var(--text-primary);
+      box-shadow: none;
+    }
+    .seg-filter .chip.active {
+      background: #fff; font-weight: 600; color: var(--text-primary);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .fb-card { padding: 16px; }
+    .fb-card .fb-count {
+      text-align: right; font-size: var(--fs-tiny); color: var(--text-placeholder);
+      margin-top: 4px;
+    }
+    .photo-add {
+      width: 72px; height: 72px;
+      border: 1px dashed var(--text-placeholder);
+      border-radius: var(--radius-ios);
+      display: inline-flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      color: var(--text-placeholder); font-size: 11px;
+      cursor: pointer;
+    }
+    .photo-add .plus { font-size: 22px; line-height: 1; }
+  </style>
+</head>
+<body>
+
+<div class="phone-shell">
+<div class="phone-screen">
+
+  <div class="wx-statusbar">
+    <span>17:41</span>
+    <span class="sb-right"><span>68%</span></span>
+  </div>
+  <div class="wx-navbar">
+    <a class="nav-back" href="tab-tools.html" data-back>‹</a>
+    <div class="nav-title">留言反馈</div>
+    <div class="nav-capsule">
+      <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
+      <span class="cap-sep"></span><span class="cap-circle"></span>
+    </div>
+  </div>
+
+  <form id="fb-form" data-validate style="display:contents;">
+  <div class="page-body no-tabbar has-footer-btn">
+
+    <div class="seg-filter chip-group" data-select="single">
+      <span class="chip active">问题反馈</span>
+      <span class="chip">功能建议</span>
+      <span class="chip">型号适配需求</span>
+      <span class="chip">其他</span>
+    </div>
+
+    <div class="card fb-card">
+      <div class="field-row" style="margin-bottom: 12px;">
+        <label class="field-label">问题描述 <span class="required">*</span></label>
+        <textarea class="textarea" required data-max="500" data-counter="#fb-counter" style="background: var(--ios-fill);" placeholder="请描述遇到的问题或建议；涉及设备问题时建议附上设备型号与现场照片，便于快速定位"></textarea>
+        <div class="fb-count" id="fb-counter">0 / 500</div>
+      </div>
+      <div class="photo-add" onclick="showToast('请选择图片')"><span class="plus">＋</span>上传图片</div>
+    </div>
+
+    <div class="card">
+      <div class="kv-list">
+        <div class="kv-item">
+          <span class="kv-label">关联设备</span>
+          <span class="kv-value kv-arrow text-secondary">A01-3F903E（自动带入）</span>
+        </div>
+        <div class="kv-item">
+          <span class="kv-label">联系方式</span>
+          <span class="kv-value">138****8203</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-secondary" style="font-size: var(--fs-tiny); padding: 4px 4px 0; line-height: 1.7;">
+      反馈将由产品团队跟进，处理进展通过小程序消息通知
+    </div>
+
+  </div>
+
+  <div class="footer-bar">
+    <button type="submit" class="btn btn-primary-solid btn-block btn-xl" style="flex:1;">提交</button>
+  </div>
+  </form>
+
+</div>
+</div>
+
+  <script src="../interactions.js"></script>
+  <script src="../assets/app/ai-assistant.js"></script>
+  <script>
+    document.getElementById('fb-form').addEventListener('form:valid', function () {
+      showToast('提交成功，感谢反馈');
+      setTimeout(function () { location.href = 'tab-tools.html'; }, 700);
+    });
+  </script>
+</body>
+</html>

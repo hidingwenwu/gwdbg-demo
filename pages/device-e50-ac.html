@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>内机列表</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell" id="e50-ac">
+    <div class="statusbar"><span>14:02</span><span class="status-icons">● ● 77%</span></div>
+    <header class="topbar"><button class="back" id="nav-back" type="button" aria-label="返回">‹</button><div class="topbar-title">内机列表</div><div class="capsule">··· ○</div></header>
+    <div class="page ac-list"><div class="ac-grid" id="ac-grid"></div></div>
+    <div class="ac-bottom-bar">
+      <button class="ac-select-all-btn" id="select-all" type="button"><i class="ac-chk" id="all-chk"></i><span>全选</span></button>
+      <div class="ac-bar-actions">
+        <button class="ac-bar-btn" id="go-control" type="button">空调控制</button>
+        <button class="ac-bar-btn ac-bar-btn-primary" id="go-detail" type="button">参数查看</button>
+      </div>
+    </div>
+
+    <div class="sheet-mask" id="control-mask"></div>
+    <section class="control-sheet" id="control-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-heading"><div><h2>空调控制</h2><p id="control-target">已选 0 台内机</p></div><button class="sheet-close" id="sheet-close" type="button">×</button></div>
+      <div class="control-sheet-body">
+        <div class="temp-stepper"><button id="temp-down" type="button">−</button><strong><span id="temp-value">22</span><small>℃</small></strong><button id="temp-up" type="button">+</button></div>
+        <div class="control-section"><span>运行模式</span><div class="chip-row" data-chip-group="mode"><button class="chip">自动</button><button class="chip active">制冷</button><button class="chip">制热</button><button class="chip">送风</button><button class="chip">除湿</button><button class="chip">自动除湿</button><button class="chip">睡眠</button><button class="chip">清爽</button><button class="chip">地暖</button><button class="chip">强热</button></div></div>
+        <div class="control-section"><span>风速</span><div class="chip-row" data-chip-group="fan"><button class="chip active">自动</button><button class="chip">高风</button><button class="chip">中风</button><button class="chip">中高风</button><button class="chip">低风</button><button class="chip">中低风</button><button class="chip">微风</button><button class="chip">强劲风</button></div></div>
+        <div class="control-section"><span>风向</span><div class="chip-row" data-chip-group="swing"><button class="chip active">扫风</button><button class="chip">风向1</button><button class="chip">风向2</button><button class="chip">风向3</button><button class="chip">风向4</button><button class="chip">风向5</button><button class="chip">风向6</button></div></div>
+        <label class="control-power switch-field"><span>空调开关</span><input type="checkbox" checked><i></i></label>
+      </div>
+      <button class="button primary sheet-confirm" id="send-control" type="button">确定</button>
+    </section>
+    <div class="side-menu-overlay" id="side-menu-overlay"></div><aside class="side-menu-panel" id="side-menu" aria-label="设备功能"></aside>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/connection-state.js"></script><script src="../assets/app/e50.js"></script>
+  <script>
+  (function () {
+    var E = window.GWDBG_E50;
+    var simulateMode = E.setupState().simulateMode;
+    var units = E.acUnits.map(function (u) { return Object.assign({ selected: false }, u); });
+
+    var grid = document.getElementById('ac-grid');
+    function render() {
+      grid.innerHTML = units.map(function (u) {
+        return '<article class="ac-unit-card' + (u.selected ? ' selected' : '') + '" data-id="' + u.id + '">' +
+          '<div class="card-top"><img src="../assets/products/neiji.png" alt=""><span class="card-onoff ' + (u.onOff ? 'on' : 'off') + '">' + (u.onOff ? '开' : '关') + '</span></div>' +
+          '<strong class="card-temp">' + u.setTemp + '°C</strong>' +
+          '<span class="card-return">回风温度' + u.returnTemp + '°C</span>' +
+          '<div class="card-modes"><span class="card-mode-item">❄ ' + u.mode + '</span><span class="card-mode-item">🌀 ' + u.fanSpeed + '</span></div>' +
+          '<div class="card-footer"><i class="ac-chk' + (u.selected ? ' checked' : '') + '"></i><span class="card-address">' + u.address + '</span></div>' +
+          '</article>';
+      }).join('');
+      document.getElementById('all-chk').className = 'ac-chk' + (units.every(function (u) { return u.selected; }) ? ' checked' : '');
+    }
+    render();
+
+    grid.addEventListener('click', function (event) {
+      var card = event.target.closest('.ac-unit-card');
+      if (!card) return;
+      var unit = units.filter(function (u) { return String(u.id) === card.dataset.id; })[0];
+      unit.selected = !unit.selected;
+      render();
+    });
+    document.getElementById('select-all').onclick = function () {
+      var next = !units.every(function (u) { return u.selected; });
+      units.forEach(function (u) { u.selected = next; });
+      render();
+    };
+
+    function selectedIds() { return units.filter(function (u) { return u.selected; }).map(function (u) { return u.id; }); }
+
+    document.getElementById('go-detail').onclick = function () {
+      var ids = selectedIds();
+      if (!ids.length) { E.toast('请先选择内机'); return; }
+      if (ids.length === 1) location.href = E.link('device-e50-detail.html', { type: 'indoor', id: ids[0] });
+      else location.href = E.link('device-e50-detail.html', { type: 'indoor', ids: ids.join(',') });
+    };
+
+    var mask = document.getElementById('control-mask'), sheet = document.getElementById('control-sheet');
+    function openControl() {
+      if (simulateMode) { E.toast('模拟状态无法空调控制'); return; }
+      var count = selectedIds().length;
+      document.getElementById('control-target').textContent = count ? '已选 ' + count + ' 台内机' : '全部内机';
+      sheet.classList.add('show');
+      mask.classList.add('show');
+    }
+    function closeControl() { sheet.classList.remove('show'); mask.classList.remove('show'); }
+    document.getElementById('go-control').onclick = openControl;
+    mask.onclick = closeControl;
+    document.getElementById('sheet-close').onclick = closeControl;
+    document.querySelectorAll('[data-chip-group]').forEach(function (group) {
+      group.onclick = function (event) {
+        var chip = event.target.closest('.chip');
+        if (!chip) return;
+        group.querySelectorAll('.chip').forEach(function (item) { item.classList.toggle('active', item === chip); });
+      };
+    });
+    document.getElementById('temp-down').onclick = function () { var el = document.getElementById('temp-value'); el.textContent = Math.max(16, +el.textContent - 1); };
+    document.getElementById('temp-up').onclick = function () { var el = document.getElementById('temp-value'); el.textContent = Math.min(30, +el.textContent + 1); };
+    document.getElementById('send-control').onclick = function () { closeControl(); E.toast('控制指令已下发'); };
+
+    document.getElementById('nav-back').onclick = function () {
+      if (history.length > 1) history.back();
+      else location.href = E.link('device-e50.html');
+    };
+    E.bindMenu('');
+  })();
+  </script>
+</body></html>

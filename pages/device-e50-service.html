@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>技术支持</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell" id="e50-service">
+    <div class="statusbar"><span>14:12</span><span class="status-icons">● ● 77%</span></div>
+    <header class="topbar"><button class="back" id="nav-back" type="button" aria-label="返回">‹</button><div class="topbar-title">技术支持</div><div class="capsule">··· ○</div></header>
+    <div class="chat-area service-messages" id="msg-area"></div>
+    <div class="service-input-bar">
+      <button class="human-btn" id="human-btn" type="button">转人工</button>
+      <input class="service-input" id="service-input" placeholder="发送消息...">
+      <button class="service-send" id="service-send" type="button">发送</button>
+    </div>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/connection-state.js"></script><script src="../assets/app/e50.js"></script>
+  <script>
+  (function () {
+    var E = window.GWDBG_E50;
+    var seq = 0;
+    var messages = [
+      { id: ++seq, type: 'time', text: '今天 14:30' },
+      { id: ++seq, type: 'agent', text: '您好，我是飞奕技术支持助手。请问有什么可以帮您？' },
+      { id: ++seq, type: 'action', text: '如需人工专家支持，可随时转接。' }
+    ];
+    var area = document.getElementById('msg-area');
+    function esc(value) {
+      return String(value).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; });
+    }
+    function render() {
+      area.innerHTML = messages.map(function (m) {
+        if (m.type === 'time') return '<div class="msg-time">' + m.text + '</div>';
+        if (m.type === 'agent') return '<div class="msg-row agent"><span class="msg-avatar agent-avatar">客</span><div class="msg-bubble agent-bubble">' + esc(m.text) + '</div></div>';
+        if (m.type === 'user') return '<div class="msg-row user"><div class="msg-bubble user-bubble">' + esc(m.text) + '</div><span class="msg-avatar user-avatar">我</span></div>';
+        return '<div class="msg-row agent"><span class="msg-avatar agent-avatar">客</span><div class="action-card"><span>' + esc(m.text) + '</span><button class="action-card-btn" id="action-human" type="button">转接人工客服</button></div></div>';
+      }).join('');
+      area.scrollTop = area.scrollHeight;
+    }
+    render();
+    function requestHuman() { E.toast('正在为您转接人工客服'); }
+    document.getElementById('human-btn').onclick = requestHuman;
+    area.addEventListener('click', function (event) { if (event.target.closest('#action-human')) requestHuman(); });
+
+    var input = document.getElementById('service-input'), send = document.getElementById('service-send');
+    function sendMsg() {
+      var text = input.value.trim();
+      if (!text) return;
+      messages.push({ id: ++seq, type: 'user', text: text });
+      input.value = '';
+      render();
+      setTimeout(function () {
+        messages.push({ id: ++seq, type: 'agent', text: '已收到您的问题，技术工程师会尽快回复。如需更及时的响应，可点击「转人工」。' });
+        render();
+      }, 700);
+    }
+    send.onclick = sendMsg;
+    input.addEventListener('keydown', function (event) { if (event.key === 'Enter') sendMsg(); });
+    document.getElementById('nav-back').onclick = function () {
+      if (history.length > 1) history.back();
+      else location.href = E.link('device-e50.html');
+    };
+  })();
+  </script>
+</body></html>

@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>飞奕AI空调医生</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell ai-page" id="ai-home">
+    <div class="statusbar"><span>14:01</span><span class="status-icons">● ● 77%</span></div>
+    <header class="topbar ai-nav">
+      <div class="ai-nav-left">
+        <button class="ai-nav-btn" id="nav-back" type="button"><span class="ai-nav-icon">‹</span><span>返回</span></button>
+        <button class="ai-nav-btn" id="nav-history" type="button"><span class="ai-nav-icon">💬</span><span>对话</span></button>
+      </div>
+      <div class="topbar-title">飞奕AI空调医生</div><div class="capsule">··· ○</div>
+    </header>
+
+    <div class="chat-area" id="chat-area">
+      <div class="ai-snap-block" id="snap-block">
+        <div class="snap-banner">
+          <img class="snap-banner-img" src="../assets/products/ip.png" alt="">
+          <div class="snap-banner-text"><span id="banner-line1"></span><span id="banner-line2"></span></div>
+        </div>
+        <div class="snap-card">
+          <div class="snap-machine-row">
+            <div class="snap-machine-info"><strong id="machine-name">室外机模块（主）</strong><small id="machine-sub">运行参数</small></div>
+            <img class="snap-machine-img" id="machine-img" src="../assets/products/waiji.png" alt="">
+          </div>
+          <div class="snap-params" id="snap-params"></div>
+          <button class="snap-all-btn" id="snap-all" type="button"><span>‹</span> 全部参数</button>
+          <button class="ai-diagnose-btn" id="diagnose-btn" type="button"><span>AI 智能诊断</span></button>
+        </div>
+      </div>
+
+      <div id="messages"></div>
+
+      <div class="chat-suggestions" id="suggestions" hidden>
+        <button class="suggest-chip" type="button">分析当前系统运行状态</button>
+        <button class="suggest-chip" type="button">检测故障代码</button>
+        <button class="suggest-chip" type="button">外机压力异常分析</button>
+        <button class="suggest-chip" type="button">内机温差诊断</button>
+      </div>
+      <div id="chat-bottom"></div>
+    </div>
+
+    <div class="input-bar" id="input-bar" hidden>
+      <div class="input-row" id="input-row-text">
+        <div class="input-pill">
+          <button class="pill-icon-btn" id="toggle-voice" type="button" aria-label="切换语音">🎤</button>
+          <input class="chat-input" id="chat-input" placeholder="描述问题或按住说话…">
+        </div>
+        <button class="send-btn" id="send-btn" type="button" hidden aria-label="发送">➤</button>
+      </div>
+      <div class="input-row" id="input-row-voice" hidden>
+        <button class="pill-icon-btn" id="toggle-text" type="button" aria-label="切换键盘">⌨</button>
+        <button class="hold-btn" id="hold-btn" type="button"><span class="hold-btn-text">按住说话</span></button>
+      </div>
+    </div>
+
+    <div class="side-menu-overlay" id="side-menu-overlay"></div><aside class="side-menu-panel" id="side-menu" aria-label="设备功能"></aside>
+    <div class="history-overlay" id="history-overlay"></div>
+    <aside class="history-drawer" id="history-drawer">
+      <div class="drawer-head"><strong>对话历史</strong><button class="btn-new-chat" id="new-chat" type="button">+ 新对话</button></div>
+      <div class="history-list" id="history-list"></div>
+    </aside>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/connection-state.js"></script><script src="../assets/app/e50.js"></script>
+  <script>
+  (function () {
+    var E = window.GWDBG_E50;
+    var q = new URLSearchParams(location.search);
+    var machineType = q.get('type') === 'indoor' ? 'indoor' : 'outdoor';
+    var indoorId = q.get('id') || '1';
+    var role = q.get('role') || '主';
+
+    
+    function flatRows(ds) { return (ds.groups || []).reduce(function (acc, g) { return acc.concat(g.rows || []); }, []); }
+    var ds = machineType === 'indoor' ? (E.detailDatasets.indoor[indoorId] || E.detailDatasets.indoor['1']) : E.detailDatasets.outdoor;
+    var rows = flatRows(ds);
+    var abnormal = rows.filter(function (r) { return r.abnormal; });
+    var snapParams = abnormal.concat(rows.filter(function (r) { return !r.abnormal; })).slice(0, 9);
+    var codeRow = rows.filter(function (r) { return r.faultCode; })[0] || {};
+    var hasFault = !!(codeRow.value && codeRow.value !== '0' && codeRow.value !== '00');
+    var machineName = machineType === 'indoor' ? '内机 · ' + ds.name : '室外机模块（' + role + '）';
+    var machineImage = machineType === 'indoor' ? '../assets/products/neiji.png' : '../assets/products/waiji.png';
+
+    var CHAT_KEY = 'gwdbg.e50.chat';
+    var messages = [], msgSeq = 0, diagnosed = false, reportAnchor = '', activeConvId = null, typing = false;
+
+    var chatArea = document.getElementById('chat-area');
+    var messagesHost = document.getElementById('messages');
+    var inputBar = document.getElementById('input-bar');
+    var input = document.getElementById('chat-input');
+    var sendBtn = document.getElementById('send-btn');
+
+    function esc(value) {
+      return String(value).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; });
+    }
+    function nl2br(value) { return esc(value).replace(/\n/g, '<br>'); }
+    function scrollBottom() { chatArea.scrollTop = chatArea.scrollHeight; }
+
+    
+    document.getElementById('machine-name').textContent = machineName;
+    document.getElementById('machine-sub').textContent = abnormal.length ? '发现异常参数' : '运行参数';
+    document.getElementById('machine-img').src = machineImage;
+    document.getElementById('snap-params').innerHTML = snapParams.map(function (r) {
+      return '<div class="snap-param-row' + (r.abnormal ? ' abnormal' : '') + '"><span>' + r.name + '</span><strong>' + r.value + (r.unit ? ' ' + r.unit : '') + '</strong></div>';
+    }).join('');
+
+    var bannerTimer = null;
+    function typeBanner() {
+      var line1 = abnormal.length ? '已读取空调参数，发现 ' + abnormal.length + ' 项异常。' : '已读取空调参数，无异常参数。';
+      var line2 = '点击AI智能诊断给您出具解决方案';
+      var full = line1 + '\n' + line2, i = 0;
+      if (bannerTimer) clearInterval(bannerTimer);
+      bannerTimer = setInterval(function () {
+        i += 1;
+        var part = full.slice(0, i), nl = part.indexOf('\n');
+        document.getElementById('banner-line1').textContent = nl < 0 ? part : part.slice(0, nl);
+        document.getElementById('banner-line2').textContent = nl < 0 ? '' : part.slice(nl + 1);
+        if (i >= full.length) clearInterval(bannerTimer);
+      }, 56);
+    }
+    typeBanner();
+
+    document.getElementById('snap-all').onclick = function () {
+      var extra = machineType === 'indoor' ? { type: 'indoor', id: indoorId } : { type: 'outdoor', role: role };
+      location.href = E.link('device-e50-detail.html', extra);
+    };
+    document.getElementById('nav-back').onclick = function () {
+      if (history.length > 1) history.back();
+      else location.href = E.link('device-e50.html');
+    };
+
+    
+    function msgHtml(msg) {
+      if (msg.role === 'user') return '<div class="msg-row user-row" id="msg_' + msg.id + '"><div class="user-bubble">' + esc(msg.text) + '</div></div>';
+      if (msg.role === 'typing') return '<div class="msg-row ai-row" id="msg_' + msg.id + '"><div class="ai-thinking"><i></i><i></i><i></i><span>思考中…</span></div></div>';
+      var html = '<div class="msg-row ai-row" id="msg_' + msg.id + '"><div class="ai-msg-wrap">';
+      if (msg.type === 'diag') {
+        html += '<div class="ai-diag-card"><span class="diag-card-title">' + esc(msg.title) + '</span>' + msg.faults.map(function (f) {
+          return '<div class="diag-fault-row"><span class="diag-fault-name">' + esc(f.name) + '</span><span class="diag-fault-prob">' + f.prob + '%</span><div class="diag-bar-bg"><div class="diag-bar-fill" style="width:' + f.prob + '%"></div></div></div>';
+        }).join('') + '<a class="diag-report-btn" href="' + E.link('device-e50-report.html') + '">查看完整报告 →</a></div>';
+      } else {
+        html += '<div class="ai-msg-md">' + nl2br(msg.text) + '</div>';
+      }
+      if (msg.feedbackState === 'prompt') {
+        html += '<div class="fb-bar"><span class="fb-bar-hint">这个回答有帮助吗？</span><div class="fb-btns"><button class="fb-btn fb-ok" data-fb="resolved" data-id="' + msg.id + '" type="button">✓ 已解决</button><button class="fb-btn fb-no" data-fb="unresolved" data-id="' + msg.id + '" type="button">✗ 未解决</button></div></div>';
+      } else if (msg.feedbackState === 'detail') {
+        html += '<div class="fb-detail"><div class="fb-result-badge ' + (msg.feedbackResult === 'resolved' ? 'fb-badge-ok' : 'fb-badge-no') + '">' + (msg.feedbackResult === 'resolved' ? '✓ 已解决' : '✗ 未解决') + '</div>' +
+          '<textarea class="fb-textarea" id="fb-text-' + msg.id + '" placeholder="可填写具体情况（选填，最多200字）" maxlength="200"></textarea>' +
+          '<button class="fb-submit-btn" data-fb-submit="' + msg.id + '" type="button">提交反馈</button></div>';
+      } else if (msg.feedbackState === 'done') {
+        html += '<div class="fb-done">感谢您的反馈 ✓</div>';
+      }
+      return html + '</div></div>';
+    }
+    function renderMessages() {
+      messagesHost.innerHTML = messages.map(msgHtml).join('');
+      scrollBottom();
+    }
+    function pushMessage(msg) {
+      msg.id = ++msgSeq;
+      messages.push(msg);
+      renderMessages();
+      return msg.id;
+    }
+    function updateMessage(id, patch) {
+      var msg = messages.filter(function (m) { return m.id === id; })[0];
+      if (!msg) return;
+      Object.assign(msg, patch);
+      renderMessages();
+    }
+    function removeTyping() {
+      messages = messages.filter(function (m) { return m.role !== 'typing'; });
+    }
+
+    
+    function typeAnswer(text, done) {
+      var id = pushMessage({ role: 'ai', type: 'text', text: '' });
+      var total = text.length, step = Math.max(2, Math.ceil(total / 120)), i = 0;
+      typing = true;
+      var timer = setInterval(function () {
+        i = Math.min(total, i + step);
+        updateMessage(id, { text: text.slice(0, i) });
+        if (i >= total) {
+          clearInterval(timer);
+          typing = false;
+          updateMessage(id, { feedbackState: 'prompt' });
+          if (done) done(id);
+        }
+      }, 30);
+      return id;
+    }
+
+    
+    function diagnosisBody() {
+      if (hasFault) {
+        return E.INTRO_TEXT + '\n\n' + E.faultSolution.text;
+      }
+      return E.INTRO_TEXT + '\n\n初步诊断结果：' + machineName + ' 运行参数基本正常。\n' +
+        '1. 回风/出风温差处于合理区间，制冷循环工作正常；\n' +
+        '2. 电子膨胀阀开度与需求频率匹配，无堵转迹象；\n' +
+        '3. 建议按计划清洁滤网与室外机换热翅片，每月完成一次例行 AI 检测。';
+    }
+    function diagnosisCard() {
+      if (hasFault) {
+        return { title: '故障诊断结果', faults: [{ name: '高压保护（EL15）', prob: 92 }, { name: '制冷剂过充', prob: 6 }, { name: '传感器故障', prob: 2 }] };
+      }
+      return { title: '诊断结果概要', faults: [{ name: '系统运行正常', prob: 100 }] };
+    }
+
+    function startDiagnosis() {
+      if (typing) return;
+      if (diagnosed && reportAnchor) {
+        var anchor = document.getElementById(reportAnchor);
+        if (anchor) anchor.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      document.getElementById('snap-block').style.display = 'none';
+      document.getElementById('suggestions').hidden = true;
+      pushMessage({ role: 'user', text: '开始 AI 诊断' });
+      pushMessage({ role: 'typing' });
+      setTimeout(function () {
+        removeTyping();
+        diagnosed = true;
+        inputBar.hidden = false;
+        var btn = document.getElementById('diagnose-btn');
+        if (btn) btn.querySelector('span').textContent = '已诊断 ↓';
+        typeAnswer(diagnosisBody(), function (id) {
+          reportAnchor = 'msg_' + id;
+          var card = diagnosisCard();
+          pushMessage({ role: 'ai', type: 'diag', title: card.title, faults: card.faults });
+          persistConversation();
+        });
+      }, 900);
+    }
+    document.getElementById('diagnose-btn').onclick = startDiagnosis;
+
+    
+    function sendQuery(text) {
+      if (typing || !text) return;
+      pushMessage({ role: 'user', text: text });
+      pushMessage({ role: 'typing' });
+      setTimeout(function () {
+        removeTyping();
+        var reply = hasFault
+          ? '结合当前故障码 EL15（高压保护）：' + E.faultSolution.text.split('：', 2)[1].split('\n').slice(0, 3).join('\n') + '\n如需完整排查步骤，可查看完整报告。'
+          : '已结合 ' + machineName + ' 的实时运行参数分析：各项指标处于正常范围，暂无风险项。继续保持当前运行设置，建议每月完成一次例行 AI 检测。';
+        typeAnswer(reply, function () { persistConversation(); });
+      }, 800);
+    }
+    input.addEventListener('input', function () { sendBtn.hidden = !input.value.trim(); });
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' && input.value.trim()) { sendQuery(input.value.trim()); input.value = ''; sendBtn.hidden = true; }
+    });
+    sendBtn.onclick = function () { if (input.value.trim()) { sendQuery(input.value.trim()); input.value = ''; sendBtn.hidden = true; } };
+    document.getElementById('suggestions').addEventListener('click', function (event) {
+      var chip = event.target.closest('.suggest-chip');
+      if (!chip || typing) return;
+      if (!diagnosed) startDiagnosis();
+      setTimeout(function () { sendQuery(chip.textContent); }, 200);
+    });
+
+    
+    document.getElementById('toggle-voice').onclick = function () {
+      document.getElementById('input-row-text').hidden = true;
+      document.getElementById('input-row-voice').hidden = false;
+    };
+    document.getElementById('toggle-text').onclick = function () {
+      document.getElementById('input-row-voice').hidden = true;
+      document.getElementById('input-row-text').hidden = false;
+    };
+    var holdBtn = document.getElementById('hold-btn');
+    holdBtn.addEventListener('pointerdown', function () { holdBtn.classList.add('recording'); });
+    holdBtn.addEventListener('pointerup', function () { holdBtn.classList.remove('recording'); E.toast('语音转文字（演示）'); });
+    holdBtn.addEventListener('pointerleave', function () { holdBtn.classList.remove('recording'); });
+
+    
+    messagesHost.addEventListener('click', function (event) {
+      var choice = event.target.closest('[data-fb]');
+      if (choice) {
+        updateMessage(Number(choice.dataset.id), { feedbackState: 'detail', feedbackResult: choice.dataset.fb });
+        return;
+      }
+      var submit = event.target.closest('[data-fb-submit]');
+      if (submit) {
+        updateMessage(Number(submit.dataset.fbSubmit), { feedbackState: 'done' });
+      }
+    });
+
+    
+    function readChats() {
+      try { return JSON.parse(sessionStorage.getItem(CHAT_KEY) || '[]'); } catch (error) { return []; }
+    }
+    function writeChats(list) {
+      try { sessionStorage.setItem(CHAT_KEY, JSON.stringify(list.slice(0, 20))); } catch (error) {}
+    }
+    function persistConversation() {
+      var items = messages.filter(function (m) { return m.role === 'user' || (m.role === 'ai' && m.type === 'text'); })
+        .map(function (m) { return { role: m.role, text: m.text }; });
+      if (!items.length) return;
+      if (!activeConvId) activeConvId = 'c_' + Date.now();
+      var firstAi = items.filter(function (m) { return m.role === 'ai'; })[0];
+      var title = firstAi ? (firstAi.text.length > 20 ? firstAi.text.slice(0, 20) + '…' : firstAi.text) : '新对话';
+      var list = readChats().filter(function (c) { return c.id !== activeConvId; });
+      list.unshift({ id: activeConvId, title: title.replace(/\n/g, ' '), time: new Date().toTimeString().slice(0, 5), messages: items });
+      writeChats(list);
+    }
+    function renderHistory() {
+      var list = readChats();
+      var host = document.getElementById('history-list');
+      host.innerHTML = list.length ? list.map(function (c) {
+        return '<div class="history-item" data-conv="' + c.id + '"><div class="history-item-main"><span class="history-item-title">' + esc(c.title) + '</span><span class="history-item-time">' + c.time + '</span></div><button class="history-item-delete" data-del="' + c.id + '" type="button">×</button></div>';
+      }).join('') : '<div class="history-empty">暂无对话历史</div>';
+    }
+    var drawer = document.getElementById('history-drawer'), historyOverlay = document.getElementById('history-overlay');
+    function openHistory() { renderHistory(); drawer.classList.add('show'); historyOverlay.classList.add('show'); }
+    function closeHistory() { drawer.classList.remove('show'); historyOverlay.classList.remove('show'); }
+    document.getElementById('nav-history').onclick = openHistory;
+    historyOverlay.onclick = closeHistory;
+    document.getElementById('new-chat').onclick = function () {
+      activeConvId = null;
+      messages = [];
+      diagnosed = false;
+      reportAnchor = '';
+      inputBar.hidden = true;
+      document.getElementById('snap-block').style.display = '';
+      document.getElementById('suggestions').hidden = true;
+      renderMessages();
+      typeBanner();
+      closeHistory();
+    };
+    document.getElementById('history-list').addEventListener('click', function (event) {
+      var del = event.target.closest('[data-del]');
+      if (del) {
+        writeChats(readChats().filter(function (c) { return c.id !== del.dataset.del; }));
+        if (activeConvId === del.dataset.del) activeConvId = null;
+        renderHistory();
+        return;
+      }
+      var item = event.target.closest('[data-conv]');
+      if (!item) return;
+      var conv = readChats().filter(function (c) { return c.id === item.dataset.conv; })[0];
+      if (!conv) { E.toast('对话不存在'); return; }
+      activeConvId = conv.id;
+      messages = conv.messages.map(function (m) {
+        return { id: ++msgSeq, role: m.role, type: 'text', text: m.text, feedbackState: m.role === 'ai' ? 'prompt' : null };
+      });
+      diagnosed = true;
+      inputBar.hidden = false;
+      document.getElementById('snap-block').style.display = 'none';
+      var firstAi = messages.filter(function (m) { return m.role === 'ai'; })[0];
+      reportAnchor = firstAi ? 'msg_' + firstAi.id : '';
+      renderMessages();
+      closeHistory();
+    });
+
+    
+    if (!messages.length && document.getElementById('snap-block').style.display === 'none') {
+      document.getElementById('suggestions').hidden = false;
+    }
+
+    E.bindMenu('');
+  })();
+  </script>
+</body></html>

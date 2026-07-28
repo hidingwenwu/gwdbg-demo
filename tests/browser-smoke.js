@@ -1,0 +1,277 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const http = require('node:http');
+const path = require('node:path');
+const { chromium } = require('playwright');
+
+const root = path.resolve(__dirname, '..');
+const screenshotDir = path.join(root, 'assets', 'screenshots');
+fs.mkdirSync(screenshotDir, { recursive: true });
+
+function contentType(file) {
+  return { '.css': 'text/css', '.html': 'text/html', '.js': 'text/javascript', '.jpg': 'image/jpeg', '.png': 'image/png' }[path.extname(file).toLowerCase()] || 'application/octet-stream';
+}
+
+function startServer() {
+  return new Promise((resolve, reject) => {
+    const server = http.createServer((request, response) => {
+      const requestPath = decodeURIComponent(new URL(request.url, 'http://127.0.0.1').pathname);
+      const file = path.resolve(root, `.${requestPath}`);
+      if (!file.startsWith(`${root}${path.sep}`) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+        response.writeHead(404).end('Not found');
+        return;
+      }
+      response.writeHead(200, { 'Content-Type': `${contentType(file)}; charset=utf-8` });
+      fs.createReadStream(file).pipe(response);
+    });
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => resolve(server));
+  });
+}
+
+async function open(page, baseUrl, route) {
+  await page.goto(`${baseUrl}/${route}`);
+  await page.waitForLoadState('networkidle');
+}
+
+async function assertNoHorizontalOverflow(page, route) {
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  assert(overflow <= 1, `${route} must not overflow horizontally (overflow ${overflow}px)`);
+}
+
+(async () => {
+  let browser;
+  let server;
+  try {
+    server = await startServer();
+    const baseUrl = `http://127.0.0.1:${server.address().port}`;
+    browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { width: 1200, height: 1000 }, deviceScaleFactor: 1 });
+    const errors = [];
+    page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`); });
+    page.on('pageerror', (error) => errors.push(`page: ${error.message}`));
+
+    await open(page, baseUrl, 'pages/tab-device-bt.html');
+    const shell = await page.locator('.app-shell').boundingBox();
+    assert(shell.width <= 431 && shell.height <= 933, 'desktop prototype must use a 430 × 932 large-phone frame');
+    assert(Math.abs(shell.width / shell.height - 430 / 932) < 0.01, 'desktop prototype must preserve the 430:932 phone ratio');
+    assert.equal(await page.locator('.product-card').count(), 10, 'Bluetooth page must render ten independent model cards');
+    await page.locator('[data-model="A01F"] .product-head').click();
+    assert.match(await page.locator('[data-model="A01F"]').getAttribute('class'), /open/);
+    assert.equal(await page.locator('[data-model="A01F"] .product-type').count(), 0, 'model cards must only show image and model');
+    await page.screenshot({ path: path.join(screenshotDir, 'final-device-groups-large-phone.png'), fullPage: false });
+
+    await page.setViewportSize({ width: 430, height: 932 });
+    await open(page, baseUrl, 'pages/tab-device-bt.html');
+    await page.locator('[data-model="A01F"] .product-head').click();
+    await page.locator('[data-expansion-model="A01F"] .connect-button').first().click();
+    await page.waitForLoadState('networkidle');
+    assert.match(await page.locator('#page-title').textContent(), /A01F/);
+    assert.equal(await page.locator('#quick-tasks .task-row').count(), 4, 'A01F must expose four quick tasks');
+    assert.equal(await page.getByText('跳过快速配置').count(), 0, 'quick setup must not expose the removed skip action');
+    await page.locator('#detail-link').click();
+    await page.waitForLoadState('networkidle');
+    assert((await page.locator('#device-parameters .parameter-row').count()) >= 12, 'device details must expose full parameter rows');
+    await page.locator('#menu-trigger').click();
+    assert(await page.locator('body').evaluate((body) => body.classList.contains('side-menu-open')), 'menu trigger must open the left menu');
+    assert.equal(await page.locator('.side-nav-item').count(), 5, 'sidebar must merge settings into quick config, device details, more functions, tools and mine');
+    assert.equal(await page.locator('.side-nav-item', { hasText: '更多功能' }).count(), 1, 'sidebar must merge remaining settings into more functions');
+    assert.equal(await page.getByText('断开蓝牙连接').count(), 0, 'non-E50 sidebar must not keep the Bluetooth disconnect');
+    await page.locator('#side-menu-overlay').click();
+    await page.locator('.hero-disconnect').click();
+    assert.equal(await page.locator('#connection-modal').getByText('确认断开').count(), 1, 'disconnect must require confirmation');
+    await page.locator('[data-modal-close]').last().click();
+
+    await open(page, baseUrl, 'pages/device-setting.html?model=A01F&device=A01F-3F903E&mode=bt&setting=brand-batch');
+    assert.equal(await page.locator('[data-channel]').count(), 4, 'A01F must expose four independently configurable channels');
+    assert.equal(await page.locator('[data-channel] input[type=checkbox]:checked').count(), 4, 'all channels must be enabled by default');
+    await page.locator('[data-channel="1"] .channel-brand').selectOption({ label: '模拟器' });
+    assert.equal(await page.locator('[data-channel="1"] .simulator-count').getAttribute('hidden'), null, 'simulator brand must reveal simulator quantity');
+    assert.equal(await page.locator('[data-channel="1"] .simulator-count input').getAttribute('max'), '160');
+    await open(page, baseUrl, 'pages/device-setting.html?model=A01E&device=A01E-8E21A7&mode=bt&setting=brand-batch');
+    assert.equal(await page.locator('[data-channel]').count(), 8, 'A01E must expose eight independently configurable channels');
+
+    await open(page, baseUrl, 'pages/device-setting.html?model=A01F&device=A01F-3F903E&mode=bt&setting=server');
+    assert.equal(await page.locator('[data-server-tab]').count(), 2, 'server settings must provide IP and domain tabs');
+    await page.locator('[data-server-tab="domain"]').click();
+    assert(await page.locator('[data-server-pane="domain"]').evaluate((pane) => pane.classList.contains('active')));
+    assert((await page.locator('[data-server-pane="domain"] option').allTextContents()).includes('MODBUSTCPCLIENT_V2.6'));
+    await page.locator('#save-setting').click();
+    await page.getByText('通讯正常').waitFor();
+
+    await open(page, baseUrl, 'pages/device-a01-ac.html?model=A01F&device=A01F-3F903E&mode=bt');
+    assert.equal(await page.locator('.channel-group').count(), 4, 'A01F air-conditioner management must group units by four channels');
+    assert.equal(await page.locator('.indoor-card').count(), 8, 'A01F air-conditioner management must render indoor-unit cards');
+    await page.locator('.unit-check input').nth(0).check();
+    await page.locator('.unit-check input').nth(1).check();
+    assert.match(await page.locator('#selection-count').textContent(), /2/);
+    await page.locator('#batch-control').click();
+    assert(await page.locator('#control-sheet').evaluate((sheet) => sheet.classList.contains('show')));
+    await page.locator('#send-control').click();
+
+    const forgedDevice = '<img src=x onerror="window.deviceInjected=true">';
+    await open(page, baseUrl, `pages/device-quick.html?model=F16G&device=${encodeURIComponent(forgedDevice)}&mode=4g`);
+    assert.equal(await page.locator('#quick-tasks').getByText('服务器配置').count(), 0, 'F16G must not expose server settings');
+    assert.match(await page.locator('.hero-status').textContent(), /蓝牙/, 'F16G must reject forged 4G mode');
+    assert.equal(await page.evaluate(() => Boolean(window.deviceInjected)), false, 'forged device IDs must not execute scripts');
+    await open(page, baseUrl, 'pages/device-setting.html?model=S74G&device=S74G-A02C11&mode=bt&setting=meter');
+    assert.equal(await page.getByText('电表地址').count(), 0, 'S74G must reject forged meter settings');
+
+    await open(page, baseUrl, 'pages/device-quick.html?model=F16G&device=F16G-B7A403&mode=bt');
+    assert.match(await page.locator('#quick-tasks').textContent(), /管制线阀类型/, 'F16G quick flow must lead with valve type');
+    assert.equal(await page.locator('#quick-tasks').getByText('空调品牌设置').count(), 0, 'F16G must not configure air-conditioner brand');
+    await open(page, baseUrl, 'pages/device-setting.html?model=F16G&device=F16G-B7A403&mode=bt&setting=valve');
+    assert.match(await page.locator('#page-title').textContent(), /管制线阀类型/);
+    assert((await page.locator('#setting-content option').allTextContents()).join(',').includes('2管制2线阀'), 'valve setting must offer pipe/valve types');
+    await open(page, baseUrl, 'pages/device-more.html?model=F16G&device=F16G-B7A403&mode=bt');
+    assert.equal(await page.getByText('温度传感器补偿设定').count(), 1, 'F16G more functions must expose temperature compensation');
+    await page.locator('#menu-trigger').click();
+    await page.locator('.side-nav-item', { hasText: '工具' }).first().click();
+    await page.waitForLoadState('networkidle');
+    assert.match(await page.locator('.topbar-title').textContent(), /工具/, 'sidebar tools entry must jump out to the tools tab');
+    await open(page, baseUrl, 'pages/device-setting.html?model=F16G&device=F16G-B7A403&mode=bt&setting=temp-comp');
+    assert.equal(await page.getByText('补偿温度值').count(), 1, 'F16G must render temperature compensation fields');
+
+    await open(page, baseUrl, 'pages/device-e50.html?model=E50&device=FE50G-A8C4&mode=bt');
+    assert.match(await page.locator('#hero-title').textContent(), /配置产品/, 'E50 entry must be the setup wizard');
+    assert.match(await page.locator('#setup-body').textContent(), /已连接 FE50G-A8C4/, 'setup must show the connected device in step 1');
+    await page.locator('[data-act="mode"][data-mode="4G"]').click();
+    assert.match(await page.locator('.modal-layer.show .confirm-dialog').textContent(), /是否切换为4G模式/, 'transport switch must confirm first');
+    await page.locator('.modal-layer.show .confirm-dialog [data-act="ok"]').click();
+    await page.waitForLoadState('networkidle');
+    assert.equal(new URL(page.url()).searchParams.get('mode'), '4g', 'E50 must switch to 4G mode');
+    assert.equal((await page.locator('[data-act="mode"].active').textContent()).trim(), '4G', '4G must be the active transport');
+    await page.locator('[data-act="mode"][data-mode="蓝牙"]').click();
+    await page.locator('.modal-layer.show .confirm-dialog [data-act="ok"]').click();
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('button', { name: '选择品牌', exact: true }).click();
+    await page.locator('#brand-picker [data-brand="格力"]').click();
+    await page.getByRole('button', { name: '搜索空调', exact: true }).click();
+    await page.getByText('已识别空调系统1').waitFor({ timeout: 9000 });
+    assert.match(await page.locator('#hero-title').textContent(), /连接成功/, 'setup must complete with the connected hero');
+    assert.equal(await page.locator('.ac-system-group').count(), 3, 'setup must render the three recognized systems');
+    assert.equal(await page.locator('#device-info-link').evaluate((el) => el.hidden), false, 'Bluetooth mode must expose device info');
+
+    await page.locator('[data-act="outdoor"][data-role="主"]').first().click();
+    await page.waitForLoadState('networkidle');
+    assert.match(await page.locator('#hero-title').textContent(), /室外机模块（主）/);
+    assert((await page.locator('.param-card .param-row').count()) > 20, 'outdoor detail must render full parameter rows');
+    assert((await page.locator('.param-card .param-row.abnormal').count()) >= 3, 'outdoor detail must flag abnormal rows');
+    await page.locator('#ai-btn').click();
+    await page.waitForLoadState('networkidle');
+    assert.match(await page.locator('#machine-name').textContent(), /室外机模块（主）/);
+    await page.locator('#diagnose-btn').click();
+    await page.locator('.fb-ok').first().waitFor({ timeout: 15000 });
+    assert.equal(await page.locator('.ai-diag-card').count(), 1, 'diagnosis must render the summary card');
+    await page.locator('.diag-report-btn').click();
+    await page.waitForLoadState('networkidle');
+    assert.match(await page.locator('#report-body').textContent(), /FAULTS 故障分析/, 'report must render fault analysis');
+    assert.equal(await page.locator('.issue-card').count(), 3, 'report must render three issues');
+    await page.screenshot({ path: path.join(screenshotDir, 'final-e50-4g-indoor-list.png'), fullPage: false });
+
+    await open(page, baseUrl, 'pages/device-e50-ac.html?model=E50&device=FE50G-A8C4&mode=bt');
+    assert.equal(await page.locator('.ac-unit-card').count(), 4, 'ac page must render indoor units');
+    await page.locator('.ac-unit-card').nth(0).click();
+    await page.locator('.ac-unit-card').nth(1).click();
+    await page.locator('#go-detail').click();
+    await page.waitForLoadState('networkidle');
+    assert.match(await page.locator('#hero-title').textContent(), /内机参数（2台）/, 'multi indoor compare must render');
+
+    await open(page, baseUrl, 'pages/device-e50.html?model=E50&device=FE50G-A8C4&mode=bt');
+    await page.locator('#menu-trigger').click();
+    for (const label of ['切换其他产品', '检修抓码', '设备升级', '设备列表', '技术&服务', '联系我们', '工具', '我的']) {
+      assert((await page.locator('#side-menu').getByText(label, { exact: false }).count()) >= 1, `E50 sidebar must include ${label}`);
+    }
+    await page.locator('.side-nav-item', { hasText: '检修抓码' }).click();
+    assert.match(await page.locator('#capture-sheet').textContent(), /抓码原因/, 'capture sheet must open from the sidebar');
+
+    await open(page, baseUrl, 'pages/device-e50-upgrade.html?model=E50&device=FE50G-A8C4&mode=bt');
+    await page.locator('#start-upgrade').click();
+    await page.getByText('升级成功').waitFor({ timeout: 15000 });
+
+    await open(page, baseUrl, 'pages/device-fd01g.html?model=FD01G&device=FD01G-7319E2&mode=4g');
+    assert.match(await page.locator('.hero-status').textContent(), /蓝牙/, 'FD01G must reject forged 4G mode');
+    await page.locator('#test-code').click();
+    assert.match(await page.locator('#match-result').textContent(), /空调是否正确响应/);
+    await page.locator('#match-no').click();
+    assert.match(await page.locator('#code-label').textContent(), /第 2\/8 套/);
+    await page.locator('[data-fd01g-view="current"]').click();
+    await page.waitForLoadState('networkidle');
+    await page.locator('#detect').click();
+    await page.getByText('电流检测完成，曲线已生成').waitFor();
+    await open(page, baseUrl, 'pages/device-fd01g-more.html?model=FD01G&device=FD01G-7319E2&mode=bt&view=electric');
+    assert.equal(await page.getByText('保存采集配置').count(), 1);
+    assert.equal(await page.getByText('单独保存电流阈值').count(), 1);
+
+    await open(page, baseUrl, 'pages/tab-device-4g.html');
+    assert.equal(await page.locator('.remote-card').count(), 2, '4G page must only render the approved E50 list');
+    assert.equal(await page.getByText('退出远程调试').count(), 0);
+    await open(page, baseUrl, 'pages/tab-tools.html');
+    assert.equal(await page.locator('#tool-hero').count(), 1, 'tools must lead with the fluoro support query hero');
+    assert.match(await page.locator('#tool-hero').textContent(), /氟机支持查询/);
+    assert.equal(await page.locator('#tool-cards .tool-mini').count(), 3, 'frequent tools must render as cards');
+    assert.equal(await page.locator('#tool-menu .list-row').count(), 4, 'remaining services must collapse into a menu list');
+    assert.equal(await page.getByText('专业版切换').count(), 0, 'tools must remove the pro-version switch');
+    assert.equal(await page.locator('.aa-ball').count(), 1, 'tools page must show the ai assistant ball');
+    await page.locator('.aa-ball').click();
+    await page.waitForTimeout(400);
+    assert.equal(await page.locator('.aa-chat.show').count(), 1, 'ai chat layer must open');
+    assert.ok((await page.locator('.aa-row').count()) >= 2, 'ai chat must render preset messages');
+    await page.locator('.aa-input').fill('你好');
+    await page.locator('.aa-send').click();
+    await page.waitForTimeout(900);
+    assert.ok((await page.locator('.aa-bubble-user').count()) === 1, 'user message must render');
+    assert.ok((await page.locator('.aa-bubble-agent').count()) >= 2, 'auto reply must render');
+    await page.locator('.aa-human').click();
+    await page.waitForTimeout(200);
+    await page.locator('.aa-back').click();
+    await page.waitForTimeout(400);
+    assert.equal(await page.locator('.aa-chat.show').count(), 0, 'ai chat layer must close');
+    await open(page, baseUrl, 'pages/tool-wiring.html');
+    assert.equal(await page.locator('.aa-ball').count(), 1, 'base-css tool page must show the ai assistant ball');
+    assert.equal(await page.locator('.aa-chat.show').count(), 0, 'ai chat must stay hidden on page load');
+    assert.equal(await page.locator('.aa-mask.show').count(), 0, 'ai mask must stay hidden on page load');
+    await page.locator('.aa-ball').click();
+    await page.waitForTimeout(400);
+    assert.equal(await page.locator('.aa-chat.show').count(), 1, 'ai chat must open on base-css tool pages');
+    await page.locator('.aa-back').click();
+    await page.waitForTimeout(400);
+    assert.equal(await page.locator('.aa-chat.show').count(), 0, 'ai chat must close on base-css tool pages');
+    await open(page, baseUrl, 'pages/tab-tools.html');
+    await page.locator('.tab', { hasText: '我的' }).click();
+    await page.waitForLoadState('networkidle');
+    assert.equal(await page.locator('#mine-list .list-row').count(), 2, 'mine must only expose account and version');
+    assert.equal(await page.getByText('关于飞奕').count(), 0, 'mine must remove About Feiyi');
+
+    await open(page, baseUrl, 'pages/tab-tools.html');
+    assert.match(await page.locator('.aa-ball').textContent(), /奕/, 'assistant ball must use the Yi glyph');
+    const ballBox = await page.locator('.aa-ball').boundingBox();
+    await page.mouse.move(ballBox.x + ballBox.width / 2, ballBox.y + ballBox.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(ballBox.x - 300, ballBox.y - 150, { steps: 10 });
+    await page.mouse.up();
+    await page.waitForTimeout(400);
+    const dockedLeft = await page.locator('.aa-ball').evaluate((el) => el.getBoundingClientRect().left);
+    assert(dockedLeft < 0, `ball must half-hide at the left edge after dragging (left=${dockedLeft})`);
+    await page.locator('.aa-ball').click();
+    assert(await page.locator('.aa-chat').evaluate((el) => el.classList.contains('show')), 'tapping a docked ball must open the chat');
+    await page.locator('.aa-back').click();
+    await open(page, baseUrl, 'pages/tab-tools.html');
+    const resetLeft = await page.locator('.aa-ball').evaluate((el) => el.getBoundingClientRect().left);
+    assert(resetLeft > 300, `ball must restore the default right-side position on re-entry (left=${resetLeft})`);
+
+    await page.setViewportSize({ width: 320, height: 700 });
+    await open(page, baseUrl, 'pages/tab-device-bt.html');
+    await assertNoHorizontalOverflow(page, '320px Bluetooth devices');
+    await open(page, baseUrl, 'pages/device-fd01g-more.html?model=FD01G&device=FD01G-7319E2&mode=bt&view=control');
+    await assertNoHorizontalOverflow(page, '320px FD01G control');
+    assert(errors.length === 0, `browser console must stay clean:\n${errors.join('\n')}`);
+    console.log('Browser smoke checks passed');
+  } finally {
+    if (browser) await browser.close();
+    if (server) await new Promise((resolve) => server.close(resolve));
+  }
+})().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

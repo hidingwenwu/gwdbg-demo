@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>氟机支持查询 · 暂未收录</title>
+  <link rel="stylesheet" href="../_base.css">
+  <style>
+    .miss-card { display: flex; gap: 12px; padding: 16px; align-items: flex-start; }
+    .miss-card .mc-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--ios-orange); color: #fff;
+      font-size: 22px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(255, 149, 0, 0.28);
+    }
+    .miss-card .mc-model { font-size: 16px; font-weight: 700; }
+    .miss-card .mc-verdict { font-size: var(--fs-label); font-weight: 600; color: #9A5B00; margin-top: 3px; }
+    .miss-card .mc-sub { font-size: var(--fs-tiny); color: var(--text-secondary); margin-top: 5px; line-height: 1.6; }
+
+    .form-card { padding: 16px; }
+    .form-card .field-row:last-child { margin-bottom: 0; }
+
+    .photo-row { display: flex; gap: 10px; }
+    .photo-add {
+      width: 72px; height: 72px;
+      border: 1px dashed var(--text-placeholder);
+      border-radius: var(--radius-ios);
+      display: inline-flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      color: var(--text-placeholder); font-size: 11px;
+      cursor: pointer;
+    }
+    .photo-add .plus { font-size: 22px; line-height: 1; }
+  </style>
+</head>
+<body>
+
+<div class="phone-shell">
+<div class="phone-screen">
+
+  <div class="wx-statusbar">
+    <span>17:41</span>
+    <span class="sb-right"><span>68%</span></span>
+  </div>
+  <div class="wx-navbar">
+    <a class="nav-back" href="tool-fluoro-input.html">‹</a>
+    <div class="nav-title">型号暂未收录</div>
+    <div class="nav-capsule">
+      <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
+      <span class="cap-sep"></span><span class="cap-circle"></span>
+    </div>
+  </div>
+
+  <form id="miss-form" data-validate style="display:contents;">
+  <div class="page-body no-tabbar has-footer-btn">
+
+    <div class="card miss-card">
+      <div class="mc-icon">!</div>
+      <div>
+        <div class="mc-model" id="mc-model">KFR-XX520</div>
+        <div class="mc-verdict">该型号暂未收录，暂不支持直接接入</div>
+        <div class="mc-sub">请通过留言反馈提供外机铭牌照片、电路图等信息，适配团队评估后为你提供对接支持</div>
+      </div>
+    </div>
+
+    <div class="card form-card">
+      <div class="field-row">
+        <label class="field-label">外机品牌 <span class="required">*</span></label>
+        <input class="input" id="miss-brand" required value="其他品牌" style="background: var(--ios-fill);">
+      </div>
+      <div class="field-row">
+        <label class="field-label">外机完整型号 <span class="required">*</span></label>
+        <input class="input" id="miss-model" required value="KFR-XX520" style="background: var(--ios-fill);">
+      </div>
+    </div>
+
+    <div class="card form-card">
+      <div class="field-row">
+        <label class="field-label">外机铭牌照片 / 电路图</label>
+        <div class="photo-row">
+          <div class="photo-add" onclick="showToast('请选择铭牌照片')"><span class="plus">＋</span>铭牌照片</div>
+          <div class="photo-add" onclick="showToast('请选择电路图')"><span class="plus">＋</span>电路图</div>
+        </div>
+        <div class="field-hint">清晰的铭牌照片与外机电路图可加快适配评估</div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">补充说明</label>
+        <textarea class="textarea" style="min-height: 72px; background: var(--ios-fill);" data-max="200" data-counter="#miss-counter" placeholder="项目地点 / 台数 / 期望接入时间（选填）"></textarea>
+        <div class="field-hint text-right" id="miss-counter">0 / 200</div>
+      </div>
+    </div>
+
+    <div class="card form-card">
+      <div class="field-row">
+        <label class="field-label">联系方式 <span class="required">*</span></label>
+        <input class="input" required value="138****8203" style="background: var(--ios-fill);">
+        <div class="field-hint">默认取微信授权手机号，可手动修改</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bar">
+    <a class="btn btn-ghost" style="flex:1;" href="feedback.html">前往留言反馈</a>
+    <button type="submit" class="btn btn-primary-solid btn-xl" style="flex:1.5;">提交适配申请</button>
+  </div>
+  </form>
+
+</div>
+</div>
+
+  <script src="../interactions.js"></script>
+  <script src="../assets/app/ai-assistant.js"></script>
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search);
+      var brand = q.get('brand'), model = q.get('model');
+      if (brand) document.getElementById('miss-brand').value = brand;
+      if (model) {
+        document.getElementById('miss-model').value = model;
+        document.getElementById('mc-model').textContent = model;
+      }
+    })();
+    document.getElementById('miss-form').addEventListener('form:valid', function () {
+      showToast('已提交，评估结果将通过消息通知');
+      setTimeout(function () { location.href = 'tool-fluoro-input.html'; }, 800);
+    });
+  </script>
+</body>
+</html>

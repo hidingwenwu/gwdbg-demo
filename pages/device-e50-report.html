@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>诊断报告</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell" id="e50-report">
+    <div class="statusbar"><span>14:05</span><span class="status-icons">● ● 77%</span></div>
+    <header class="topbar"><button class="back" id="nav-back" type="button" aria-label="返回">‹</button><div class="topbar-title">诊断报告</div><button class="report-save" id="save-report" type="button">保存</button></header>
+    <div class="page report-body" id="report-body"></div>
+    <div class="side-menu-overlay" id="side-menu-overlay"></div><aside class="side-menu-panel" id="side-menu" aria-label="设备功能"></aside>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/connection-state.js"></script><script src="../assets/app/e50.js"></script>
+  <script>
+  (function () {
+    var E = window.GWDBG_E50;
+    var brand = E.setupState().brand || '格力';
+    var report = E.reportDatasets.pressure;
+    var meta = report.meta.replace('{{brand}}', brand);
+
+    var html = '<div class="report-head">' +
+      '<div class="alarm-icon"><span>!</span></div>' +
+      '<div class="report-meta"><strong class="report-title warning-text">' + report.title + '</strong>' +
+      '<span class="report-sub">' + meta + '</span><span class="report-time">' + report.time + '</span>' +
+      '<span class="report-summary">' + report.summary + '</span></div></div>';
+
+    html += '<div class="report-section"><span class="section-label">FAULTS 故障分析</span>' + report.issues.map(function (issue, fi) {
+      var block = '<section class="issue-card"><div class="issue-header"><strong>' + issue.name + '</strong><span class="issue-code-badge">' + issue.code + '</span></div>' +
+        '<div class="issue-params">' +
+        '<div class="issue-param-row"><span>目标</span><span>' + issue.target + '</span></div>' +
+        '<div class="issue-param-row"><span>实测值</span><span class="warning-text">' + issue.value + '</span></div>' +
+        '<div class="issue-param-row"><span>正常范围</span><span>' + issue.range + '</span></div>' +
+        '<div class="issue-param-row"><span>样本数</span><span>' + issue.sampleCount + '</span></div></div>';
+      if (issue.causes && issue.causes.length) {
+        block += '<div class="causes-section"><span class="causes-label">可能原因</span>' + issue.causes.map(function (c, ci) {
+          return '<div class="cause-row"><span class="cause-rank">' + (ci + 1) + '</span><div class="cause-info"><div class="cause-header-row"><span class="cause-name">' + c[0] + '</span><span class="cause-pct ' + (ci === 0 ? 'accent-text' : 'muted-pct') + '">' + c[1] + '</span></div>' +
+            '<div class="cause-bar-bg"><div class="cause-bar-fill ' + (ci === 0 ? 'fill-primary' : ci === 1 ? 'fill-amber' : 'fill-muted') + '" style="width:' + c[1] + '"></div></div></div></div>';
+        }).join('') + '</div>';
+      }
+      if (issue.steps && issue.steps.length) {
+        block += '<div class="steps-section"><span class="steps-label">排查步骤</span>' + issue.steps.map(function (step, si) {
+          return '<div class="step-row"><span class="step-num">' + (si + 1) + '</span><span class="step-text">' + step + '</span></div>';
+        }).join('') + '</div>';
+      }
+      return block + '</section>';
+    }).join('') + '</div>';
+
+    html += '<div class="report-section"><span class="section-label">PARAMS 设备参数</span>' +
+      E.detailDatasets.outdoor.groups.map(function (g) {
+        return '<div class="param-group-block"><span class="param-group-title">' + g.title + '</span>' + g.rows.map(function (r) {
+          return '<div class="param-row' + (r.abnormal ? ' abnormal' : '') + '"><span class="param-name">' + r.name + '</span><span class="param-val' + (r.abnormal ? ' warning-text' : '') + '">' + r.value + (r.unit ? ' ' + r.unit : '') + '</span></div>';
+        }).join('') + '</div>';
+      }).join('') + '</div>';
+
+    html += '<div class="bottom-actions"><button class="button" id="save-bottom" type="button" style="width:100%">保存报告为图片</button></div>';
+    document.getElementById('report-body').innerHTML = html;
+
+    function save() { E.toast('报告图片已生成'); }
+    document.getElementById('save-report').onclick = save;
+    document.getElementById('save-bottom').onclick = save;
+    document.getElementById('nav-back').onclick = function () {
+      if (history.length > 1) history.back();
+      else location.href = E.link('device-e50.html');
+    };
+    E.bindMenu('');
+  })();
+  </script>
+</body></html>

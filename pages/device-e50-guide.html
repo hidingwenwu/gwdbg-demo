@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>操作指引</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell" id="e50-guide">
+    <div class="statusbar"><span>14:16</span><span class="status-icons">● ● 77%</span></div>
+    <header class="topbar"><button class="back" id="nav-back" type="button" aria-label="返回">‹</button><div class="topbar-title">操作指引</div><div class="capsule">··· ○</div></header>
+    <div class="guide-tabs" id="guide-tabs"></div>
+    <div class="page"><div class="guide-list" id="guide-list"></div></div>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/connection-state.js"></script><script src="../assets/app/e50.js"></script>
+  <script>
+  (function () {
+    var E = window.GWDBG_E50;
+    var tabs = [
+      { id: 'connect', name: '连接与配置' },
+      { id: 'diagnose', name: 'AI 诊断' },
+      { id: 'install', name: '安装接线' }
+    ];
+    var videos = [
+      { tab: 'connect', title: 'E50 蓝牙配对与设备连接演示' },
+      { tab: 'connect', title: '空调品牌选择与系统搜索流程' },
+      { tab: 'connect', title: '4G 远程连接配置指南' },
+      { tab: 'diagnose', title: 'AI 智能诊断快速上手' },
+      { tab: 'diagnose', title: '诊断报告解读与排查建议' },
+      { tab: 'install', title: '多联机通讯线接线指导' },
+      { tab: 'install', title: 'E50 现场安装注意事项' }
+    ];
+    var activeTab = 'connect';
+    var tabsHost = document.getElementById('guide-tabs'), listHost = document.getElementById('guide-list');
+    function render() {
+      tabsHost.innerHTML = tabs.map(function (tab) {
+        return '<button class="guide-tab' + (tab.id === activeTab ? ' active' : '') + '" data-tab="' + tab.id + '" type="button">' + tab.name + '</button>';
+      }).join('');
+      var list = videos.filter(function (v) { return v.tab === activeTab; });
+      listHost.innerHTML = list.length ? list.map(function (v) {
+        return '<button class="guide-card" type="button"><span class="guide-thumb"><span class="guide-play"></span></span><span class="guide-card-title">' + v.title + '</span></button>';
+      }).join('') : '<p class="guide-empty">暂无视频</p>';
+    }
+    render();
+    tabsHost.addEventListener('click', function (event) {
+      var tab = event.target.closest('[data-tab]');
+      if (!tab) return;
+      activeTab = tab.dataset.tab;
+      render();
+    });
+    listHost.addEventListener('click', function () { E.toast('视频播放（演示）'); });
+    document.getElementById('nav-back').onclick = function () {
+      if (history.length > 1) history.back();
+      else location.href = E.link('device-e50.html');
+    };
+  })();
+  </script>
+</body></html>

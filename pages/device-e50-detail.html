@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>参数详情</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell" id="e50-detail">
+    <div class="statusbar"><span>14:01</span><span class="status-icons">● ● 77%</span></div>
+    <div class="detail-hero">
+      <button class="hero-back-float" id="nav-back" type="button" aria-label="返回">‹</button>
+      <div class="detail-hero-content">
+        <div class="hero-text-wrap"><strong class="hero-title" id="hero-title">室外机模块（主）</strong><span class="hero-scroll-hint" id="scroll-hint" hidden>可横向滑动查看更多内机参数</span></div>
+        <img class="hero-device" id="hero-device" src="../assets/products/waiji.png" alt="">
+      </div>
+    </div>
+    <div class="page detail-body" id="detail-body"></div>
+    <div class="action-bar detail-actions">
+      <button class="button" id="export-btn" type="button">导出文件</button>
+      <button class="button primary" id="ai-btn" type="button">AI 诊断</button>
+    </div>
+
+    <div class="slide-hint-overlay" id="slide-hint" hidden>
+      <div class="slide-hint-box"><span>横滑查看更多空调参数</span><div class="slide-hint-bar"><i></i></div></div>
+    </div>
+
+    <div class="sheet-mask" id="sheet-mask"></div>
+    <section class="picker-sheet" id="indoor-sheet">
+      <div class="sheet-handle"></div>
+      <div class="cs-header"><span class="picker-title">选择诊断机器</span><button class="sheet-close" id="indoor-close" type="button">×</button></div>
+      <div id="indoor-sheet-list"></div>
+    </section>
+    <div class="side-menu-overlay" id="side-menu-overlay"></div><aside class="side-menu-panel" id="side-menu" aria-label="设备功能"></aside>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/connection-state.js"></script><script src="../assets/app/e50.js"></script>
+  <script>
+  (function () {
+    var E = window.GWDBG_E50;
+    var q = new URLSearchParams(location.search);
+    var type = q.get('type') === 'indoor' ? 'indoor' : 'outdoor';
+    var role = q.get('role') || '主';
+    var id = q.get('id') || '1';
+    var ids = q.get('ids') || '';
+    var isMulti = type === 'indoor' && !!ids;
+    var simulateMode = E.setupState().simulateMode;
+
+    function flatRows(ds) { return (ds.groups || []).reduce(function (acc, g) { return acc.concat(g.rows || []); }, []); }
+    function byAbnormal(a, b) { return (b.abnormal ? 1 : 0) - (a.abnormal ? 1 : 0); }
+
+    var body = document.getElementById('detail-body');
+    var indoorList = [];
+
+    if (type === 'outdoor') {
+      document.getElementById('hero-title').textContent = '室外机模块（' + role + '）';
+      document.getElementById('hero-device').src = '../assets/products/waiji.png';
+      var rows = flatRows(E.detailDatasets.outdoor).sort(byAbnormal);
+      body.innerHTML = '<section class="param-card">' + rows.map(function (r) {
+        return '<div class="param-row' + (r.abnormal ? ' abnormal' : '') + '"><div class="param-left"><span class="param-name">' + r.name + (r.unit ? '（' + r.unit + '）' : '') + '</span>' +
+          (r.abnormal && r.normalRange ? '<span class="param-range">正常范围：' + r.normalRange + '</span>' : '') +
+          '</div><strong class="param-value' + (r.abnormal ? ' abnormal' : '') + '">' + r.value + '</strong></div>';
+      }).join('') + '</section>';
+      indoorList = [{ id: null, title: '室外机模块（' + role + '）' }];
+    } else if (isMulti) {
+      var idList = ids.split(',').map(function (v) { return parseInt(v, 10); }).filter(Boolean);
+      var datasets = idList.map(function (i) { return E.detailDatasets.indoor[String(i)] || E.detailDatasets.indoor['1']; });
+      var rowLists = datasets.map(flatRows);
+      var paramNames = rowLists[0].map(function (r) { return r.name + (r.unit ? '（' + r.unit + '）' : ''); });
+      document.getElementById('hero-title').textContent = '内机参数（' + idList.length + '台）';
+      document.getElementById('hero-device').src = '../assets/products/neiji.png';
+      if (idList.length > 2) document.getElementById('scroll-hint').hidden = false;
+      indoorList = idList.map(function (i, idx) { return { id: i, title: '内机 · ' + datasets[idx].name }; });
+      body.innerHTML = '<div class="multi-table"><div class="multi-left"><div class="multi-head-cell">参数</div>' +
+        paramNames.map(function (name) { return '<div class="multi-name-cell">' + name + '</div>'; }).join('') + '</div>' +
+        '<div class="multi-right"><div class="multi-cols">' + datasets.map(function (dsItem, idx) {
+          return '<div class="multi-col"><div class="multi-head-cell">内机 · ' + dsItem.name + '</div>' +
+            rowLists[idx].map(function (v) { return '<div class="multi-val-cell' + (v.abnormal ? ' abnormal' : '') + '">' + v.value + '</div>'; }).join('') + '</div>';
+        }).join('') + '</div></div></div>';
+      if (idList.length > 2) document.getElementById('slide-hint').hidden = false;
+    } else {
+      var ds = E.detailDatasets.indoor[id] || E.detailDatasets.indoor['1'];
+      document.getElementById('hero-title').textContent = '内机 · ' + ds.name;
+      document.getElementById('hero-device').src = '../assets/products/neiji.png';
+      var irows = flatRows(ds).sort(byAbnormal);
+      body.innerHTML = '<section class="param-card">' + irows.map(function (r) {
+        return '<div class="param-row' + (r.abnormal ? ' abnormal' : '') + '"><div class="param-left"><span class="param-name">' + r.name + (r.unit ? '（' + r.unit + '）' : '') + '</span>' +
+          (r.abnormal && r.normalRange ? '<span class="param-range">正常范围：' + r.normalRange + '</span>' : '') +
+          '</div><strong class="param-value' + (r.abnormal ? ' abnormal' : '') + '">' + r.value + '</strong></div>';
+      }).join('') + '</section>';
+      indoorList = [{ id: Number(id) || 1, title: '内机 · ' + ds.name }];
+    }
+
+    document.getElementById('nav-back').onclick = function () {
+      if (history.length > 1) history.back();
+      else location.href = E.link('device-e50.html');
+    };
+    document.getElementById('export-btn').onclick = function () { E.toast('导出功能开发中'); };
+    document.getElementById('slide-hint').onclick = function () { this.hidden = true; };
+
+    var sheet = E.bindSheet('sheet-mask', ['indoor-sheet']);
+    document.getElementById('indoor-close').onclick = sheet.close;
+
+    function goAi(machine) {
+      if (machine.id == null) location.href = E.link('device-e50-ai.html', { type: 'outdoor', role: role });
+      else location.href = E.link('device-e50-ai.html', { type: 'indoor', id: machine.id });
+    }
+
+    document.getElementById('ai-btn').onclick = function () {
+      if (type === 'indoor' && simulateMode === 'indoor') { E.toast('内机模拟状态无法AI诊断'); return; }
+      if (type === 'outdoor' && simulateMode === 'outdoor') { E.toast('外机模拟状态，无法AI诊断'); return; }
+      if (indoorList.length <= 1) {
+        goAi(indoorList[0]);
+      } else {
+        document.getElementById('indoor-sheet-list').innerHTML = indoorList.map(function (item) {
+          return '<button class="picker-option" type="button" data-machine="' + item.id + '"><span><strong>' + item.title + '</strong></span><b>›</b></button>';
+        }).join('');
+        sheet.open('indoor-sheet');
+      }
+    };
+    document.getElementById('indoor-sheet-list').addEventListener('click', function (event) {
+      var item = event.target.closest('[data-machine]');
+      if (!item) return;
+      sheet.close();
+      goAi({ id: item.dataset.machine });
+    });
+
+    E.bindMenu('');
+  })();
+  </script>
+</body></html>

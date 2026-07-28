@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>氟机支持查询</title>
+  <link rel="stylesheet" href="../_base.css">
+  <style>
+    .query-card { padding: 16px; }
+    .query-card .field-row:last-child { margin-bottom: 0; }
+    .fl-tip {
+      font-size: var(--fs-tiny); color: var(--text-secondary);
+      margin: 10px 4px 0; line-height: 1.6;
+    }
+    .query-btn { margin-top: 14px; }
+
+    .brand-select {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; width: 100%; text-align: left; cursor: pointer;
+    }
+    .brand-select .bs-value {
+      flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .brand-select .bs-value.is-placeholder { color: var(--text-placeholder); }
+    .brand-select .bs-caret {
+      flex-shrink: 0; color: var(--text-placeholder);
+      font-family: Arial; font-size: 19px; line-height: 1;
+      transform: rotate(90deg); transition: transform 0.22s;
+    }
+    .brand-select[aria-expanded="true"] .bs-caret { transform: rotate(-90deg); }
+
+    body[data-page-ready="true"] .phone-screen > .picker-mask,
+    body[data-page-ready="true"] .phone-screen > .brand-sheet { animation: none; }
+    .picker-mask {
+      position: absolute; inset: 0; z-index: 500;
+      background: rgba(0, 0, 0, 0.42);
+      opacity: 0; pointer-events: none; transition: opacity 0.22s;
+    }
+    .picker-mask.show { opacity: 1; pointer-events: auto; }
+    .brand-sheet {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 600;
+      background: var(--ios-card);
+      border-radius: 24px 24px 0 0;
+      padding: 12px 16px 0;
+      max-height: 76%;
+      display: flex; flex-direction: column;
+      transform: translateY(105%);
+      transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.12);
+    }
+    .brand-sheet.show { transform: translateY(0); }
+    .bs-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 4px 10px;
+    }
+    .bs-title { font-size: var(--fs-title); font-weight: 600; }
+    .bs-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--ios-fill); color: var(--text-secondary);
+      font-size: 16px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .bs-scroll {
+      overflow-y: auto; overscroll-behavior: contain;
+      padding: 0 4px calc(var(--home-bar) + 12px);
+    }
+    .bs-section {
+      font-size: var(--fs-small); color: var(--text-secondary);
+      padding: 10px 0 8px;
+    }
+    .bs-common {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    }
+    .bs-common .chip { padding: 8px 0; }
+    .bs-option {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 13px 4px; min-height: 48px;
+      border-top: 0.5px solid var(--line-soft);
+      font-size: var(--fs-body); color: var(--text-primary);
+      text-align: left; transition: background 0.15s;
+    }
+    .bs-option:first-child { border-top: 0; }
+    .bs-option:active { background: var(--ios-bg); }
+    .bs-option .bs-check { color: var(--fy-blue); font-weight: 600; opacity: 0; }
+    .bs-option.selected { color: var(--fy-blue); font-weight: 500; }
+    .bs-option.selected .bs-check { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div class="phone-shell">
+<div class="phone-screen">
+
+  <div class="wx-statusbar">
+    <span>17:41</span>
+    <span class="sb-right"><span>68%</span></span>
+  </div>
+  <div class="wx-navbar">
+    <a class="nav-back" href="tab-tools.html">‹</a>
+    <div class="nav-title">氟机支持查询</div>
+    <div class="nav-capsule">
+      <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
+      <span class="cap-sep"></span><span class="cap-circle"></span>
+    </div>
+  </div>
+
+  <div class="page-body no-tabbar">
+
+    <div class="card query-card">
+      <div class="field-row">
+        <label class="field-label">空调品牌 <span class="required">*</span></label>
+        <button class="select brand-select" id="brand-select" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="bs-value is-placeholder" id="brand-value">请选择空调品牌</span>
+          <span class="bs-caret">›</span>
+        </button>
+      </div>
+      <div class="field-row">
+        <label class="field-label">外机完整型号 <span class="required">*</span></label>
+        <input class="input" id="fl-model" placeholder="输入多联机外机完整型号，如 RUXYQ12BA">
+        <div class="field-hint">请按外机铭牌填写完整型号，含字母与数字</div>
+      </div>
+      <button class="btn btn-primary-solid btn-block query-btn" id="fl-query" type="button">立即查询</button>
+      <div class="fl-tip">支持多联机（氟机）外机查询；若暂未收录，可通过留言反馈提交铭牌照片与电路图，适配团队评估后提供对接支持。</div>
+    </div>
+
+    <div class="section-title">
+      <span>查询历史</span>
+      <span class="text-brand" style="cursor:pointer;" onclick="showToast('已清空查询历史')">清空</span>
+    </div>
+    <div class="card">
+      <div class="kv-list">
+        <a class="kv-item" href="tool-fluoro-result.html?brand=大金&model=RUXYQ12BA">
+          <span class="kv-label">大金 RUXYQ12BA</span>
+          <span class="kv-value kv-arrow"><span class="badge badge-success">支持</span></span>
+        </a>
+        <a class="kv-item" href="tool-fluoro-result.html?brand=格力&model=GMV-560WM/X">
+          <span class="kv-label">格力 GMV-560WM/X</span>
+          <span class="kv-value kv-arrow"><span class="badge badge-success">支持</span></span>
+        </a>
+        <a class="kv-item" href="tool-fluoro-submit.html?brand=其他品牌&model=KFR-XX520">
+          <span class="kv-label">某杂牌 KFR-XX520</span>
+          <span class="kv-value kv-arrow"><span class="badge badge-warning">未收录</span></span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="picker-mask" id="brand-mask"></div>
+  <section class="brand-sheet" id="brand-sheet" aria-label="选择空调品牌">
+    <div class="sheet-handle"></div>
+    <div class="bs-header">
+      <span class="bs-title">选择空调品牌</span>
+      <button class="bs-close" id="brand-close" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="bs-scroll">
+      <div class="bs-section">常用品牌</div>
+      <div class="bs-common" id="brand-common"></div>
+      <div class="bs-section">全部品牌</div>
+      <div class="bs-all" id="brand-all"></div>
+    </div>
+  </section>
+
+</div>
+</div>
+
+  <script src="../interactions.js"></script>
+  <script src="../assets/app/ai-assistant.js"></script>
+  <script>
+    var COMMON_BRANDS = ['大金', '日立', '格力', '美的', '三菱重工', '三菱电机', '海尔', '海信'];
+    var ALL_BRANDS = [
+      '奥克斯', '大金', '东芝', '富士通将军', '格力', '海尔', '海信', '开利',
+      'LG', '麦克维尔', '美的', '日立', '三菱电机', '三菱重工', '三星', '松下',
+      'TCL', '特灵', '天加', '约克', '志高', '其他品牌'
+    ];
+    var currentBrand = '';
+
+    var trigger = document.getElementById('brand-select');
+    var valueEl = document.getElementById('brand-value');
+    var mask = document.getElementById('brand-mask');
+    var sheet = document.getElementById('brand-sheet');
+    var commonBox = document.getElementById('brand-common');
+    var allBox = document.getElementById('brand-all');
+
+    commonBox.innerHTML = COMMON_BRANDS.map(function (b) {
+      return '<button class="chip" type="button" data-brand="' + b + '">' + b + '</button>';
+    }).join('');
+    allBox.innerHTML = ALL_BRANDS.map(function (b) {
+      return '<button class="bs-option" type="button" data-brand="' + b + '">' +
+        '<span>' + b + '</span><span class="bs-check">✓</span></button>';
+    }).join('');
+
+    function openPicker() {
+      mask.classList.add('show');
+      sheet.classList.add('show');
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+    function closePicker() {
+      mask.classList.remove('show');
+      sheet.classList.remove('show');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+    function selectBrand(brand) {
+      currentBrand = brand;
+      valueEl.textContent = brand;
+      valueEl.classList.remove('is-placeholder');
+      trigger.classList.remove('is-error');
+      commonBox.querySelectorAll('.chip').forEach(function (chip) {
+        chip.classList.toggle('active', chip.dataset.brand === brand);
+      });
+      allBox.querySelectorAll('.bs-option').forEach(function (opt) {
+        opt.classList.toggle('selected', opt.dataset.brand === brand);
+      });
+      closePicker();
+    }
+
+    trigger.addEventListener('click', openPicker);
+    mask.addEventListener('click', closePicker);
+    document.getElementById('brand-close').addEventListener('click', closePicker);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closePicker();
+    });
+    sheet.addEventListener('click', function (event) {
+      var item = event.target.closest('[data-brand]');
+      if (item) selectBrand(item.dataset.brand);
+    });
+
+    function doQuery() {
+      if (!currentBrand) {
+        trigger.classList.add('is-error');
+        showToast('请选择空调品牌');
+        openPicker();
+        return;
+      }
+      var model = document.getElementById('fl-model').value.trim();
+      if (!model) { showToast('请输入外机完整型号'); return; }
+      var params = '?brand=' + encodeURIComponent(currentBrand) + '&model=' + encodeURIComponent(model);
+      location.href = (currentBrand === '其他品牌' ? 'tool-fluoro-submit.html' : 'tool-fluoro-result.html') + params;
+    }
+    document.getElementById('fl-query').addEventListener('click', doQuery);
+    document.getElementById('fl-model').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') doQuery();
+    });
+  </script>
+</body>
+</html>

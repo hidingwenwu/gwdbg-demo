@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>设备 · 蓝牙调试</title>
+  <link rel="stylesheet" href="../assets/app/app.css">
+</head>
+<body>
+  <main class="app-shell">
+    <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
+    <header class="topbar home"><div class="topbar-title">设备</div><div class="capsule">··· ○</div></header>
+    <div class="page app-content">
+      <nav class="mode-switch" aria-label="调试方式">
+        <a class="active" href="tab-device-bt.html">蓝牙调试</a>
+        <a href="tab-device-4g.html">4G 远程</a>
+      </nav>
+      <div class="scan-line">
+        <div class="scan-state"><span class="scan-dot"></span><span>正在扫描蓝牙设备</span></div>
+        <button class="text-button" type="button" id="refresh">刷新</button>
+      </div>
+      <div class="product-grid" id="product-list"></div>
+    </div>
+    <nav class="tabbar">
+      <a class="tab active" href="tab-device-bt.html">设备</a>
+      <a class="tab" href="tab-tools.html">工具</a>
+      <a class="tab" href="tab-mine.html">我的</a>
+    </nav>
+  </main>
+  <div class="toast" id="toast">设备列表已刷新</div>
+  <script src="../assets/app/product-data.js"></script>
+  <script src="../assets/app/connection-state.js"></script>
+  <script src="../assets/app/device-list.js"></script>
+  <script>
+    document.getElementById('refresh').addEventListener('click', function () {
+      var toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(function () { toast.classList.remove('show'); }, 1300);
+    });
+  </script>
+</body>
+</html>
