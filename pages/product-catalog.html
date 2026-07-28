@@ -9,4 +9,5 @@
     function render(filter) { host.innerHTML = GWDBG_DATA.products.filter(function(p){return (p.model + p.name + p.category).toLowerCase().includes(filter.toLowerCase());}).map(function(p){return '<a class="card product-head" href="product-intro.html?model=' + p.model + '"><img class="product-image" src="' + p.image + '" alt="' + p.model + '"><span><span class="product-title">' + p.model + '</span><span class="product-type">' + p.category + '<br>' + p.variant + '</span></span><span class="chevron">›</span></a>';}).join(''); }
     document.getElementById('solution-search').addEventListener('input',function(e){render(e.target.value.trim());}); render('');
   </script>
+  <script src="../assets/app/ai-assistant.js"></script>
 </body></html>

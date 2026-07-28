@@ -126,14 +126,16 @@ const deviceFlow = read('assets/app/device-flow.js');
 const workbench = read('assets/app/workbench.js');
 assert(quickPage.includes('id="quick-tasks"'), 'quick page must render product-driven tasks');
 assert(!quickPage.includes('跳过快速配置'), 'quick page must remove skip quick configuration');
-assert(quickPage.includes('进入设备详情'), 'quick page must keep the device detail action');
+assert(deviceFlow.includes('进入设备详情') && deviceFlow.includes('hero-detail-link'), 'hero card must contain the device detail entry');
+assert(quickPage.includes('id="more-link"') && quickPage.includes('更多配置'), 'quick page bottom action must be 更多配置');
+assert(morePage.includes('更多配置'), 'more page must be titled 更多配置');
 assert(detailPage.includes('id="more-settings"'), 'device details must expose more settings');
 assert(detailPage.includes('id="device-parameters"'), 'device details must expose full device parameters');
 assert(detailPage.includes('id="menu-trigger"') && detailPage.includes('id="side-menu"'), 'device details must use a left sidebar menu');
 assert(morePage.includes('id="more-page"') && morePage.includes('id="more-quick"') && morePage.includes('id="more-settings"'), 'more page must aggregate remaining settings');
 assert(morePage.includes('device-flow.js') && morePage.includes('workbench.js') && morePage.includes('connection-state.js'), 'more page must use the shared workbench shell');
 assert(deviceFlow.includes('renderMore'), 'device flow must render the more-functions page');
-for (const text of ['快速配置', '设备参数详情', '更多功能', "'工具'", "'我的'", 'tab-tools.html', 'tab-mine.html']) {
+for (const text of ['快速配置', '设备参数详情', '更多配置', 'side-app-btn', 'side-app-label">工具', 'side-app-label">我的', 'tab-tools.html', 'tab-mine.html']) {
   assert(workbench.includes(text), `sidebar must include ${text}`);
 }
 assert(workbench.includes('side-nav-divider'), 'sidebar must separate device functions from app entries');
@@ -279,8 +281,12 @@ for (const text of ['奕', 'pointermove', 'docked', 'placeDefault']) {
   assert(aiAssistant.includes(text), `assistant ball must include ${text}`);
 }
 assert(!aiAssistant.includes("innerHTML = 'AI"), 'assistant ball must not keep the old AI glyph');
-for (const page of ['tab-tools', 'tool-fluoro-input', 'tool-fluoro-result', 'tool-fluoro-submit', 'tool-wiring', 'tool-videos', 'tool-errcode', 'feedback']) {
-  assert(read(`pages/${page}.html`).includes('ai-assistant.js'), `${page} must load the ai assistant`);
+for (const page of ['tab-tools', 'tool-fluoro-input', 'tool-fluoro-result', 'tool-fluoro-submit', 'tool-wiring', 'tool-videos', 'tool-errcode', 'feedback',
+  'tab-device-bt', 'tab-device-4g', 'tab-mine', 'product-catalog', 'product-intro',
+  'device-quick', 'device-detail', 'device-more', 'device-setting', 'device-a01-ac', 'device-fd01g', 'device-fd01g-more',
+  'device-e50', 'device-e50-detail', 'device-e50-ai', 'device-e50-ac', 'device-e50-report', 'device-e50-upgrade',
+  'device-e50-devices', 'device-e50-service', 'device-e50-contact', 'device-e50-guide']) {
+  assert(read(`pages/${page}.html`).includes('ai-assistant.js'), `${page} must load the ai assistant globally`);
 }
 
 console.log('Product data requirements passed');

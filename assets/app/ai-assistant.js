@@ -146,10 +146,11 @@
     screen.appendChild(chat);
 
     var BALL = 56, HALF = 28, EDGE_GAP = 14;
+    function bottomGap() { return hasTabbar ? 80 : 104; }
     function topMin() { return 92; }
     function topMax() {
       var h = screen.getBoundingClientRect().height;
-      return h - (hasTabbar ? 68 : 24) - BALL - 12;
+      return h - bottomGap() - BALL;
     }
     function placeDefault() {
       var rect = screen.getBoundingClientRect();

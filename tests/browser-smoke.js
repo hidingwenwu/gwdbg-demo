@@ -66,9 +66,12 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.locator('[data-model="A01F"] .product-head').click();
     await page.locator('[data-expansion-model="A01F"] .connect-button').first().click();
     await page.waitForLoadState('networkidle');
-    assert.match(await page.locator('#page-title').textContent(), /A01F/);
+    assert.match(await page.locator('#page-title').textContent(), /快速配置/, 'quick page title must drop the model name');
+    assert.equal((await page.locator('#page-title').textContent()).includes('A01F'), false, 'quick page title must not contain the model');
     assert.match(await page.locator('.menu-pill').textContent(), /更多功能/, 'debug pages must label the sidebar trigger as 更多功能');
     assert.equal(await page.locator('#nav-back').count(), 1, 'debug pages must expose a back button');
+    assert.match(await page.locator('#more-link').textContent(), /更多配置/, 'quick page bottom action must be 更多配置');
+    assert.match(await page.locator('#detail-link').textContent(), /进入设备详情/, 'hero card must contain the device detail entry');
     assert.equal(await page.locator('#quick-tasks .task-row').count(), 4, 'A01F must expose four quick tasks');
     assert.equal(await page.getByText('跳过快速配置').count(), 0, 'quick setup must not expose the removed skip action');
     await page.locator('#detail-link').click();
@@ -76,8 +79,9 @@ async function assertNoHorizontalOverflow(page, route) {
     assert((await page.locator('#device-parameters .parameter-row').count()) >= 12, 'device details must expose full parameter rows');
     await page.locator('#menu-trigger').click();
     assert(await page.locator('body').evaluate((body) => body.classList.contains('side-menu-open')), 'menu trigger must open the left menu');
-    assert.equal(await page.locator('.side-nav-item').count(), 5, 'sidebar must merge settings into quick config, device details, more functions, tools and mine');
-    assert.equal(await page.locator('.side-nav-item', { hasText: '更多功能' }).count(), 1, 'sidebar must merge remaining settings into more functions');
+    assert.equal(await page.locator('.side-nav-item').count(), 3, 'sidebar must merge settings into quick config, device details and more config');
+    assert.equal(await page.locator('.side-nav-item', { hasText: '更多配置' }).count(), 1, 'sidebar must merge remaining settings into 更多配置');
+    assert.equal(await page.locator('.side-app-btn').count(), 2, 'sidebar must expose prominent tools and mine entries');
     assert.equal(await page.getByText('断开蓝牙连接').count(), 0, 'non-E50 sidebar must not keep the Bluetooth disconnect');
     await page.locator('#side-menu-overlay').click();
     await page.locator('.hero-disconnect').click();
@@ -129,7 +133,7 @@ async function assertNoHorizontalOverflow(page, route) {
     await open(page, baseUrl, 'pages/device-more.html?model=F16G&device=F16G-B7A403&mode=bt');
     assert.equal(await page.getByText('温度传感器补偿设定').count(), 1, 'F16G more functions must expose temperature compensation');
     await page.locator('#menu-trigger').click();
-    await page.locator('.side-nav-item', { hasText: '工具' }).first().click();
+    await page.locator('.side-app-btn', { hasText: '工具' }).first().click();
     await page.waitForLoadState('networkidle');
     assert.match(await page.locator('.topbar-title').textContent(), /工具/, 'sidebar tools entry must jump out to the tools tab');
     await open(page, baseUrl, 'pages/device-setting.html?model=F16G&device=F16G-B7A403&mode=bt&setting=temp-comp');

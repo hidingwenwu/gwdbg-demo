@@ -303,11 +303,11 @@
     }).join('');
     host.innerHTML = '<div class="side-menu-body">' +
       '<div class="menu-switch-wrap"><a class="menu-switch-btn" href="tab-device-bt.html"><span class="switch-icon">⇄</span>切换其他产品</a></div>' +
-      '<nav class="side-nav">' + nav +
-      '<div class="side-nav-divider" role="separator"></div>' +
-      '<a class="side-nav-item" href="tab-tools.html"><span>工具</span><b>›</b></a>' +
-      '<a class="side-nav-item" href="tab-mine.html"><span>我的</span><b>›</b></a>' +
-      '</nav></div>';
+      '<nav class="side-nav">' + nav + '</nav>' +
+      '<div class="side-app-entry">' +
+      '<a class="side-app-btn" href="tab-tools.html"><span class="side-app-icon">工</span><span class="side-app-label">工具</span><b class="side-app-arrow">›</b></a>' +
+      '<a class="side-app-btn" href="tab-mine.html"><span class="side-app-icon">我</span><span class="side-app-label">我的</span><b class="side-app-arrow">›</b></a>' +
+      '</div></div>';
     var capture = host.querySelector('[data-menu="capture"]');
     if (capture) capture.addEventListener('click', function (event) {
       event.preventDefault();

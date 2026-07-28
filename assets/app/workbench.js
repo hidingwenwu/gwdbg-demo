@@ -23,19 +23,13 @@
     if (product.family === 'fd01g') {
       return [
         ['home', '快速配置', 'device-fd01g.html'],
-        ['more', '更多功能', 'device-fd01g-more.html'],
-        ['divider'],
-        ['tools', '工具', 'tab-tools.html'],
-        ['mine', '我的', 'tab-mine.html']
+        ['more', '更多配置', 'device-fd01g-more.html']
       ];
     }
     return [
       ['quick', '快速配置', 'device-quick.html'],
       ['detail', '设备参数详情', 'device-detail.html'],
-      ['more', '更多功能', 'device-more.html'],
-      ['divider'],
-      ['tools', '工具', 'tab-tools.html'],
-      ['mine', '我的', 'tab-mine.html']
+      ['more', '更多配置', 'device-more.html']
     ];
   }
 
@@ -73,7 +67,11 @@
       '<nav class="side-nav">' + menuItems().map(function (item) {
         if (item[0] === 'divider') return '<div class="side-nav-divider" role="separator"></div>';
         return '<a class="side-nav-item' + (active === item[0] ? ' active' : '') + '" href="' + itemHref(item) + '"><span>' + item[1] + '</span><b>›</b></a>';
-      }).join('') + '</nav>';
+      }).join('') + '</nav>' +
+      '<div class="side-app-entry">' +
+      '<a class="side-app-btn" href="tab-tools.html"><span class="side-app-icon">工</span><span class="side-app-label">工具</span><b class="side-app-arrow">›</b></a>' +
+      '<a class="side-app-btn" href="tab-mine.html"><span class="side-app-icon">我</span><span class="side-app-label">我的</span><b class="side-app-arrow">›</b></a>' +
+      '</div>';
     host.querySelector('.side-device-id').textContent = device;
   }
 

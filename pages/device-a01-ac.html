@@ -28,9 +28,14 @@
     var context = window.GWDBG_WORKBENCH, product = context.product;
     var host = document.getElementById('ac-groups'), channels = product.channels || 1;
     var unitsPerChannel = product.family === 'indoor' ? 1 : 2;
+    function unitIcon() {
+      if (product.family === 'fd01g') return '<div class="unit-machine"><i></i></div>';
+      if (product.model === 'F16G' || product.model === 'F17G') return '<img class="unit-type-icon" src="../assets/products/fancoil.svg" alt="风机盘管">';
+      return '<img class="unit-type-icon" src="../assets/products/neiji.png" alt="多联机内机">';
+    }
     function unitCard(channel, unit) {
       var id = String((channel - 1) * unitsPerChannel + unit).padStart(2, '0');
-      return '<article class="indoor-card" data-unit="' + id + '" data-channel="' + channel + '"><div class="indoor-card-top"><label class="unit-check"><input type="checkbox"><span></span></label><b class="unit-power on">开</b></div><div class="unit-visual"><div class="unit-machine"><i></i></div><strong>内机 ' + id + '</strong><small>地址 ' + id + '</small></div><div class="unit-state"><strong>26℃</strong><span>回风 24.8℃</span><span>制冷 · 自动风</span></div><div class="unit-actions"><button class="small-button unit-detail" type="button">参数</button><button class="small-button unit-control" type="button">控制</button></div></article>';
+      return '<article class="indoor-card" data-unit="' + id + '" data-channel="' + channel + '"><div class="indoor-card-top"><label class="unit-check"><input type="checkbox"><span></span></label><b class="unit-power on">开</b></div><div class="unit-visual">' + unitIcon() + '<strong>内机 ' + id + '</strong><small>地址 ' + id + '</small></div><div class="unit-state"><strong>26℃</strong><span>回风 24.8℃</span><span>制冷 · 自动风</span></div><div class="unit-actions"><button class="small-button unit-detail" type="button">参数</button><button class="small-button unit-control" type="button">控制</button></div></article>';
     }
     var html = '';
     for (var channel = 1; channel <= channels; channel += 1) {
@@ -75,4 +80,5 @@
     function showToast(message) { var toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(function () { toast.classList.remove('show'); }, 1500); }
   })();
   </script>
+  <script src="../assets/app/ai-assistant.js"></script>
 </body></html>

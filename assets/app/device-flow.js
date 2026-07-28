@@ -19,12 +19,14 @@
     });
   }
 
-  function hero() {
+  function hero(showDetailLink) {
     return '<section class="card hero-card"><div><div class="hero-model">' + product.model + '</div>' +
       '<div class="hero-name">' + product.category + '<br>' + escapeHtml(deviceId) + '</div>' +
       '<div class="hero-status-row"><span class="hero-status">已连接 · ' + (mode === '4g' ? '4G 远程' : '蓝牙') + '</span>' +
       (mode === 'bt' ? '<button class="hero-disconnect" id="hero-disconnect" type="button">断开连接</button>' : '') +
-      '</div></div><img class="hero-image" src="' + product.image + '" alt="' + product.model + '"></section>';
+      '</div>' +
+      (showDetailLink ? '<a class="hero-detail-link" id="detail-link" href="' + workbench.link('device-detail.html') + '">进入设备详情 ›</a>' : '') +
+      '</div><img class="hero-image" src="' + product.image + '" alt="' + product.model + '"></section>';
   }
 
   function bindHeroDisconnect() {
@@ -35,8 +37,8 @@
   function renderQuick() {
     var host = document.getElementById('quick-page');
     if (!host || product.family === 'fd01g' || product.family === 'e50') return;
-    setText('page-title', product.model + ' 快速配置');
-    document.getElementById('device-hero').innerHTML = hero();
+    setText('page-title', '快速配置');
+    document.getElementById('device-hero').innerHTML = hero(true);
     bindHeroDisconnect();
     document.getElementById('quick-tasks').innerHTML = product.quickTasks.map(function (task, index) {
       var href = task.key === 'control' ? workbench.link('device-a01-ac.html') : workbench.link('device-setting.html', { setting: task.setting });
@@ -44,14 +46,14 @@
         '<span class="task-index">' + (index + 1) + '</span><span><span class="task-title">' + task.title + '</span>' +
         '<span class="task-meta">' + task.meta + '</span></span><span class="task-state">配置</span></a>';
     }).join('');
-    document.getElementById('detail-link').href = workbench.link('device-detail.html');
+    document.getElementById('more-link').href = workbench.link('device-more.html');
   }
 
   function renderMore() {
     var host = document.getElementById('more-page');
     if (!host || product.family === 'fd01g' || product.family === 'e50') return;
-    setText('page-title', product.model + ' 更多功能');
-    document.getElementById('device-hero').innerHTML = hero();
+    setText('page-title', '更多配置');
+    document.getElementById('device-hero').innerHTML = hero(true);
     bindHeroDisconnect();
     document.getElementById('more-quick').innerHTML = product.quickTasks.map(function (task) {
       var href = task.key === 'control' ? workbench.link('device-a01-ac.html') : workbench.link('device-setting.html', { setting: task.setting });
@@ -82,8 +84,8 @@
   function renderDetail() {
     var host = document.getElementById('detail-page');
     if (!host || product.family === 'fd01g' || product.family === 'e50') return;
-    setText('page-title', product.model + ' 设备详情');
-    document.getElementById('device-hero').innerHTML = hero();
+    setText('page-title', '设备详情');
+    document.getElementById('device-hero').innerHTML = hero(false);
     bindHeroDisconnect();
     document.getElementById('device-parameters').innerHTML = deviceParameters().map(function (row) {
       return '<div class="parameter-row"><span>' + row[0] + '</span><strong>' + escapeHtml(row[1]) + '</strong></div>';

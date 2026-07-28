@@ -43,9 +43,11 @@ assert(deviceList.includes("model: 'E50'"), 'remote device links must identify E
 assert(deviceList.includes("mode: '4g'"), 'remote device links must enter 4G mode');
 
 assert(!quickPage.includes('跳过快速配置'), 'shared quick flow must remove skipping configuration');
-assert(quickPage.includes('进入设备详情'), 'shared quick flow must expose device details');
+assert(quickPage.includes('更多配置'), 'shared quick flow must link the full configuration page');
+assert(deviceFlow.includes('进入设备详情'), 'quick flow hero card must expose device details');
 assert(detailPage.includes('id="more-settings"'), 'shared details must expose secondary settings');
 assert(acPage.includes('id="ac-groups"'), 'air-conditioner management must render channel-grouped indoor units');
+assert(acPage.includes('neiji.png') && acPage.includes('fancoil.svg') && acPage.includes('unit-machine'), 'air-conditioner cards must switch icons by unit type');
 assert(acPage.includes('id="batch-control"') && acPage.includes('id="all-on"') && acPage.includes('id="all-off"'), 'air-conditioner management must support batch, all-on and all-off control');
 
 for (const route of ['device-e50-detail.html', 'device-e50-ac.html', 'device-e50-guide.html']) {
