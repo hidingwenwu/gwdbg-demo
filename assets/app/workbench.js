@@ -70,8 +70,8 @@
       }).join('') + '</nav>' +
       '<div class="side-nav-label">应用</div>' +
       '<div class="side-app-entry">' +
-      '<a class="side-app-btn" href="tab-tools.html"><span class="side-app-icon">工</span><span class="side-app-label">工具</span><b class="side-app-arrow">›</b></a>' +
-      '<a class="side-app-btn" href="tab-mine.html"><span class="side-app-icon">我</span><span class="side-app-label">我的</span><b class="side-app-arrow">›</b></a>' +
+      '<a class="side-app-btn" href="tab-tools.html"><span class="side-app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span class="side-app-label">工具</span></a>' +
+      '<a class="side-app-btn mine" href="tab-mine.html"><span class="side-app-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="side-app-label">我的</span></a>' +
       '</div></div>';
   }
 

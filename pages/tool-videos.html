@@ -56,7 +56,7 @@
     <span class="sb-right"><span>68%</span></span>
   </div>
   <div class="wx-navbar">
-    <a class="nav-back" href="tab-tools.html">‹</a>
+    <a class="nav-back" href="tab-tools.html" data-back>‹</a>
     <div class="nav-title">安装调试视频</div>
     <div class="nav-capsule">
       <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
@@ -67,34 +67,34 @@
   <div class="page-body no-tabbar">
 
     <div class="filter-row chip-group" data-select="single">
-      <span class="chip active">全部</span>
-      <span class="chip">集控主机</span>
-      <span class="chip">线控/温控器</span>
-      <span class="chip">E50 诊断医生</span>
+      <span class="chip active" data-cat="all">全部</span>
+      <span class="chip" data-cat="host">集控主机</span>
+      <span class="chip" data-cat="thermostat">线控/温控器</span>
+      <span class="chip" data-cat="e50">E50 诊断医生</span>
     </div>
 
-    <a class="card video-card press" href="#" onclick="showToast('正在播放');return false;">
+    <a class="card video-card press" href="#" data-cat="host" onclick="showToast('正在播放');return false;">
       <div class="v-thumb"><span class="v-play"><span class="tri"></span></span><span class="v-dur">04:32</span></div>
       <div class="v-body">
         <div class="v-title">A01 集控主机开箱安装与首次上电</div>
         <div class="v-meta">播放 5,120 · 2026-06</div>
       </div>
     </a>
-    <a class="card video-card press" href="#" onclick="showToast('正在播放');return false;">
+    <a class="card video-card press" href="#" data-cat="host" onclick="showToast('正在播放');return false;">
       <div class="v-thumb"><span class="v-play"><span class="tri"></span></span><span class="v-dur">06:15</span></div>
       <div class="v-body">
         <div class="v-title">服务器参数配置与连接自检</div>
         <div class="v-meta">播放 3,876 · 2026-06</div>
       </div>
     </a>
-    <a class="card video-card press" href="#" onclick="showToast('正在播放');return false;">
+    <a class="card video-card press" href="#" data-cat="e50" onclick="showToast('正在播放');return false;">
       <div class="v-thumb"><span class="v-play"><span class="tri"></span></span><span class="v-dur">03:48</span></div>
       <div class="v-body">
         <div class="v-title">E50 空调诊断医生现场接线实操</div>
         <div class="v-meta">播放 2,904 · 2026-05</div>
       </div>
     </a>
-    <a class="card video-card press" href="#" onclick="showToast('正在播放');return false;">
+    <a class="card video-card press" href="#" data-cat="thermostat" onclick="showToast('正在播放');return false;">
       <div class="v-thumb"><span class="v-play"><span class="tri"></span></span><span class="v-dur">05:26</span></div>
       <div class="v-body">
         <div class="v-title">B25LG 线控器安装与配对指南</div>
@@ -109,5 +109,19 @@
 
   <script src="../interactions.js"></script>
   <script src="../assets/app/ai-assistant.js"></script>
+  <script>
+    var MODEL_CAT = { A01F: 'host', A01E: 'host', A02FG: 'host', A02EG: 'host', A03FG: 'host', S74G: 'host', F16G: 'thermostat', B25LG: 'thermostat', FD01G: 'thermostat', E50: 'e50' };
+    var filterRow = document.querySelector('.filter-row');
+    function applyFilter(cat) {
+      filterRow.querySelectorAll('.chip').forEach(function (chip) { chip.classList.toggle('active', chip.dataset.cat === cat); });
+      document.querySelectorAll('.video-card').forEach(function (card) { card.hidden = cat !== 'all' && card.dataset.cat !== cat; });
+    }
+    filterRow.addEventListener('click', function (event) {
+      var chip = event.target.closest('.chip');
+      if (chip) applyFilter(chip.dataset.cat);
+    });
+    var videoModel = (new URLSearchParams(location.search).get('model') || '').toUpperCase();
+    if (MODEL_CAT[videoModel]) applyFilter(MODEL_CAT[videoModel]);
+  </script>
 </body>
 </html>

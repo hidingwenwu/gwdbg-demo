@@ -49,6 +49,7 @@ assert(detailPage.includes('id="more-settings"'), 'shared details must expose se
 assert(acPage.includes('id="ac-groups"'), 'air-conditioner management must render channel-grouped indoor units');
 assert(acPage.includes('neiji.png') && acPage.includes('fancoil.svg') && acPage.includes('unit-machine'), 'air-conditioner cards must switch icons by unit type');
 assert(acPage.includes('id="batch-control"') && acPage.includes('id="all-on"') && acPage.includes('id="all-off"'), 'air-conditioner management must support batch, all-on and all-off control');
+assert(!acPage.includes('参数查看') && !acPage.includes('unit-detail'), 'non-E50 ac page must remove indoor parameter viewing');
 
 for (const route of ['device-e50-detail.html', 'device-e50-ac.html', 'device-e50-guide.html']) {
   assert(e50Page.includes(route), `E50 setup must link to ${route}`);

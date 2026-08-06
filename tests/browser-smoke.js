@@ -68,12 +68,28 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.waitForLoadState('networkidle');
     assert.match(await page.locator('#page-title').textContent(), /快速配置/, 'quick page title must drop the model name');
     assert.equal((await page.locator('#page-title').textContent()).includes('A01F'), false, 'quick page title must not contain the model');
-    assert.match(await page.locator('.menu-pill').textContent(), /更多功能/, 'debug pages must label the sidebar trigger as 更多功能');
+    assert.match(await page.locator('#menu-trigger').textContent(), /更多功能/, 'debug pages must label the sidebar trigger as 更多功能');
     assert.equal(await page.locator('#nav-back').count(), 1, 'debug pages must expose a back button');
     assert.match(await page.locator('#more-link').textContent(), /更多配置/, 'quick page bottom action must be 更多配置');
     assert.match(await page.locator('#detail-link').textContent(), /进入设备详情/, 'hero card must contain the device detail entry');
     assert.equal(await page.locator('#quick-tasks .task-row').count(), 4, 'A01F must expose four quick tasks');
     assert.equal(await page.getByText('跳过快速配置').count(), 0, 'quick setup must not expose the removed skip action');
+
+    assert.equal(await page.locator('#quick-resources .list-row').count(), 2, 'quick page must expose model resource links');
+    await page.locator('#quick-resources .list-row', { hasText: '安装调试视频' }).click();
+    await page.waitForLoadState('networkidle');
+    assert.equal(await page.locator('.filter-row .chip.active').textContent(), '集控主机', 'videos must preselect the connected model category');
+    assert.equal(await page.locator('.video-card:visible').count(), 2, 'videos must filter by the model category');
+    await page.locator('.nav-back').click();
+    await page.waitForLoadState('networkidle');
+    assert.match(await page.locator('#page-title').textContent(), /快速配置/, 'videos back must return to the quick page');
+    await page.locator('#quick-resources .list-row', { hasText: '产品方案介绍' }).click();
+    await page.waitForLoadState('networkidle');
+    assert.match(await page.locator('.intro-model').textContent(), /A01F/, 'product intro must match the connected model');
+    await page.locator('.back').click();
+    await page.waitForLoadState('networkidle');
+    assert.match(await page.locator('#page-title').textContent(), /快速配置/, 'intro back must return to the quick page');
+
     await page.locator('#detail-link').click();
     await page.waitForLoadState('networkidle');
     assert((await page.locator('#device-parameters .parameter-row').count()) >= 12, 'device details must expose full parameter rows');
@@ -218,7 +234,7 @@ async function assertNoHorizontalOverflow(page, route) {
     await open(page, baseUrl, 'pages/tab-tools.html');
     assert.equal(await page.locator('#tool-hero').count(), 1, 'tools must lead with the fluoro support query hero');
     assert.match(await page.locator('#tool-hero').textContent(), /氟机支持查询/);
-    assert.equal(await page.locator('#tool-cards .tool-mini').count(), 3, 'frequent tools must render as cards');
+    assert.equal(await page.locator('#tool-cards .tool-mini').count(), 4, 'frequent tools must render as cards');
     assert.equal(await page.locator('#tool-menu .list-row').count(), 4, 'remaining services must collapse into a menu list');
     assert.equal(await page.getByText('专业版切换').count(), 0, 'tools must remove the pro-version switch');
     assert.equal(await page.locator('.aa-ball').count(), 1, 'tools page must show the ai assistant ball');
@@ -247,10 +263,44 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.waitForTimeout(400);
     assert.equal(await page.locator('.aa-chat.show').count(), 0, 'ai chat must close on base-css tool pages');
     await open(page, baseUrl, 'pages/tab-tools.html');
+    await page.locator('.tool-mini', { hasText: '远程协助' }).click();
+    await page.waitForLoadState('networkidle');
+    assert.match(await page.locator('.page-body').textContent(), /请求协助/);
+    assert.match(await page.locator('.page-body').textContent(), /协助他人/);
+    await page.locator('.ra-role', { hasText: '请求协助' }).click();
+    await page.waitForLoadState('networkidle');
+    await page.locator('#btn-open').click();
+    assert.match(await page.locator('#ra-code').textContent(), /\d{3} \d{3}/, 'assisted page must show a six-digit assist code');
+    await page.locator('#state-active').waitFor({ state: 'visible', timeout: 8000 });
+    await page.locator('#btn-end').click();
+    await page.locator('.overlay .js-ok').click();
+    await page.waitForTimeout(300);
+    assert.equal(await page.locator('#state-idle').evaluate((el) => !el.hidden), true, 'ending assist must return the assisted page to idle');
+
+    await open(page, baseUrl, 'pages/tool-remote-assist.html');
+    await page.locator('#btn-connect').click();
+    assert.equal(await page.getByText('请输入 6 位数字协助码').count(), 1, 'assist page must validate the six-digit code');
+    await page.locator('#code-input').fill('826431');
+    await page.locator('#btn-connect').click();
+    await page.locator('#state-desktop').waitFor({ state: 'visible', timeout: 6000 });
+    await page.locator('.ra-mirror-task', { hasText: '服务器配置' }).click();
+    assert.equal(await page.getByText('已远程点击：服务器配置').count(), 1, 'mirror taps must feed back the remote action');
+    await page.locator('#btn-end').click();
+    await page.locator('.overlay .js-ok').click();
+    await page.waitForTimeout(300);
+    assert.equal(await page.locator('#state-input').evaluate((el) => !el.hidden), true, 'ending assist must return the assist page to code input');
+
+    await open(page, baseUrl, 'pages/tab-tools.html');
     await page.locator('.tab', { hasText: '我的' }).click();
     await page.waitForLoadState('networkidle');
-    assert.equal(await page.locator('#mine-list .list-row').count(), 2, 'mine must only expose account and version');
+    assert.match(await page.locator('#mine-name').textContent(), /张工/, 'mine must show the authorized account name');
+    assert.match(await page.locator('#mine-phone').textContent(), /138\*{4}8203/, 'mine must show the authorized phone number');
+    assert.match(await page.locator('#mine-version').textContent(), /2\.0\.0/, 'mine must pin the version at the bottom');
     assert.equal(await page.getByText('关于飞奕').count(), 0, 'mine must remove About Feiyi');
+    await page.locator('#logout-btn').click();
+    await page.locator('#logout-confirm').click();
+    await page.waitForLoadState('networkidle');
+    assert.match(page.url(), /demo\.html/, 'logout must return to the launch page');
 
     await open(page, baseUrl, 'pages/tab-tools.html');
     assert.match(await page.locator('.aa-ball').textContent(), /奕/, 'assistant ball must use the Yi glyph');

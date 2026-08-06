@@ -76,6 +76,9 @@
       '</section>';
 
     document.getElementById('intro-page').innerHTML = html;
+    document.querySelector('.back').addEventListener('click', function (event) {
+      if (window.history.length > 1) { event.preventDefault(); window.history.back(); }
+    });
   </script>
   <script src="../assets/app/ai-assistant.js"></script>
 </body></html>

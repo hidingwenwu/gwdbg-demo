@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>协助他人</title>
+  <link rel="stylesheet" href="../_base.css">
+  <style>
+    .ra-input-card { padding: 20px 16px; text-align: center; }
+    .ra-input-label { font-size: var(--fs-label); font-weight: 700; }
+    .ra-input-tip { margin-top: 5px; font-size: var(--fs-tiny); color: var(--text-secondary); }
+    .ra-code-input {
+      width: 100%; margin: 16px 0 4px;
+      border: 0; outline: 0; background: var(--ios-fill);
+      border-radius: var(--radius-ios);
+      min-height: 64px;
+      text-align: center;
+      font-size: 30px; font-weight: 700; letter-spacing: 10px;
+      color: var(--fy-blue);
+      font-family: "SF Pro Display", -apple-system, "PingFang SC", sans-serif;
+    }
+    .ra-code-input::placeholder { color: var(--text-placeholder); font-size: 15px; letter-spacing: 2px; font-weight: 400; }
+
+    .ra-connecting {
+      display: grid; justify-items: center; gap: 14px;
+      padding: 90px 0;
+    }
+    .ra-spinner {
+      width: 42px; height: 42px;
+      border: 3px solid var(--fy-blue-light);
+      border-top-color: var(--fy-blue);
+      border-radius: 50%;
+      animation: raSpin .9s linear infinite;
+    }
+    @keyframes raSpin { to { transform: rotate(360deg); } }
+    .ra-connecting-text { color: var(--text-secondary); font-size: var(--fs-small); }
+
+    .ra-peer-bar {
+      display: flex; align-items: center; gap: 11px;
+      padding: 12px 14px; margin-bottom: 10px;
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+    }
+    .ra-avatar {
+      flex: 0 0 auto; width: 40px; height: 40px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #34C759, #1E7C42);
+      color: #fff; font-size: 14px; font-weight: 700;
+    }
+    .ra-peer-main { flex: 1; min-width: 0; }
+    .ra-peer-name { font-size: var(--fs-label); font-weight: 700; }
+    .ra-peer-device { margin-top: 2px; font-size: var(--fs-tiny); color: var(--text-secondary); }
+    .ra-peer-ping { text-align: right; font-size: 10px; color: var(--ios-green); font-weight: 600; }
+    .ra-peer-ping small { display: block; margin-top: 2px; color: var(--text-placeholder); font-weight: 400; }
+
+    .ra-scope-note {
+      padding: 0 4px 8px;
+      font-size: 11px; color: var(--text-secondary); line-height: 1.5;
+    }
+
+    .ra-mirror-wrap {
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      border: 1px solid rgba(60,60,67,.14);
+      box-shadow: var(--shadow-card);
+      background: #F2F2F7;
+    }
+    .ra-mirror-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 12px;
+      background: #1C1C1E; color: #fff;
+      font-size: 10px;
+    }
+    .ra-mirror-head .live { color: #FF6B61; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+    .ra-mirror-head .live::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: #FF6B61;
+      animation: raPulse 1.2s ease-in-out infinite;
+    }
+    @keyframes raPulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+
+    .ra-mirror { position: relative; padding: 10px; cursor: pointer; }
+    .ra-mirror-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px 4px 10px;
+      font-size: 12px; font-weight: 600;
+    }
+    .ra-mirror-nav span { color: var(--text-secondary); font-weight: 400; font-size: 10px; }
+    .ra-mirror-hero {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 12px;
+      background: #fff; border-radius: 10px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 8px;
+    }
+    .ra-mh-model { font-size: 16px; font-weight: 800; }
+    .ra-mh-name { margin-top: 3px; font-size: 10px; color: var(--text-secondary); }
+    .ra-mh-status { margin-top: 6px; font-size: 10px; color: var(--ios-green); font-weight: 600; }
+    .ra-mh-img { width: 64px; height: 48px; object-fit: contain; }
+    .ra-mirror-label { padding: 6px 2px; font-size: 9px; color: var(--text-placeholder); font-weight: 700; letter-spacing: 1px; }
+    .ra-mirror-tasks { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-card); }
+    .ra-mirror-task {
+      display: flex; align-items: center; gap: 9px;
+      padding: 11px 12px;
+      border-top: 0.5px solid var(--line-soft);
+      font-size: 12px;
+    }
+    .ra-mirror-task:first-child { border-top: 0; }
+    .ra-mirror-task:active { background: var(--fy-blue-light); }
+    .ra-mt-index {
+      flex: 0 0 auto; width: 20px; height: 20px;
+      display: grid; place-items: center;
+      border-radius: 6px;
+      background: var(--fy-blue-light); color: var(--fy-blue);
+      font-size: 10px; font-weight: 700;
+    }
+    .ra-mt-title { flex: 1; }
+    .ra-mt-title small { display: block; margin-top: 2px; color: var(--text-secondary); font-size: 9px; }
+    .ra-mt-go { color: var(--fy-blue); font-size: 10px; font-weight: 600; }
+
+    .ra-cursor {
+      position: absolute; z-index: 5; top: 58%; left: 62%;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: rgba(44, 92, 220, .35);
+      border: 2px solid rgba(44, 92, 220, .8);
+      pointer-events: none;
+      animation: raCursor 3.2s ease-in-out infinite;
+    }
+    @keyframes raCursor {
+      0%, 100% { top: 58%; left: 62%; }
+      30% { top: 44%; left: 30%; }
+      60% { top: 72%; left: 48%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone-shell">
+<div class="phone-screen">
+
+  <div class="wx-statusbar">
+    <span>17:41</span>
+    <span class="sb-right"><span>68%</span></span>
+  </div>
+  <div class="wx-navbar">
+    <a class="nav-back" href="tool-remote.html">‹</a>
+    <div class="nav-title">协助他人</div>
+    <div class="nav-capsule">
+      <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
+      <span class="cap-sep"></span><span class="cap-circle"></span>
+    </div>
+  </div>
+
+  <div class="page-body no-tabbar has-footer-btn" id="state-input">
+    <div class="card ra-input-card">
+      <div class="ra-input-label">输入现场人员的协助码</div>
+      <div class="ra-input-tip">请电话或微信联系现场调试人员，请其在「工具 → 远程协助 → 请求协助」中开启并告知 6 位协助码</div>
+      <input class="ra-code-input" id="code-input" type="tel" maxlength="6" inputmode="numeric" placeholder="6 位协助码">
+    </div>
+  </div>
+  <div class="footer-bar" id="footer-input">
+    <button type="button" class="btn btn-primary-solid btn-block btn-xl" style="flex:1;" id="btn-connect">连接</button>
+  </div>
+
+  <div class="page-body no-tabbar" id="state-connecting" hidden>
+    <div class="ra-connecting">
+      <div class="ra-spinner"></div>
+      <div class="ra-connecting-text">正在建立加密连接…</div>
+    </div>
+  </div>
+
+  <div class="page-body no-tabbar has-footer-btn" id="state-desktop" hidden>
+    <div class="ra-peer-bar">
+      <span class="ra-avatar">张工</span>
+      <span class="ra-peer-main">
+        <div class="ra-peer-name">现场调试 · 张工</div>
+        <div class="ra-peer-device">A01F-3F903E · 蓝牙已连接</div>
+      </span>
+      <div class="ra-peer-ping">● 已接入<small>延迟 86ms</small></div>
+    </div>
+
+    <div class="ra-scope-note">您仅可查看和操作对方的小程序界面，无法访问其手机其他应用。</div>
+
+    <div class="ra-mirror-wrap">
+      <div class="ra-mirror-head"><span class="live">实时画面</span><span>对方屏幕 · 演示镜像</span></div>
+      <div class="ra-mirror" id="ra-mirror">
+        <div class="ra-mirror-nav">‹ 快速配置<span>··· ○</span></div>
+        <div class="ra-mirror-hero">
+          <div>
+            <div class="ra-mh-model">A01F</div>
+            <div class="ra-mh-name">多通道室外机控制器<br>A01F-3F903E</div>
+            <div class="ra-mh-status">● 已连接 · 蓝牙</div>
+          </div>
+          <img class="ra-mh-img" src="../assets/products/a01f.png" alt="A01F">
+        </div>
+        <div class="ra-mirror-label">快速配置</div>
+        <div class="ra-mirror-tasks">
+          <div class="ra-mirror-task" data-task="空调品牌批量配置"><span class="ra-mt-index">1</span><span class="ra-mt-title">空调品牌批量配置<small>按通道统一设置</small></span><span class="ra-mt-go">配置</span></div>
+          <div class="ra-mirror-task" data-task="服务器配置"><span class="ra-mt-index">2</span><span class="ra-mt-title">服务器配置<small>保存后自动检测通讯</small></span><span class="ra-mt-go">配置</span></div>
+          <div class="ra-mirror-task" data-task="电表参数"><span class="ra-mt-index">3</span><span class="ra-mt-title">电表参数<small>地址与通信参数下发</small></span><span class="ra-mt-go">配置</span></div>
+          <div class="ra-mirror-task" data-task="空调控制验证"><span class="ra-mt-index">4</span><span class="ra-mt-title">空调控制验证<small>验证开关机与运行模式</small></span><span class="ra-mt-go">配置</span></div>
+        </div>
+        <span class="ra-cursor"></span>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bar" id="footer-desktop" hidden>
+    <button type="button" class="btn btn-danger btn-block btn-xl" style="flex:1;" id="btn-end">结束协助</button>
+  </div>
+
+</div>
+</div>
+
+  <script src="../interactions.js"></script>
+  <script src="../assets/app/ai-assistant.js"></script>
+  <script>
+    var states = ['input', 'connecting', 'desktop'];
+
+    function show(state) {
+      states.forEach(function (s) {
+        var page = document.getElementById('state-' + s);
+        if (page) page.hidden = s !== state;
+        var footer = document.getElementById('footer-' + s);
+        if (footer) footer.hidden = s !== state;
+      });
+    }
+
+    document.getElementById('btn-connect').addEventListener('click', function () {
+      var code = document.getElementById('code-input').value.trim();
+      if (!/^\d{6}$/.test(code)) {
+        showToast('请输入 6 位数字协助码');
+        return;
+      }
+      show('connecting');
+      setTimeout(function () {
+        show('desktop');
+        showToast('已接入现场小程序');
+      }, 1300);
+    });
+
+    document.getElementById('ra-mirror').addEventListener('click', function (event) {
+      var task = event.target.closest('.ra-mirror-task');
+      if (task) {
+        showToast('已远程点击：' + task.dataset.task);
+      }
+    });
+
+    document.getElementById('btn-end').addEventListener('click', function () {
+      confirmDialog({
+        title: '结束远程协助',
+        message: '结束后将断开与现场小程序的连接。',
+        confirmText: '结束协助',
+        danger: true
+      }).then(function (ok) {
+        if (!ok) return;
+        document.getElementById('code-input').value = '';
+        show('input');
+        showToast('远程协助已结束');
+      });
+    });
+  </script>
+</body>
+</html>

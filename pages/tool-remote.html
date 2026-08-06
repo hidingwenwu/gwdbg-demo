@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>远程协助</title>
+  <link rel="stylesheet" href="../_base.css">
+  <style>
+    .ra-hero {
+      padding: 20px 16px;
+      color: #fff;
+      background: linear-gradient(135deg, #2C5CDC 0%, #4B7BFF 100%);
+      border-radius: var(--radius-card);
+      margin-bottom: 12px;
+    }
+    .ra-hero-title { font-size: var(--fs-title); font-weight: 700; }
+    .ra-hero-desc { margin-top: 6px; font-size: var(--fs-tiny); line-height: 1.6; opacity: .88; }
+
+    .ra-role {
+      display: flex; align-items: center; gap: 13px;
+      padding: 16px;
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      margin-bottom: 12px;
+    }
+    .ra-role:active { transform: scale(0.985); }
+    .ra-role-icon {
+      flex: 0 0 auto; width: 46px; height: 46px;
+      display: grid; place-items: center;
+      border-radius: 12px;
+      font-size: 22px;
+    }
+    .ra-role-icon.help { background: var(--fy-blue-light); }
+    .ra-role-icon.assist { background: rgba(46, 204, 113, 0.14); }
+    .ra-role-main { flex: 1; min-width: 0; }
+    .ra-role-title { font-size: var(--fs-label); font-weight: 700; }
+    .ra-role-title small { font-weight: 400; color: var(--text-secondary); font-size: var(--fs-tiny); margin-left: 5px; }
+    .ra-role-desc { margin-top: 4px; font-size: var(--fs-tiny); color: var(--text-secondary); line-height: 1.5; }
+    .ra-role-arrow { color: var(--text-placeholder); font-size: 20px; font-family: Arial; }
+
+    .ra-safe { padding: 14px 16px; }
+    .ra-safe-title { font-size: var(--fs-label); font-weight: 700; margin-bottom: 8px; }
+    .ra-safe-item {
+      display: flex; gap: 8px; align-items: flex-start;
+      padding: 5px 0;
+      font-size: var(--fs-tiny); color: var(--text-regular); line-height: 1.55;
+    }
+    .ra-safe-item i { flex: 0 0 auto; font-style: normal; color: var(--fy-green); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<div class="phone-shell">
+<div class="phone-screen">
+
+  <div class="wx-statusbar">
+    <span>17:41</span>
+    <span class="sb-right"><span>68%</span></span>
+  </div>
+  <div class="wx-navbar">
+    <a class="nav-back" href="tab-tools.html">‹</a>
+    <div class="nav-title">远程协助</div>
+    <div class="nav-capsule">
+      <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
+      <span class="cap-sep"></span><span class="cap-circle"></span>
+    </div>
+  </div>
+
+  <div class="page-body no-tabbar">
+
+    <div class="ra-hero">
+      <div class="ra-hero-title">遇到不会操作的功能？</div>
+      <div class="ra-hero-desc">开启远程协助后，飞奕技术支持可远程接管本小程序，手把手帮您完成现场调试。</div>
+    </div>
+
+    <a class="ra-role press" href="tool-remote-assisted.html">
+      <span class="ra-role-icon help">🙋</span>
+      <span class="ra-role-main">
+        <div class="ra-role-title">请求协助<small>我是现场调试人员</small></div>
+        <div class="ra-role-desc">生成 6 位协助码，技术支持接入后远程帮您操作</div>
+      </span>
+      <span class="ra-role-arrow">›</span>
+    </a>
+
+    <a class="ra-role press" href="tool-remote-assist.html">
+      <span class="ra-role-icon assist">🛠</span>
+      <span class="ra-role-main">
+        <div class="ra-role-title">协助他人<small>我是飞奕技术支持</small></div>
+        <div class="ra-role-desc">输入现场人员的协助码，远程接管其小程序界面</div>
+      </span>
+      <span class="ra-role-arrow">›</span>
+    </a>
+
+    <div class="card ra-safe">
+      <div class="ra-safe-title">安全与隐私</div>
+      <div class="ra-safe-item"><i>✓</i>技术支持仅能查看和操作本小程序，无法访问您手机的其他应用</div>
+      <div class="ra-safe-item"><i>✓</i>现场人员开启协助码后才可被接入，未开启任何人无法远程</div>
+      <div class="ra-safe-item"><i>✓</i>协助全程任意一方均可随时结束连接</div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+  <script src="../interactions.js"></script>
+  <script src="../assets/app/ai-assistant.js"></script>
+</body>
+</html>

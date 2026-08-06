@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>请求协助</title>
+  <link rel="stylesheet" href="../_base.css">
+  <style>
+    .ra-live-body { display: flex; flex-direction: column; padding: 12px 0 0; overflow: hidden; }
+    .ra-live-bar {
+      display: flex; align-items: center; gap: 8px;
+      margin: 0 12px 10px; padding: 8px 8px 8px 14px;
+      border-radius: var(--radius-card);
+      background: rgba(245, 71, 60, 0.1);
+      color: var(--fy-red);
+      font-size: var(--fs-small); font-weight: 600;
+    }
+    .ra-live-dot {
+      flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%;
+      background: var(--fy-red);
+      animation: raPulse 1.2s ease-in-out infinite;
+    }
+    .ra-live-text { flex: 1; min-width: 0; font-size: var(--fs-tiny); }
+    .ra-live-end {
+      flex: 0 0 auto; min-height: 30px; padding: 0 13px;
+      border: 0; border-radius: 15px;
+      background: var(--fy-red); color: #fff;
+      font-size: var(--fs-tiny); font-weight: 700;
+    }
+    .ra-screen-wrap { flex: 1; min-height: 0; overflow: hidden; border-top: 0.5px solid var(--line); }
+    .ra-screen { display: block; width: 100%; height: calc(100% + 28px); margin-top: -28px; border: 0; }
+    @keyframes raPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .45; transform: scale(.8); }
+    }
+
+    .ra-steps { padding: 14px 16px; }
+    .ra-steps-title { font-size: var(--fs-label); font-weight: 700; margin-bottom: 6px; }
+    .ra-step {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 7px 0;
+      font-size: var(--fs-small); color: var(--text-regular); line-height: 1.55;
+    }
+    .ra-step-num {
+      flex: 0 0 auto; width: 20px; height: 20px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--fy-blue-light); color: var(--fy-blue);
+      font-size: 11px; font-weight: 700;
+    }
+
+    .ra-safe-item {
+      display: flex; gap: 8px; align-items: flex-start;
+      padding: 5px 0;
+      font-size: var(--fs-tiny); color: var(--text-regular); line-height: 1.55;
+    }
+    .ra-safe-item i { flex: 0 0 auto; font-style: normal; color: var(--fy-green); font-weight: 700; }
+    .ra-safe { padding: 14px 16px; }
+    .ra-safe-title { font-size: var(--fs-label); font-weight: 700; margin-bottom: 6px; }
+
+    .ra-code-card { padding: 22px 16px 18px; text-align: center; }
+    .ra-code-label { font-size: var(--fs-small); color: var(--text-secondary); }
+    .ra-code {
+      margin: 10px 0 4px;
+      font-size: 44px; font-weight: 700; letter-spacing: 8px;
+      color: var(--fy-blue);
+      font-family: "SF Pro Display", -apple-system, "PingFang SC", sans-serif;
+    }
+    .ra-code-expire { font-size: var(--fs-tiny); color: var(--text-placeholder); }
+    .ra-code-copy {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 13px; padding: 7px 16px;
+      border: 0.5px solid var(--fy-blue); border-radius: 999px;
+      color: var(--fy-blue); font-size: var(--fs-small); font-weight: 600;
+    }
+    .ra-waiting {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 14px;
+      color: var(--text-secondary); font-size: var(--fs-tiny);
+    }
+    .ra-waiting i {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--fy-blue); opacity: .3;
+      animation: raWait 1.2s ease-in-out infinite;
+    }
+    .ra-waiting i:nth-child(2) { animation-delay: .2s; }
+    .ra-waiting i:nth-child(3) { animation-delay: .4s; }
+    @keyframes raWait { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+
+    .ra-live-hint {
+      margin-top: 4px; padding: 0 4px;
+      font-size: var(--fs-tiny); color: var(--text-secondary); line-height: 1.7;
+    }
+
+    .ra-demo-note {
+      margin-top: 10px; text-align: center;
+      font-size: 11px; color: var(--text-placeholder);
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone-shell">
+<div class="phone-screen">
+
+  <div class="wx-statusbar">
+    <span>17:41</span>
+    <span class="sb-right"><span>68%</span></span>
+  </div>
+  <div class="wx-navbar">
+    <a class="nav-back" href="tool-remote.html">‹</a>
+    <div class="nav-title">请求协助</div>
+    <div class="nav-capsule">
+      <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
+      <span class="cap-sep"></span><span class="cap-circle"></span>
+    </div>
+  </div>
+
+  <div class="page-body no-tabbar has-footer-btn" id="state-idle">
+    <div class="card ra-steps">
+      <div class="ra-steps-title">如何获取远程协助</div>
+      <div class="ra-step"><span class="ra-step-num">1</span>点击下方「开启远程协助」，生成 6 位协助码</div>
+      <div class="ra-step"><span class="ra-step-num">2</span>将协助码电话或微信告知飞奕技术支持</div>
+      <div class="ra-step"><span class="ra-step-num">3</span>对方接入后即可远程帮您操作小程序，完成调试</div>
+    </div>
+    <div class="card ra-safe">
+      <div class="ra-safe-title">安全与隐私</div>
+      <div class="ra-safe-item"><i>✓</i>技术支持仅能查看和操作本小程序，无法访问您手机的其他应用</div>
+      <div class="ra-safe-item"><i>✓</i>协助过程中画面实时可见，对方每一步操作您都看得到</div>
+      <div class="ra-safe-item"><i>✓</i>协助全程您可随时点击「结束协助」断开连接</div>
+    </div>
+  </div>
+  <div class="footer-bar" id="footer-idle">
+    <button type="button" class="btn btn-primary-solid btn-block btn-xl" style="flex:1;" id="btn-open">开启远程协助</button>
+  </div>
+
+  <div class="page-body no-tabbar has-footer-btn" id="state-waiting" hidden>
+    <div class="card ra-code-card">
+      <div class="ra-code-label">您的协助码</div>
+      <div class="ra-code" id="ra-code">826 431</div>
+      <div class="ra-code-expire">10 分钟内有效 · 请勿泄露给无关人员</div>
+      <button type="button" class="ra-code-copy" id="btn-copy">📋 复制协助码</button>
+      <div class="ra-waiting"><i></i><i></i><i></i>等待技术支持接入…</div>
+    </div>
+    <div class="ra-live-hint">请将协助码告知飞奕技术支持，对方接入后即可远程帮您操作小程序。</div>
+    <div class="ra-demo-note">演示模式：数秒后自动模拟技术支持接入</div>
+  </div>
+  <div class="footer-bar" id="footer-waiting" hidden>
+    <button type="button" class="btn btn-ghost btn-block btn-xl" style="flex:1;" id="btn-cancel-wait">取消协助</button>
+  </div>
+
+  <div class="page-body no-tabbar ra-live-body" id="state-active" hidden>
+    <div class="ra-live-bar"><span class="ra-live-dot"></span><span class="ra-live-text">远程协助中 · 技术支持正在操作您的小程序</span><button type="button" class="ra-live-end" id="btn-end">结束协助</button></div>
+    <div class="ra-screen-wrap"><iframe class="ra-screen" src="device-quick.html?model=A01F&amp;device=A01F-3F903E&amp;mode=bt" title="小程序当前画面"></iframe></div>
+  </div>
+
+</div>
+</div>
+
+  <script src="../interactions.js"></script>
+  <script src="../assets/app/ai-assistant.js"></script>
+  <script>
+    var states = ['idle', 'waiting', 'active'];
+    var waitTimer = null;
+
+    function show(state) {
+      states.forEach(function (s) {
+        var page = document.getElementById('state-' + s);
+        if (page) page.hidden = s !== state;
+        var footer = document.getElementById('footer-' + s);
+        if (footer) footer.hidden = s !== state;
+      });
+      if (state === 'waiting') {
+        waitTimer = setTimeout(function () {
+          show('active');
+          showToast('飞奕技术支持已接入');
+        }, 3500);
+      } else if (waitTimer) {
+        clearTimeout(waitTimer);
+        waitTimer = null;
+      }
+    }
+
+    document.getElementById('btn-open').addEventListener('click', function () {
+      var code = String(Math.floor(100000 + Math.random() * 900000));
+      document.getElementById('ra-code').textContent = code.slice(0, 3) + ' ' + code.slice(3);
+      show('waiting');
+    });
+
+    document.getElementById('btn-copy').addEventListener('click', function () {
+      showToast('协助码已复制，请发送给技术支持');
+    });
+
+    document.getElementById('btn-cancel-wait').addEventListener('click', function () {
+      show('idle');
+      showToast('已取消远程协助');
+    });
+
+    document.getElementById('btn-end').addEventListener('click', function () {
+      confirmDialog({
+        title: '结束远程协助',
+        message: '结束后技术支持将立即失去对您小程序的操作权限。',
+        confirmText: '结束协助',
+        danger: true
+      }).then(function (ok) {
+        if (!ok) return;
+        show('idle');
+        showToast('远程协助已结束');
+      });
+    });
+  </script>
+</body>
+</html>

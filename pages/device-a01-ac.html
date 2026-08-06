@@ -4,12 +4,12 @@
 <body>
   <main class="app-shell workbench" id="ac-page">
     <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
-    <header class="topbar"><div class="topbar-left"><button class="back nav-back" id="nav-back" type="button" aria-label="返回">‹</button><button class="menu-trigger menu-pill" id="menu-trigger" type="button" aria-label="打开菜单">☰ 更多功能</button></div><div class="topbar-title">空调管理</div><div class="capsule">··· ○</div></header>
+    <div class="wb-hero-zone"><div class="hero-float-row"><button class="hero-back-pill" id="nav-back" type="button" aria-label="返回">‹</button><button class="hero-menu-float" id="menu-trigger" type="button" aria-label="打开菜单"><span class="hero-menu-icon">☰</span><span class="hero-menu-label">更多功能</span></button><div class="capsule">··· ○</div></div><div class="wb-hero-title">空调管理</div></div>
     <div class="page no-tab ac-page-body">
       <section class="ac-toolbar card"><label class="check-action"><input id="select-all" type="checkbox"><span>全选</span></label><div><button class="text-button" id="all-on" type="button">全开</button><button class="text-button danger-text" id="all-off" type="button">全关</button></div></section>
       <div id="ac-groups"></div>
     </div>
-    <div class="selection-bar" id="selection-bar"><span id="selection-count">已选 0 台</span><button class="button" id="view-parameters" type="button">参数查看</button><button class="button primary" id="batch-control" type="button">批量控制</button></div>
+    <div class="selection-bar" id="selection-bar"><span id="selection-count">已选 0 台</span><button class="button primary" id="batch-control" type="button">批量控制</button></div>
     <div class="sheet-mask" id="control-mask"></div>
     <section class="control-sheet" id="control-sheet">
       <div class="sheet-handle"></div><div class="sheet-heading"><div><h2>空调控制</h2><p id="control-target">内机 01</p></div><button class="sheet-close" id="sheet-close" type="button" aria-label="关闭">×</button></div>
@@ -35,7 +35,7 @@
     }
     function unitCard(channel, unit) {
       var id = String((channel - 1) * unitsPerChannel + unit).padStart(2, '0');
-      return '<article class="indoor-card" data-unit="' + id + '" data-channel="' + channel + '"><div class="indoor-card-top"><label class="unit-check"><input type="checkbox"><span></span></label><b class="unit-power on">开</b></div><div class="unit-visual">' + unitIcon() + '<strong>内机 ' + id + '</strong><small>地址 ' + id + '</small></div><div class="unit-state"><strong>26℃</strong><span>回风 24.8℃</span><span>制冷 · 自动风</span></div><div class="unit-actions"><button class="small-button unit-detail" type="button">参数</button><button class="small-button unit-control" type="button">控制</button></div></article>';
+      return '<article class="indoor-card" data-unit="' + id + '" data-channel="' + channel + '"><div class="indoor-card-top"><label class="unit-check"><input type="checkbox"><span></span></label><b class="unit-power on">开</b></div><div class="unit-visual">' + unitIcon() + '<strong>内机 ' + id + '</strong><small>地址 ' + id + '</small></div><div class="unit-state"><strong>26℃</strong><span>回风 24.8℃</span><span>制冷 · 自动风</span></div><div class="unit-actions"><button class="small-button unit-control" type="button">控制</button></div></article>';
     }
     var html = '';
     for (var channel = 1; channel <= channels; channel += 1) {
@@ -59,7 +59,6 @@
     cards.forEach(function (card) {
       card.querySelector('.unit-check input').onchange = updateSelection;
       card.querySelector('.unit-control').onclick = function () { openControl([card]); };
-      card.querySelector('.unit-detail').onclick = function () { showToast('内机 ' + card.dataset.unit + '：运行正常，回风温度 24.8℃'); };
     });
     function setAll(on) {
       cards.forEach(function (card) { var power = card.querySelector('.unit-power'); power.textContent = on ? '开' : '关'; power.classList.toggle('on', on); });
@@ -68,7 +67,6 @@
     document.getElementById('all-on').onclick = function () { setAll(true); };
     document.getElementById('all-off').onclick = function () { setAll(false); };
     document.getElementById('batch-control').onclick = function () { openControl(selected()); };
-    document.getElementById('view-parameters').onclick = function () { showToast('已选择 ' + selected().length + ' 台内机进行参数对比'); };
     var sheet = document.getElementById('control-sheet'), mask = document.getElementById('control-mask'), targets = [];
     function openControl(nextTargets) { targets = nextTargets; document.getElementById('control-target').textContent = targets.length > 1 ? targets.length + ' 台内机' : '内机 ' + targets[0].dataset.unit; sheet.classList.add('show'); mask.classList.add('show'); }
     function closeControl() { sheet.classList.remove('show'); mask.classList.remove('show'); }

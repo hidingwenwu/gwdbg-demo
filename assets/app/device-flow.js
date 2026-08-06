@@ -24,9 +24,10 @@
       '<div class="hero-name">' + product.category + '<br>' + escapeHtml(deviceId) + '</div>' +
       '<div class="hero-status-row"><span class="hero-status">已连接 · ' + (mode === '4g' ? '4G 远程' : '蓝牙') + '</span>' +
       (mode === 'bt' ? '<button class="hero-disconnect" id="hero-disconnect" type="button">断开连接</button>' : '') +
-      '</div>' +
+      '</div></div>' +
+      '<div class="hero-side"><img class="hero-image" src="' + product.image + '" alt="' + product.model + '">' +
       (showDetailLink ? '<a class="hero-detail-link" id="detail-link" href="' + workbench.link('device-detail.html') + '">进入设备详情 ›</a>' : '') +
-      '</div><img class="hero-image" src="' + product.image + '" alt="' + product.model + '"></section>';
+      '</div></section>';
   }
 
   function bindHeroDisconnect() {
@@ -47,6 +48,9 @@
         '<span class="task-meta">' + task.meta + '</span></span><span class="task-state">配置</span></a>';
     }).join('');
     document.getElementById('more-link').href = workbench.link('device-more.html');
+    document.getElementById('quick-resources').innerHTML =
+      '<a class="list-row" href="tool-videos.html?model=' + product.model + '"><span class="list-icon">播</span><span class="list-title">安装调试视频</span><span class="row-arrow">›</span></a>' +
+      '<a class="list-row" href="product-intro.html?model=' + product.model + '"><span class="list-icon">案</span><span class="list-title">产品方案介绍</span><span class="row-arrow">›</span></a>';
   }
 
   function renderMore() {

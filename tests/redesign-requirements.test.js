@@ -83,17 +83,18 @@ assert.equal(data.toolHero.title, '氟机支持查询', 'fluorine support query 
 assert(data.toolHero.href === 'tool-fluoro-input.html', 'fluorine support query must enter the query flow');
 assert.deepEqual(
   data.toolCards.map((item) => item.title),
-  ['接线指导', '安装调试视频', '故障码查询'],
+  ['接线指导', '安装调试视频', '故障码查询', '远程协助'],
   'frequent tools must render as cards'
 );
+assert(data.toolCards.find((item) => item.title === '远程协助').href === 'tool-remote.html', 'remote assist tool must enter the remote assist flow');
 assert.deepEqual(
   data.toolMenu.map((item) => item.title),
   ['产品方案', '留言反馈', '飞奕公众号', '使用说明'],
   'remaining services must collapse into a menu list'
 );
 assert(!JSON.stringify([data.toolHero, data.toolCards, data.toolMenu]).includes('专业版切换'), 'pro-version switch must be removed');
-assert.deepEqual(data.mineItems.map((item) => item.title), ['账号', '版本'], 'mine must only contain basic information');
-assert(!JSON.stringify(data.mineItems).includes('关于飞奕'), 'mine must remove the About Feiyi entry');
+assert(data.mine.name.includes('张工') && /1\d{2}\*{4}\d{4}/.test(data.mine.phone) && data.mine.version === '2.0.0', 'mine must expose the authorized name, masked phone and version');
+assert(!JSON.stringify(data.mine).includes('关于飞奕'), 'mine must remove the About Feiyi entry');
 
 const bluetoothPage = read('pages/tab-device-bt.html');
 const remotePage = read('pages/tab-device-4g.html');
@@ -113,7 +114,9 @@ for (const forbidden of ['绑定新设备', '运行日志', '使用说明']) {
 assert(toolsPage.includes('id="tool-hero"') && toolsPage.includes('id="tool-cards"') && toolsPage.includes('id="tool-menu"'), 'tools page must combine hero card, tool cards and a menu list');
 assert(!toolsPage.includes('产品手册'), 'tools page must rename product manuals to product solutions');
 assert(toolsPage.includes('ai-assistant.js'), 'tools page must load the AI assistant');
-assert(minePage.includes('id="mine-list"'), 'mine page must render basic information only');
+for (const text of ['id="mine-profile"', 'id="mine-name"', 'id="mine-phone"', '退出登录', 'id="mine-version"']) {
+  assert(minePage.includes(text), `mine page must include ${text}`);
+}
 for (const forbidden of ['暖通合伙人', '企微客服', '语言', '留言反馈', '专业版切换', '飞奕公众号', '使用说明', '关于飞奕']) {
   assert(!minePage.includes(forbidden), `mine page must remove ${forbidden}`);
 }
@@ -128,6 +131,8 @@ assert(quickPage.includes('id="quick-tasks"'), 'quick page must render product-d
 assert(!quickPage.includes('跳过快速配置'), 'quick page must remove skip quick configuration');
 assert(deviceFlow.includes('进入设备详情') && deviceFlow.includes('hero-detail-link'), 'hero card must contain the device detail entry');
 assert(quickPage.includes('id="more-link"') && quickPage.includes('更多配置'), 'quick page bottom action must be 更多配置');
+assert(quickPage.includes('id="quick-resources"'), 'quick page must expose model resource links');
+assert(deviceFlow.includes('安装调试视频') && deviceFlow.includes('产品方案介绍') && deviceFlow.includes('tool-videos.html') && deviceFlow.includes('product-intro.html'), 'quick resources must link model videos and product intro');
 assert(morePage.includes('更多配置'), 'more page must be titled 更多配置');
 assert(detailPage.includes('id="more-settings"'), 'device details must expose more settings');
 assert(detailPage.includes('id="device-parameters"'), 'device details must expose full device parameters');
@@ -252,7 +257,8 @@ const publicPages = [
   'pages/device-e50-devices.html', 'pages/device-e50-service.html', 'pages/device-e50-contact.html', 'pages/device-e50-guide.html',
   'pages/product-catalog.html', 'pages/tool-wiring.html',
   'pages/tool-videos.html', 'pages/tool-errcode.html', 'pages/tool-fluoro-input.html', 'pages/tool-fluoro-result.html',
-  'pages/tool-fluoro-submit.html', 'pages/feedback.html'
+  'pages/tool-fluoro-submit.html', 'pages/feedback.html',
+  'pages/tool-remote.html', 'pages/tool-remote-assisted.html', 'pages/tool-remote-assist.html'
 ];
 for (const file of publicPages) {
   const html = read(file);
@@ -273,6 +279,20 @@ for (const text of ['暂未收录', '留言反馈', '铭牌照片', '电路图']
 }
 assert(!fluoroInput.includes('氟机选型') && !fluoroResult.includes('氟机选型') && !fluoroSubmit.includes('氟机选型'), 'fluoro pages must drop the old naming');
 
+const remoteHome = read('pages/tool-remote.html');
+const remoteAssisted = read('pages/tool-remote-assisted.html');
+const remoteAssist = read('pages/tool-remote-assist.html');
+for (const text of ['请求协助', '协助他人', 'tool-remote-assisted.html', 'tool-remote-assist.html']) {
+  assert(remoteHome.includes(text), `remote assist home must include ${text}`);
+}
+for (const text of ['开启远程协助', '协助码', '等待技术支持接入', '远程协助中', '结束协助', '无法访问您手机的其他应用']) {
+  assert(remoteAssisted.includes(text), `assisted page must include ${text}`);
+}
+for (const text of ['协助码', '连接', '远程点击', '结束协助', '无法访问其手机其他应用']) {
+  assert(remoteAssist.includes(text), `assist page must include ${text}`);
+}
+assert(!remoteHome.includes('PC 端') && !remoteAssisted.includes('PC 端') && !remoteAssist.includes('PC 端'), 'prototype pages must defer PC-side assist details to the feature manual');
+
 const aiAssistant = read('assets/app/ai-assistant.js');
 for (const text of ['AI 智能助理', '转人工', '转接人工客服', '已收到您的问题', 'aa-ball', 'aa-chat', 'GWDBG_AI_ASSISTANT']) {
   assert(aiAssistant.includes(text), `ai assistant must include ${text}`);
@@ -282,6 +302,7 @@ for (const text of ['奕', 'pointermove', 'docked', 'placeDefault']) {
 }
 assert(!aiAssistant.includes("innerHTML = 'AI"), 'assistant ball must not keep the old AI glyph');
 for (const page of ['tab-tools', 'tool-fluoro-input', 'tool-fluoro-result', 'tool-fluoro-submit', 'tool-wiring', 'tool-videos', 'tool-errcode', 'feedback',
+  'tool-remote', 'tool-remote-assisted', 'tool-remote-assist',
   'tab-device-bt', 'tab-device-4g', 'tab-mine', 'product-catalog', 'product-intro',
   'device-quick', 'device-detail', 'device-more', 'device-setting', 'device-a01-ac', 'device-fd01g', 'device-fd01g-more',
   'device-e50', 'device-e50-detail', 'device-e50-ai', 'device-e50-ac', 'device-e50-report', 'device-e50-upgrade',

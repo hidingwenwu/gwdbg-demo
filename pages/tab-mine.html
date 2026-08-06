@@ -10,18 +10,46 @@
   <main class="app-shell">
     <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
     <header class="topbar home"><div class="topbar-title">我的</div><div class="capsule">··· ○</div></header>
-    <div class="page">
-      <section class="card list-card" id="mine-list"></section>
+    <div class="page mine-page">
+      <section class="card mine-profile" id="mine-profile">
+        <span class="mine-avatar" id="mine-avatar">张</span>
+        <span class="mine-info">
+          <strong class="mine-name" id="mine-name"></strong>
+          <span class="mine-phone" id="mine-phone"></span>
+        </span>
+      </section>
+      <button class="button danger mine-logout" id="logout-btn" type="button">退出登录</button>
+      <div class="mine-version" id="mine-version"></div>
     </div>
     <nav class="tabbar">
       <a class="tab" href="tab-device-bt.html">设备</a><a class="tab" href="tab-tools.html">工具</a><a class="tab active" href="tab-mine.html">我的</a>
     </nav>
+    <div class="modal-layer" id="logout-modal">
+      <div class="modal-mask" data-logout-close></div>
+      <section class="confirm-dialog">
+        <h2>退出登录</h2>
+        <p>退出后需重新微信授权登录，当前已连接的设备将断开。</p>
+        <div class="dialog-actions"><button class="button" data-logout-close type="button">取消</button><button class="button primary" id="logout-confirm" type="button">退出登录</button></div>
+      </section>
+    </div>
   </main>
   <script src="../assets/app/product-data.js"></script>
   <script>
-    document.getElementById('mine-list').innerHTML = GWDBG_DATA.mineItems.map(function (item, index) {
-      return '<div class="list-row"><span class="list-icon">' + (index === 0 ? '账' : '版') + '</span><span class="list-title">' + item.title + '</span><span class="list-value">' + item.value + '</span></div>';
-    }).join('');
+    var mine = GWDBG_DATA.mine;
+    document.getElementById('mine-name').textContent = mine.name;
+    document.getElementById('mine-phone').textContent = mine.phone;
+    document.getElementById('mine-avatar').textContent = mine.name.slice(-2, -1);
+    document.getElementById('mine-version').textContent = '版本 ' + mine.version;
+
+    var logoutModal = document.getElementById('logout-modal');
+    document.getElementById('logout-btn').addEventListener('click', function () { logoutModal.classList.add('show'); });
+    logoutModal.addEventListener('click', function (event) {
+      if (event.target.closest('[data-logout-close]')) logoutModal.classList.remove('show');
+    });
+    document.getElementById('logout-confirm').addEventListener('click', function () {
+      try { sessionStorage.clear(); } catch (error) {}
+      location.href = '../demo.html';
+    });
   </script>
   <script src="../assets/app/ai-assistant.js"></script>
 </body>

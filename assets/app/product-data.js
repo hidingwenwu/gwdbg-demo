@@ -201,7 +201,8 @@
     toolCards: [
       { title: '接线指导', icon: '线', desc: '各品牌接线端子图文', href: 'tool-wiring.html' },
       { title: '安装调试视频', icon: '播', desc: '现场安装调试演示', href: 'tool-videos.html' },
-      { title: '故障码查询', icon: '码', desc: '故障代码含义与处理', href: 'tool-errcode.html' }
+      { title: '故障码查询', icon: '码', desc: '故障代码含义与处理', href: 'tool-errcode.html' },
+      { title: '远程协助', icon: '协', desc: '技术支持远程接管操作', href: 'tool-remote.html' }
     ],
     toolMenu: [
       { title: '产品方案', icon: '案', href: 'product-catalog.html' },
@@ -209,9 +210,6 @@
       { title: '飞奕公众号', icon: '号', action: 'wechat' },
       { title: '使用说明', icon: '用', action: 'guide' }
     ],
-    mineItems: [
-      { title: '账号', value: '飞奕工程师 · 张工' },
-      { title: '版本', value: '2.0.0' }
-    ]
+    mine: { name: '飞奕工程师 · 张工', phone: '138****8203', version: '2.0.0' }
   };
 });
