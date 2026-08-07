@@ -320,10 +320,11 @@ for (const text of ['平台操作专栏', 'platformGuideCats', '视频播放', '
 const wiringPage = read('pages/tool-wiring.html');
 assert(wiringPage.includes('空调接线') && !wiringPage.includes('nav-title">接线指导'), 'wiring page must be renamed to 空调接线');
 const errcodePage = read('pages/tool-errcode.html');
-for (const text of ['空调故障码', '请先选择空调品牌', 'ec-result']) {
+for (const text of ['空调故障码', '空调品牌', 'brand-select', 'ec-query', 'ec-result', '请选择空调品牌']) {
   assert(errcodePage.includes(text), `errcode page must include ${text}`);
 }
-for (const removed of ['关联网关侧表现', '相关文章', 'chip active']) {
+assert(errcodePage.indexOf('brand-select') < errcodePage.indexOf('ec-input'), 'brand selection must precede the code input as required fields');
+for (const removed of ['关联网关侧表现', '相关文章', 'chip active', 'brand-chips']) {
   assert(!errcodePage.includes(removed), `errcode page must remove ${removed}`);
 }
 const faqPage = read('pages/tool-faq.html');

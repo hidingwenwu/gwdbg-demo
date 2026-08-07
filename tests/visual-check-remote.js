@@ -88,9 +88,12 @@ function startServer() {
 
   await page.goto(`${baseUrl}/pages/tool-errcode.html`, { waitUntil: 'networkidle' });
   await shot('23-tool-errcode');
-  await page.locator('.brand-chips .chip').first().click();
+  await page.locator('#brand-select').click();
+  await page.waitForTimeout(400);
+  await shot('23b-tool-errcode-picker');
+  await page.locator('#brand-common .chip', { hasText: '大金' }).click();
   await page.locator('#ec-input').fill('U4');
-  await page.locator('#ec-input').press('Enter');
+  await page.locator('#ec-query').click();
   await page.waitForTimeout(300);
   await shot('24-tool-errcode-result');
 
