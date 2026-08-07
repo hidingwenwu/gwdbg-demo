@@ -273,12 +273,12 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.waitForTimeout(300);
     assert.equal(await page.locator('.aa-chat.show').count(), 0, 'ai chat must close after tech-service check');
     await open(page, baseUrl, 'pages/tab-scene.html');
-    assert.equal(await page.locator('.scene-card').count(), 10, 'scene tab must render the ten product solutions');
+    assert.equal(await page.locator('.scene-card').count(), 5, 'scene tab must render the five scenario applications');
     assert.equal(await page.locator('.tab.active').textContent(), '场景', 'scene tab must mark itself active');
-    await page.locator('.scene-card').first().click();
-    await page.waitForLoadState('networkidle');
-    assert.match(page.url(), /product-manual\.html\?series=a01&doc=1/, 'scene cards must open the solution reader');
-    assert.ok((await page.locator('.manual-sec').count()) >= 3, 'solution reader must render the solution sections');
+    for (const label of ['痛点', '方案', '价值']) {
+      assert.equal(await page.locator('.scene-row b', { hasText: label }).count(), 5, `every scene card must carry the ${label} row`);
+    }
+    assert.match(await page.locator('.scene-list').textContent(), /节能率 15%|节能 15%/, 'scene cards must present the energy-saving value');
     await open(page, baseUrl, 'pages/tool-fluoro-input.html');
     await page.locator('.mtab', { hasText: '水机' }).click();
     await page.locator('#wk-brand-select').click();

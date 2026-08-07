@@ -4,13 +4,17 @@
 <style>
   .scene-intro { margin: 4px 2px 12px; color: var(--muted); font-size: 12px; line-height: 1.6; }
   .scene-list { display: grid; gap: 10px; }
-  .scene-card { display: grid; gap: 6px; padding: 14px 15px; }
-  .scene-tag { justify-self: start; padding: 3px 8px; border-radius: 6px; background: var(--blue-soft); color: var(--blue); font-size: 10px; font-weight: 700; }
-  .scene-card strong { font-size: 14px; }
-  .scene-card small { color: var(--muted); font-size: 11px; line-height: 1.6; }
-  .scene-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }
-  .scene-product { padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); font-size: 10px; font-weight: 650; }
-  .scene-arrow { color: var(--faint); font-size: 16px; }
+  .scene-card { display: grid; gap: 9px; padding: 14px 15px; }
+  .scene-card > strong { font-size: 15px; }
+  .scene-meta { display: flex; flex-wrap: wrap; gap: 7px; }
+  .scene-meta span { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+  .scene-meta .scene-ac { background: var(--blue-soft); color: var(--blue); }
+  .scene-meta .scene-gw { border: 1px solid var(--line); color: var(--ink); }
+  .scene-row { display: grid; grid-template-columns: 34px 1fr; gap: 8px; align-items: start; }
+  .scene-row b { padding: 2px 0; border-radius: 5px; background: #f2f5fa; color: var(--muted); font-size: 10px; text-align: center; }
+  .scene-row p { margin: 0; color: var(--ink); font-size: 12px; line-height: 1.65; }
+  .scene-row.scene-value b { background: #e8f7ef; color: #1a9e56; }
+  .scene-row.scene-value p { color: #157a41; font-weight: 650; }
 </style>
 </head>
 <body>
@@ -18,7 +22,7 @@
     <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
     <header class="topbar home"><div class="topbar-title">场景</div><div class="capsule">··· ○</div></header>
     <div class="page">
-      <div class="scene-intro">按现场场景选型，找到适合的飞奕集控方案。点击方案卡查看完整方案介绍。</div>
+      <div class="scene-intro">飞奕空调智能网关在各行业场景的落地应用：从场景痛点到解决方案与落地价值。</div>
       <div class="scene-list" id="scene-list"></div>
     </div>
     <nav class="tabbar">
@@ -31,9 +35,11 @@
   <script src="../assets/app/product-data.js"></script>
   <script>
     document.getElementById('scene-list').innerHTML = GWDBG_DATA.scenes.map(function (s) {
-      return '<a class="card scene-card" href="product-manual.html?series=' + s.series + '&doc=1">' +
-        '<span class="scene-tag">' + s.tag + '</span><strong>' + s.title + '</strong><small>' + s.desc + '</small>' +
-        '<span class="scene-foot"><span class="scene-product">适用产品：' + s.products + '</span><span class="scene-arrow">›</span></span></a>';
+      return '<section class="card scene-card"><strong>' + s.title + '</strong>' +
+        '<div class="scene-meta"><span class="scene-ac">' + s.ac + '</span><span class="scene-gw">网关：' + s.products + '</span></div>' +
+        '<div class="scene-row"><b>痛点</b><p>' + s.pain + '</p></div>' +
+        '<div class="scene-row"><b>方案</b><p>' + s.solution + '</p></div>' +
+        '<div class="scene-row scene-value"><b>价值</b><p>' + s.value + '</p></div></section>';
     }).join('');
   </script>
   <script src="../assets/app/ai-assistant.js"></script>

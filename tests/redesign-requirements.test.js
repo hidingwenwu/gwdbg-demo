@@ -95,9 +95,7 @@ assert.deepEqual(
 );
 assert(data.toolMenu[0].action === 'ai-service', 'tech-service entry must open the AI assistant chat directly');
 assert(!data.faqList, 'faq column must be removed in favour of the AI assistant');
-assert(data.scenes.length === 10 && data.scenes.every((s) => s.tag && s.title && s.desc && s.products && s.series), 'scene tab must present product solutions');
-assert(data.scenes.some((s) => s.series === 'w01') && data.scenes.some((s) => s.series === 'jqf'), 'scene tab must include water machine solutions');
-assert(data.scenes.every((s) => data.guideSeries.some((g) => g.key === s.series)), 'scene cards must map to existing guide series');
+assert(data.scenes.length === 5 && data.scenes.every((s) => s.title && s.ac && s.products && s.pain && s.solution && s.value), 'scene tab must present scenario applications with ac type, products, pain, solution and value');
 for (const removed of ['产品方案', '飞奕公众号', '使用说明']) {
   assert(!JSON.stringify(data.toolMenu).includes(removed), `services menu must remove ${removed}`);
 }
@@ -353,9 +351,10 @@ for (const removed of ['关联网关侧表现', '相关文章', 'chip active', '
   assert(!errcodePage.includes(removed), `errcode page must remove ${removed}`);
 }
 const scenePage = read('pages/tab-scene.html');
-for (const text of ['场景', 'scenes', 'scene-card', 'product-manual.html?series=', 'tab-scene.html']) {
+for (const text of ['场景', 'scenes', 'scene-card', '痛点', '方案', '价值', 'tab-scene.html']) {
   assert(scenePage.includes(text), `scene tab must include ${text}`);
 }
+assert(!scenePage.includes('product-manual.html'), 'scene cards must be self-contained without reader links');
 const productIntro = read('pages/product-intro.html');
 for (const text of ['介绍视频', '手册与文档', 'guideSeries', 'product-manual.html?series=']) {
   assert(productIntro.includes(text), `series hub must include ${text}`);
