@@ -7,7 +7,7 @@ const data = require(path.join(root, 'assets/app/product-data.js'));
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 const byModel = Object.fromEntries(data.products.map((product) => [product.model, product]));
-const expectedModels = ['A01F', 'A01E', 'A02FG', 'A02EG', 'A03FG', 'F16G', 'B25LG', 'FD01G', 'S74G', 'E50'];
+const expectedModels = ['A01F', 'A01E', 'A02FG', 'A02EG', 'A03FG', 'F16G', 'B25LG', 'FD01G', 'S74G', 'E50', 'W01G', 'W01P'];
 
 assert.deepEqual(Object.keys(byModel).sort(), expectedModels.slice().sort(), 'must expose the ten supported models');
 assert.deepEqual(
@@ -23,7 +23,7 @@ for (const model of expectedModels) {
     fs.existsSync(path.join(root, 'pages', product.image)),
     `${model} product image must exist in assets/products`
   );
-  assert(Array.isArray(product.quickTasks) && product.quickTasks.length > 0, `${model} must define quick tasks`);
+  if (!product.contentOnly) assert(Array.isArray(product.quickTasks) && product.quickTasks.length > 0, `${model} must define quick tasks`);
   assert(Array.isArray(product.moreSettings), `${model} must define more settings`);
 }
 
@@ -79,7 +79,7 @@ assert.equal(data.remoteDevices.length, 2, 'remote page must have a concise E50 
 assert(data.remoteDevices.every((device) => device.model === 'E50'), 'remote list must contain E50 only');
 assert(data.bluetoothDevices.every((device) => expectedModels.includes(device.model)), 'Bluetooth devices must use supported models');
 
-assert.equal(data.toolHero.title, '氟机支持查询', 'fluorine support query must be the top hero tool');
+assert.equal(data.toolHero.title, '支持查询', 'support query must be the top hero tool');
 assert(data.toolHero.href === 'tool-fluoro-input.html', 'fluorine support query must enter the query flow');
 assert.deepEqual(
   data.toolCards.map((item) => item.title),
@@ -95,12 +95,13 @@ assert.deepEqual(
 );
 assert(data.toolMenu[0].action === 'ai-service', 'tech-service entry must open the AI assistant chat directly');
 assert(!data.faqList, 'faq column must be removed in favour of the AI assistant');
-assert(data.scenes.length === 8 && data.scenes.every((s) => s.tag && s.title && s.desc && s.products && s.series), 'scene tab must present product solutions');
+assert(data.scenes.length === 10 && data.scenes.every((s) => s.tag && s.title && s.desc && s.products && s.series), 'scene tab must present product solutions');
+assert(data.scenes.some((s) => s.series === 'w01') && data.scenes.some((s) => s.series === 'jqf'), 'scene tab must include water machine solutions');
 assert(data.scenes.every((s) => data.guideSeries.some((g) => g.key === s.series)), 'scene cards must map to existing guide series');
 for (const removed of ['产品方案', '飞奕公众号', '使用说明']) {
   assert(!JSON.stringify(data.toolMenu).includes(removed), `services menu must remove ${removed}`);
 }
-assert.deepEqual(data.guideSeries.map((s) => s.key), ['a01', 'a02', 'a03fg', 'f16g', 'b25lg', 'fd01g', 's74g', 'e50'], 'guide series must cover the eight maintained columns');
+assert.deepEqual(data.guideSeries.map((s) => s.key), ['a01', 'a02', 'a03fg', 'f16g', 'b25lg', 'fd01g', 's74g', 'e50', 'w01', 'jqf'], 'guide series must cover the maintained columns including water machines');
 assert(data.guideSeries.find((s) => s.key === 'a01').models.includes('A01E'), 'A01 series must merge A01F and A01E');
 assert(data.guideSeries.find((s) => s.key === 'a02').models.includes('A02EG'), 'A02 series must merge A02FG and A02EG');
 assert(data.guideSeries.every((s) => s.videos.length > 0 && s.docs.length > 0), 'every guide series must aggregate videos and docs');
@@ -304,9 +305,15 @@ for (const file of publicPages) {
 const fluoroInput = read('pages/tool-fluoro-input.html');
 const fluoroResult = read('pages/tool-fluoro-result.html');
 const fluoroSubmit = read('pages/tool-fluoro-submit.html');
-assert(fluoroInput.includes('氟机支持查询') && fluoroInput.includes('空调品牌') && fluoroInput.includes('外机完整型号'), 'fluoro query must take brand and full model');
+for (const text of ['支持查询', '氟机', '水机', '螺杆离心', '风冷模块', '按照主机型号', '按照主机线控器型号', '约克', '开利', '麦克维尔', '特灵', '天加', '主机品牌', '空调品牌', '外机完整型号']) {
+  assert(fluoroInput.includes(text), `support query must include ${text}`);
+}
+assert(fluoroInput.includes("type=water") && fluoroInput.includes('tool-fluoro-submit.html'), 'water query must route to result or submit page');
 for (const text of ['支持接入', '空调接线', '主从判断', '安装调试视频']) {
   assert(fluoroResult.includes(text), `supported result must include ${text}`);
+}
+for (const text of ["type') === 'water'", 'W01G', 'W01P', '螺杆离心主机', '风冷模块主机', '适配控制器']) {
+  assert(fluoroResult.includes(text), `result page must render the water branch with ${text}`);
 }
 for (const text of ['暂未收录', '留言反馈', '铭牌照片', '电路图']) {
   assert(fluoroSubmit.includes(text), `unsupported result must guide to feedback with ${text}`);

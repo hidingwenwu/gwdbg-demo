@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>氟机支持查询 · 结果</title>
+  <title>支持查询 · 结果</title>
   <link rel="stylesheet" href="../_base.css">
   <style>
     .rs-hero { text-align: center; padding: 26px 16px 22px; }
@@ -53,23 +53,25 @@
       <div class="rh-verdict">支持接入飞奕网关</div>
     </div>
 
-    <div class="section-title"><span>适配网关</span></div>
-    <div class="card gw-card">
-      <div class="gw-main">
-        <div class="gw-name">A01 集控主机 <span class="badge badge-info">推荐</span></div>
-        <div class="gw-note">单通道 64 内机</div>
+    <div class="section-title"><span id="gw-section-title">适配网关</span></div>
+    <div id="gw-list">
+      <div class="card gw-card">
+        <div class="gw-main">
+          <div class="gw-name">A01 集控主机 <span class="badge badge-info">推荐</span></div>
+          <div class="gw-note">单通道 64 内机</div>
+        </div>
       </div>
-    </div>
-    <div class="card gw-card">
-      <div class="gw-main">
-        <div class="gw-name">A03 集控主机</div>
-        <div class="gw-note">双通道 128 内机</div>
+      <div class="card gw-card">
+        <div class="gw-main">
+          <div class="gw-name">A03 集控主机</div>
+          <div class="gw-note">双通道 128 内机</div>
+        </div>
       </div>
     </div>
 
     <div class="card" style="margin-top: 12px;">
       <div class="card-title"><span class="card-title-main">调试要点</span></div>
-      <div class="kv-list">
+      <div class="kv-list" id="debug-points">
         <div class="kv-item"><span class="kv-label">接线位置</span><span class="kv-value">外机 F1/F2 端子</span></div>
         <a class="kv-item" href="tool-wiring.html"><span class="kv-label">空调接线</span><span class="kv-value kv-arrow text-brand" id="wiring-link">大金 VRV 接线图文</span></a>
         <a class="kv-item" href="#" onclick="showToast('主从判断方法');return false;"><span class="kv-label">主从判断</span><span class="kv-value kv-arrow text-brand">查看判断方法</span></a>
@@ -99,6 +101,25 @@
       var q = new URLSearchParams(location.search);
       var brand = q.get('brand') || '大金';
       var model = q.get('model') || 'RUXYQ12BA';
+      if (q.get('type') === 'water') {
+        var catLabel = q.get('cat') === 'module' ? '风冷模块主机' : '螺杆离心主机';
+        var byTstat = q.get('by') === 'tstat';
+        document.getElementById('rh-model').textContent = model;
+        document.getElementById('rh-brand').textContent = brand + ' · ' + catLabel;
+        document.querySelector('.rh-verdict').textContent = '支持接入飞奕控制器';
+        document.getElementById('gw-section-title').textContent = '适配控制器';
+        document.getElementById('gw-list').innerHTML = byTstat
+          ? '<div class="card gw-card"><div class="gw-main"><div class="gw-name">W01P 冷水主机控制器 <span class="badge badge-info">推荐</span></div><div class="gw-note">主机线控器通讯链路接入</div></div></div>'
+          : '<div class="card gw-card"><div class="gw-main"><div class="gw-name">W01G 冷水主机控制器 <span class="badge badge-info">推荐</span></div><div class="gw-note">主机通讯口直连</div></div></div>' +
+            '<div class="card gw-card"><div class="gw-main"><div class="gw-name">W01P 冷水主机控制器</div><div class="gw-note">主机线控器接入（通讯口被占用时）</div></div></div>';
+        document.getElementById('debug-points').innerHTML =
+          '<div class="kv-item"><span class="kv-label">接线位置</span><span class="kv-value">' + (byTstat ? '主机线控器通讯链路' : '主机主控板通讯端子') + '</span></div>' +
+          '<a class="kv-item" href="tool-wiring.html"><span class="kv-label">主机接线</span><span class="kv-value kv-arrow text-brand">' + brand + ' 接线图文</span></a>' +
+          '<div class="kv-item"><span class="kv-label">通讯协议</span><span class="kv-value">Modbus RTU（按品牌适配）</span></div>' +
+          '<a class="kv-item" href="tool-videos.html"><span class="kv-label">安装调试视频</span><span class="kv-value kv-arrow text-brand">观看演示</span></a>' +
+          '<div class="kv-item"><span class="kv-label">波特率</span><span class="kv-value">9600（默认）</span></div>';
+        return;
+      }
       document.getElementById('rh-model').textContent = model;
       document.getElementById('rh-brand').textContent = brand + ' · 多联机外机';
       document.getElementById('wiring-link').textContent = brand + ' 接线图文';

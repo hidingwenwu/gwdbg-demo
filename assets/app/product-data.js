@@ -126,6 +126,16 @@
         { key: 'diagnosis', title: '一键诊断' },
         { key: 'upgrade', title: '固件升级' }
       ]
+    },
+    {
+      model: 'W01G', name: 'W01G 冷水主机控制器', category: '冷水主机控制器',
+      image: '../assets/products/a01f.png', remote: false, family: 'water', contentOnly: true,
+      variant: '主机通讯口直连', channels: 1, quickTasks: [], moreSettings: []
+    },
+    {
+      model: 'W01P', name: 'W01P 冷水主机控制器', category: '冷水主机控制器',
+      image: '../assets/products/s74g.png', remote: false, family: 'water', contentOnly: true,
+      variant: '主机线控器接入', channels: 1, quickTasks: [], moreSettings: []
     }
   ];
 
@@ -169,6 +179,14 @@
     E50: {
       intro: '空调诊断设备，蓝牙 / 4G 双模式连接，自动搜索空调系统并读取室内外机运行参数，辅助现场工程师快速定位故障。',
       features: ['空调系统自动搜索识别', '室外机 / 室内机参数读取', '一键诊断与 AI 分析', '蓝牙近场 + 4G 远程双模式']
+    },
+    W01G: {
+      intro: '冷水主机控制器，直连螺杆机、离心机、风冷模块等冷水主机通讯口，将主机运行状态、水温与故障信息接入集控平台，实现远程监控与群控启停。',
+      features: ['主机通讯口直连（RS485）', '螺杆离心 / 风冷模块两大类适配', '运行状态与水温水压采集', '远程启停与群控联动']
+    },
+    W01P: {
+      intro: '冷水主机控制器（线控器接入型），通过主机线控器通讯链路接入冷水主机，适用于主机通讯口已被占用或不开放的项目，改造更轻量。',
+      features: ['主机线控器通讯链路接入', '免动主机主控板，改造量小', '状态采集与远程启停', '螺杆离心 / 风冷模块两大类适配']
     }
   };
   products.forEach(function (p) {
@@ -197,7 +215,7 @@
       { model: 'E50', name: '东区机房 E50', id: 'E50-250701-0186', online: true, updatedAt: '刚刚' },
       { model: 'E50', name: '研发实验室 E50', id: 'E50-250624-0062', online: false, updatedAt: '07-23 18:42' }
     ],
-    toolHero: { title: '氟机支持查询', icon: '查', desc: '输入空调品牌与完整型号，查询外机是否支持接入', href: 'tool-fluoro-input.html' },
+    toolHero: { title: '支持查询', icon: '查', desc: '氟机与水机（螺杆离心/风冷模块）接入支持查询', href: 'tool-fluoro-input.html' },
     toolCards: [
       { title: '空调接线', icon: '线', desc: '各品牌接线端子图文', href: 'tool-wiring.html' },
       { title: '操作指引', icon: '引', desc: '视频教程与产品文档', href: 'tool-guide.html' },
@@ -216,7 +234,9 @@
       { tag: '已装修项目', title: '存量内机按台改造方案', desc: '单路室内机控制器线控盒内安装，即装即用按台改造', products: 'B25LG', series: 'b25lg' },
       { tag: '商铺 · 宿舍', title: '分体机红外集控方案', desc: '红外码库控制分体空调，电流检测判定真实运行状态', products: 'FD01G', series: 'fd01g' },
       { tag: '商铺 · 别墅', title: '小体量项目轻量接入方案', desc: '单路网关一根总线接入整套多联机，低成本实现集控', products: 'S74G', series: 's74g' },
-      { tag: '售后 · 巡检', title: '空调故障诊断服务方案', desc: '诊断设备现场读取系统参数，AI 输出故障报告与建议', products: 'E50', series: 'e50' }
+      { tag: '售后 · 巡检', title: '空调故障诊断服务方案', desc: '诊断设备现场读取系统参数，AI 输出故障报告与建议', products: 'E50', series: 'e50' },
+      { tag: '厂房 · 车站', title: '风冷模块机组集控方案', desc: 'W01 控制器接入风冷模块主机，群控启停与水温管理', products: 'W01G / W01P', series: 'w01' },
+      { tag: '机房 · 园区', title: '螺杆/离心机房群控方案', desc: '一整套机房设备控制系统，主机、水泵、冷却塔联动与能效优化', products: '机房群控系统', series: 'jqf' }
     ],
     platformGuideCats: [
       {
@@ -306,6 +326,17 @@
         key: 'e50', title: 'E50', rep: 'E50', models: 'E50', desc: '空调诊断设备 · 蓝牙 / 4G',
         videos: ['E50 蓝牙配对与设备连接', '空调系统搜索与识别', 'AI 智能诊断快速上手'],
         docs: [['产品手册', 'E50 空调诊断设备产品手册'], ['方案文档', '空调故障诊断服务方案'], ['指导文件', 'E50 现场作业指引']]
+      },
+      {
+        key: 'w01', title: 'W01 系列', rep: 'W01G', models: 'W01G / W01P', desc: '冷水主机控制器 · 螺杆离心/风冷模块',
+        videos: ['W01G 接线与上线演示', '水机品牌与协议配置', '主机线控器对接实操'],
+        docs: [['产品手册', 'W01 系列冷水主机控制器产品手册'], ['方案文档', '冷水主机集控方案（W01 系列）'], ['指导文件', 'W01 系列主机通讯口接线指引']]
+      },
+      {
+        key: 'jqf', title: '机房群控', rep: 'W01G', models: '机房群控系统', desc: '冷水机房设备群控系统',
+        intro: '机房群控是一整套冷水机房设备控制系统，覆盖冷水主机、水泵、冷却塔与阀件的联动控制与能效管理，并非单一控制器产品。',
+        videos: ['机房群控系统组成与架构', '群控策略与联动逻辑', '机房群控项目交付案例'],
+        docs: [['产品手册', '机房群控系统概述'], ['方案文档', '冷水机房群控解决方案'], ['指导文件', '机房群控实施与验收指引']]
       }
     ],
     mine: { name: '飞奕工程师 · 张工', phone: '138****8203', version: '2.0.0' }

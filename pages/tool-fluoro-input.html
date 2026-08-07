@@ -3,9 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>氟机支持查询</title>
+  <title>支持查询</title>
   <link rel="stylesheet" href="../_base.css">
   <style>
+    .machine-tabs {
+      display: flex; padding: 2px;
+      background: var(--ios-fill);
+      border-radius: var(--radius-ios);
+      margin-bottom: 14px;
+    }
+    .machine-tabs .mtab {
+      flex: 1; padding: 8px 0; text-align: center;
+      border-radius: 8px; font-size: var(--fs-label); font-weight: 500;
+      color: var(--text-primary);
+    }
+    .machine-tabs .mtab.active {
+      background: #fff; font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
     .query-card { padding: 16px; }
     .query-card .field-row:last-child { margin-bottom: 0; }
     .fl-tip {
@@ -13,6 +28,8 @@
       margin: 10px 4px 0; line-height: 1.6;
     }
     .query-btn { margin-top: 14px; }
+    .form-chips { display: flex; gap: 8px; }
+    .form-chips .chip { flex: 1; padding: 9px 0; text-align: center; }
 
     .brand-select {
       display: flex; align-items: center; justify-content: space-between;
@@ -97,7 +114,7 @@
   </div>
   <div class="wx-navbar">
     <a class="nav-back" href="tab-tools.html">‹</a>
-    <div class="nav-title">氟机支持查询</div>
+    <div class="nav-title">支持查询</div>
     <div class="nav-capsule">
       <span class="cap-dot"></span><span class="cap-dot"></span><span class="cap-dot"></span>
       <span class="cap-sep"></span><span class="cap-circle"></span>
@@ -106,7 +123,12 @@
 
   <div class="page-body no-tabbar">
 
-    <div class="card query-card">
+    <div class="machine-tabs">
+      <button class="mtab active" data-mtype="fluoro" type="button">氟机</button>
+      <button class="mtab" data-mtype="water" type="button">水机</button>
+    </div>
+
+    <div class="card query-card" id="pane-fluoro">
       <div class="field-row">
         <label class="field-label">空调品牌 <span class="required">*</span></label>
         <button class="select brand-select" id="brand-select" type="button" aria-haspopup="listbox" aria-expanded="false">
@@ -123,6 +145,36 @@
       <div class="fl-tip">支持多联机（氟机）外机查询；若暂未收录，可通过留言反馈提交铭牌照片与电路图，适配团队评估后提供对接支持。</div>
     </div>
 
+    <div class="card query-card" id="pane-water" hidden>
+      <div class="field-row">
+        <label class="field-label">机型类别 <span class="required">*</span></label>
+        <div class="form-chips chip-group" data-select="single" id="wk-cat">
+          <span class="chip active" data-value="screw">螺杆离心</span>
+          <span class="chip" data-value="module">风冷模块</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">检索方式 <span class="required">*</span></label>
+        <div class="form-chips chip-group" data-select="single" id="wk-by">
+          <span class="chip active" data-value="model">按照主机型号</span>
+          <span class="chip" data-value="tstat">按照主机线控器型号</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">主机品牌 <span class="required">*</span></label>
+        <button class="select brand-select" id="wk-brand-select" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="bs-value is-placeholder" id="wk-brand-value">请选择主机品牌</span>
+          <span class="bs-caret">›</span>
+        </button>
+      </div>
+      <div class="field-row">
+        <label class="field-label" id="wk-model-label">主机型号 <span class="required">*</span></label>
+        <input class="input" id="wk-model" placeholder="输入冷水主机型号，如 YVAA0150">
+      </div>
+      <button class="btn btn-primary-solid btn-block query-btn" id="wk-query" type="button">立即查询</button>
+      <div class="fl-tip">支持约克、开利、麦克维尔、特灵、格力、美的、天加、海尔等主流水机品牌查询；未收录型号可通过留言反馈提交评估。</div>
+    </div>
+
     <div class="section-title">
       <span>查询历史</span>
       <span class="text-brand" style="cursor:pointer;" onclick="showToast('已清空查询历史')">清空</span>
@@ -137,6 +189,10 @@
           <span class="kv-label">格力 GMV-560WM/X</span>
           <span class="kv-value kv-arrow"><span class="badge badge-success">支持</span></span>
         </a>
+        <a class="kv-item" href="tool-fluoro-result.html?type=water&cat=screw&by=model&brand=约克&model=YS-DAC-45">
+          <span class="kv-label">约克 YS-DAC-45</span>
+          <span class="kv-value kv-arrow"><span class="badge badge-success">支持</span></span>
+        </a>
         <a class="kv-item" href="tool-fluoro-submit.html?brand=其他品牌&model=KFR-XX520">
           <span class="kv-label">某杂牌 KFR-XX520</span>
           <span class="kv-value kv-arrow"><span class="badge badge-warning">未收录</span></span>
@@ -147,10 +203,10 @@
   </div>
 
   <div class="picker-mask" id="brand-mask"></div>
-  <section class="brand-sheet" id="brand-sheet" aria-label="选择空调品牌">
+  <section class="brand-sheet" id="brand-sheet" aria-label="选择品牌">
     <div class="sheet-handle"></div>
     <div class="bs-header">
-      <span class="bs-title">选择空调品牌</span>
+      <span class="bs-title" id="bs-title">选择空调品牌</span>
       <button class="bs-close" id="brand-close" type="button" aria-label="关闭">×</button>
     </div>
     <div class="bs-scroll">
@@ -167,54 +223,68 @@
   <script src="../interactions.js"></script>
   <script src="../assets/app/ai-assistant.js"></script>
   <script>
-    var COMMON_BRANDS = ['大金', '日立', '格力', '美的', '三菱重工', '三菱电机', '海尔', '海信'];
-    var ALL_BRANDS = [
-      '奥克斯', '大金', '东芝', '富士通将军', '格力', '海尔', '海信', '开利',
-      'LG', '麦克维尔', '美的', '日立', '三菱电机', '三菱重工', '三星', '松下',
-      'TCL', '特灵', '天加', '约克', '志高', '其他品牌'
-    ];
-    var currentBrand = '';
+    var BRAND_SETS = {
+      fluoro: {
+        title: '选择空调品牌',
+        common: ['大金', '日立', '格力', '美的', '三菱重工', '三菱电机', '海尔', '海信'],
+        all: [
+          '奥克斯', '大金', '东芝', '富士通将军', '格力', '海尔', '海信', '开利',
+          'LG', '麦克维尔', '美的', '日立', '三菱电机', '三菱重工', '三星', '松下',
+          'TCL', '特灵', '天加', '约克', '志高', '其他品牌'
+        ]
+      },
+      water: {
+        title: '选择主机品牌',
+        common: ['约克', '开利', '麦克维尔', '特灵', '格力', '美的', '天加', '海尔'],
+        all: ['约克', '开利', '麦克维尔', '特灵', '格力', '美的', '天加', '海尔', '海信日立', '盾安', '其他品牌']
+      }
+    };
+    var mtype = 'fluoro';
+    var pickerFor = null;
+    var brands = { fluoro: '', water: '' };
 
-    var trigger = document.getElementById('brand-select');
-    var valueEl = document.getElementById('brand-value');
     var mask = document.getElementById('brand-mask');
     var sheet = document.getElementById('brand-sheet');
     var commonBox = document.getElementById('brand-common');
     var allBox = document.getElementById('brand-all');
 
-    commonBox.innerHTML = COMMON_BRANDS.map(function (b) {
-      return '<button class="chip" type="button" data-brand="' + b + '">' + b + '</button>';
-    }).join('');
-    allBox.innerHTML = ALL_BRANDS.map(function (b) {
-      return '<button class="bs-option" type="button" data-brand="' + b + '">' +
-        '<span>' + b + '</span><span class="bs-check">✓</span></button>';
-    }).join('');
+    function renderSheet() {
+      var set = BRAND_SETS[mtype];
+      document.getElementById('bs-title').textContent = set.title;
+      commonBox.innerHTML = set.common.map(function (b) {
+        return '<button class="chip' + (brands[mtype] === b ? ' active' : '') + '" type="button" data-brand="' + b + '">' + b + '</button>';
+      }).join('');
+      allBox.innerHTML = set.all.map(function (b) {
+        return '<button class="bs-option' + (brands[mtype] === b ? ' selected' : '') + '" type="button" data-brand="' + b + '"><span>' + b + '</span><span class="bs-check">✓</span></button>';
+      }).join('');
+    }
 
-    function openPicker() {
+    function openPicker(forType) {
+      pickerFor = forType;
+      mtype = forType;
+      renderSheet();
       mask.classList.add('show');
       sheet.classList.add('show');
-      trigger.setAttribute('aria-expanded', 'true');
+      document.getElementById(forType === 'fluoro' ? 'brand-select' : 'wk-brand-select').setAttribute('aria-expanded', 'true');
     }
     function closePicker() {
       mask.classList.remove('show');
       sheet.classList.remove('show');
-      trigger.setAttribute('aria-expanded', 'false');
+      document.getElementById('brand-select').setAttribute('aria-expanded', 'false');
+      document.getElementById('wk-brand-select').setAttribute('aria-expanded', 'false');
     }
     function selectBrand(brand) {
-      currentBrand = brand;
+      brands[pickerFor] = brand;
+      var valueEl = document.getElementById(pickerFor === 'fluoro' ? 'brand-value' : 'wk-brand-value');
       valueEl.textContent = brand;
       valueEl.classList.remove('is-placeholder');
-      trigger.classList.remove('is-error');
-      commonBox.querySelectorAll('.chip').forEach(function (chip) {
-        chip.classList.toggle('active', chip.dataset.brand === brand);
-      });
-      allBox.querySelectorAll('.bs-option').forEach(function (opt) {
-        opt.classList.toggle('selected', opt.dataset.brand === brand);
-      });
+      document.getElementById(pickerFor === 'fluoro' ? 'brand-select' : 'wk-brand-select').classList.remove('is-error');
+      renderSheet();
       closePicker();
     }
 
-    trigger.addEventListener('click', openPicker);
+    document.getElementById('brand-select').addEventListener('click', function () { openPicker('fluoro'); });
+    document.getElementById('wk-brand-select').addEventListener('click', function () { openPicker('water'); });
     mask.addEventListener('click', closePicker);
     document.getElementById('brand-close').addEventListener('click', closePicker);
     document.addEventListener('keydown', function (e) {
@@ -225,21 +295,59 @@
       if (item) selectBrand(item.dataset.brand);
     });
 
-    function doQuery() {
-      if (!currentBrand) {
+    document.querySelectorAll('.machine-tabs .mtab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.machine-tabs .mtab').forEach(function (item) { item.classList.toggle('active', item === tab); });
+        mtype = tab.dataset.mtype;
+        document.getElementById('pane-fluoro').hidden = mtype !== 'fluoro';
+        document.getElementById('pane-water').hidden = mtype !== 'water';
+      });
+    });
+
+    document.getElementById('wk-by').addEventListener('click', function (event) {
+      var chip = event.target.closest('.chip');
+      if (!chip) return;
+      document.querySelectorAll('#wk-by .chip').forEach(function (item) { item.classList.toggle('active', item === chip); });
+      var byModel = chip.dataset.value === 'model';
+      document.getElementById('wk-model-label').innerHTML = (byModel ? '主机型号' : '主机线控器型号') + ' <span class="required">*</span>';
+      document.getElementById('wk-model').placeholder = byModel ? '输入冷水主机型号，如 YVAA0150' : '输入主机线控器型号，如 UC800';
+    });
+
+    function doFluoroQuery() {
+      var trigger = document.getElementById('brand-select');
+      if (!brands.fluoro) {
         trigger.classList.add('is-error');
         showToast('请选择空调品牌');
-        openPicker();
+        openPicker('fluoro');
         return;
       }
       var model = document.getElementById('fl-model').value.trim();
       if (!model) { showToast('请输入外机完整型号'); return; }
-      var params = '?brand=' + encodeURIComponent(currentBrand) + '&model=' + encodeURIComponent(model);
-      location.href = (currentBrand === '其他品牌' ? 'tool-fluoro-submit.html' : 'tool-fluoro-result.html') + params;
+      var params = '?brand=' + encodeURIComponent(brands.fluoro) + '&model=' + encodeURIComponent(model);
+      location.href = (brands.fluoro === '其他品牌' ? 'tool-fluoro-submit.html' : 'tool-fluoro-result.html') + params;
     }
-    document.getElementById('fl-query').addEventListener('click', doQuery);
+    function doWaterQuery() {
+      var trigger = document.getElementById('wk-brand-select');
+      if (!brands.water) {
+        trigger.classList.add('is-error');
+        showToast('请选择主机品牌');
+        openPicker('water');
+        return;
+      }
+      var model = document.getElementById('wk-model').value.trim();
+      if (!model) { showToast('请输入' + document.getElementById('wk-model-label').textContent.replace('*', '').trim()); return; }
+      var cat = document.querySelector('#wk-cat .chip.active').dataset.value;
+      var by = document.querySelector('#wk-by .chip.active').dataset.value;
+      var params = '?type=water&cat=' + cat + '&by=' + by + '&brand=' + encodeURIComponent(brands.water) + '&model=' + encodeURIComponent(model);
+      location.href = (brands.water === '其他品牌' ? 'tool-fluoro-submit.html' : 'tool-fluoro-result.html') + params;
+    }
+    document.getElementById('fl-query').addEventListener('click', doFluoroQuery);
     document.getElementById('fl-model').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') doQuery();
+      if (e.key === 'Enter') doFluoroQuery();
+    });
+    document.getElementById('wk-query').addEventListener('click', doWaterQuery);
+    document.getElementById('wk-model').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') doWaterQuery();
     });
   </script>
 </body>

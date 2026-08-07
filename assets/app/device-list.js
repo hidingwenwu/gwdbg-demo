@@ -36,8 +36,9 @@
     var host = document.getElementById('product-list');
     if (!host) return;
 
+    var listProducts = data.products.filter(function (product) { return !product.contentOnly; });
     var html = '';
-    data.products.forEach(function (product, index) {
+    listProducts.forEach(function (product, index) {
       var devices = data.bluetoothDevices.filter(function (device) { return device.model === product.model; });
       var rows = devices.length ? devices.map(function (device) {
         return '<div class="device-row" data-device="' + escapeHtml(device.id) + '">' +
@@ -51,9 +52,9 @@
         '<button class="product-head" type="button" aria-expanded="false">' +
         '<img class="product-image" src="' + product.image + '" alt="' + product.model + '">' +
         '<span class="product-title">' + product.model + '</span></button></section>';
-      if (index % 2 === 1 || index === data.products.length - 1) {
+      if (index % 2 === 1 || index === listProducts.length - 1) {
         var leftIndex = index % 2 === 1 ? index - 1 : index;
-        var pair = data.products.slice(leftIndex, index + 1);
+        var pair = listProducts.slice(leftIndex, index + 1);
         pair.forEach(function (pairProduct) {
           var pairDevices = data.bluetoothDevices.filter(function (device) { return device.model === pairProduct.model; });
           var pairRows = pairDevices.length ? pairDevices.map(function (device) {

@@ -47,7 +47,7 @@
       '<img class="intro-image" src="' + product.image + '" alt="' + series.title + '">' +
       '<div class="intro-model">' + series.title + '</div>' +
       '<div class="intro-name">' + series.models + ' · ' + series.desc + '</div>';
-    document.getElementById('intro-desc').textContent = product.intro || '';
+    document.getElementById('intro-desc').textContent = series.intro || product.intro || '';
 
     var toast = document.getElementById('toast');
     function showToast(message) { toast.textContent = message; toast.classList.add('show'); setTimeout(function () { toast.classList.remove('show'); }, 1300); }
