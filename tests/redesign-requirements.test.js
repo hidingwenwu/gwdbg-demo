@@ -118,6 +118,11 @@ for (const forbidden of ['promo-banner', '按型号查找', '现场工具', '型
   assert(!bluetoothPage.includes(forbidden), `Bluetooth page must remove ${forbidden}`);
 }
 assert(bluetoothPage.includes('scan-tip'), 'bluetooth page must show the nearby-scan hint');
+assert(bluetoothPage.includes('location.replace') && bluetoothPage.includes("transport === 'bt'"), 'device tab must keep the connected workbench while bluetooth stays connected');
+assert(read('assets/app/connection-state.js').includes('flowHref'), 'connection state must resolve the workbench page per model');
+const workbenchJs = read('assets/app/workbench.js');
+assert(workbenchJs.includes('switchBtn.addEventListener') && workbenchJs.includes('confirmDisconnect'), 'switching products must route through the disconnect confirmation');
+assert(read('assets/app/e50.js').includes('switchBtn.addEventListener'), 'e50 sidebar must route switching products through the disconnect confirmation');
 assert(bluetoothPage.includes('scheme-entry') && bluetoothPage.includes('tool-guide.html'), 'bluetooth page must expose the product scheme entry');
 assert(legacy4gPage.includes('tab-mine.html') && legacy4gPage.includes('location.replace'), 'legacy 4G tab must redirect to mine');
 assert(minePage.includes('mine-devices.html') && minePage.includes('我的设备'), 'mine page must expose the bound-devices entry');

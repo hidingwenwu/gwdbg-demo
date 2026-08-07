@@ -19,6 +19,9 @@
   }
 
   function flowHref(device) {
+    if (window.GWDBG_CONNECTION && window.GWDBG_CONNECTION.flowHref) {
+      return window.GWDBG_CONNECTION.flowHref({ model: device.model, device: device.id, transport: 'bt' });
+    }
     var params = new URLSearchParams({ model: device.model, device: device.id, mode: 'bt' });
     if (device.model === 'FD01G') return 'device-fd01g.html?' + params;
     if (device.model === 'E50') return 'device-e50.html?' + params;

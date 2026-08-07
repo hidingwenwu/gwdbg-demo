@@ -317,6 +317,20 @@
       closeMenu();
       openCapture();
     });
+    var switchBtn = host.querySelector('.menu-switch-btn');
+    if (switchBtn) switchBtn.addEventListener('click', function (event) {
+      if (mode !== 'bt') return;
+      event.preventDefault();
+      closeMenu();
+      confirmDialog({
+        title: '断开蓝牙连接',
+        message: '切换其他产品前需要断开当前蓝牙连接，断开后将返回设备列表。',
+        onConfirm: function () {
+          if (root.GWDBG_CONNECTION) root.GWDBG_CONNECTION.disconnectBluetooth();
+          root.location.href = 'tab-device-bt.html';
+        }
+      });
+    });
   }
   function openMenu() { document.body.classList.add('side-menu-open'); }
   function closeMenu() { document.body.classList.remove('side-menu-open'); }

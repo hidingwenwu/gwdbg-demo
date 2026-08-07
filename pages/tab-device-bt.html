@@ -28,6 +28,14 @@
   <div class="toast" id="toast">设备列表已刷新</div>
   <script src="../assets/app/product-data.js"></script>
   <script src="../assets/app/connection-state.js"></script>
+  <script>
+    (function () {
+      if (!window.GWDBG_CONNECTION) return;
+      if (new URLSearchParams(location.search).has('pick')) return;
+      var conn = window.GWDBG_CONNECTION.get();
+      if (conn && conn.transport === 'bt') location.replace(window.GWDBG_CONNECTION.flowHref(conn));
+    })();
+  </script>
   <script src="../assets/app/device-list.js"></script>
   <script>
     document.getElementById('refresh').addEventListener('click', function () {

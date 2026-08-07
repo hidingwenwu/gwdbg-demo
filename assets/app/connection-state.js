@@ -48,11 +48,20 @@
     });
   }
 
+  function flowHref(input) {
+    var mode = input.transport === '4g' ? '4g' : 'bt';
+    var params = new URLSearchParams({ model: input.model, device: input.device, mode: mode });
+    if (input.model === 'FD01G') return 'device-fd01g.html?' + params;
+    if (input.model === 'E50') return 'device-e50.html?' + params;
+    return 'device-quick.html?' + params;
+  }
+
   root.GWDBG_CONNECTION = {
     get: read,
     connect: connect,
     disconnect: function () { return write(null); },
     disconnectBluetooth: disconnectBluetooth,
-    switchTransport: switchTransport
+    switchTransport: switchTransport,
+    flowHref: flowHref
   };
 })(typeof window !== 'undefined' ? window : globalThis);

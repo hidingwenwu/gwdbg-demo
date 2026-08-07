@@ -334,6 +334,27 @@ async function assertNoHorizontalOverflow(page, route) {
     const resetLeft = await page.locator('.aa-ball').evaluate((el) => el.getBoundingClientRect().left);
     assert(resetLeft > 300, `ball must restore the default right-side position on re-entry (left=${resetLeft})`);
 
+    await page.evaluate(() => sessionStorage.clear());
+    await open(page, baseUrl, 'pages/tab-device-bt.html');
+    await page.locator('[data-model="A01F"] .product-head').click();
+    await page.locator('[data-expansion-model="A01F"] .connect-button').first().click();
+    await page.waitForLoadState('networkidle');
+    assert.match(page.url(), /device-quick\.html/, 'connecting must enter the quick config page');
+    await open(page, baseUrl, 'pages/tab-tools.html');
+    await page.locator('.tab', { hasText: '设备' }).click();
+    await page.waitForLoadState('networkidle');
+    assert.match(page.url(), /device-quick\.html/, 'device tab must keep the connected quick page instead of the search list');
+    assert.match(await page.locator('#page-title').textContent(), /快速配置/);
+    await page.locator('#menu-trigger').click();
+    await page.locator('.menu-switch-btn').click();
+    assert.equal(await page.locator('#connection-modal').getByText('确认断开').count(), 1, 'switching products must confirm the bluetooth disconnect');
+    await page.locator('#connection-confirm').click();
+    await page.waitForLoadState('networkidle');
+    assert.match(page.url(), /tab-device-bt\.html/, 'confirmed disconnect must land on the search page');
+    assert.equal(await page.locator('.product-card').count(), 10, 'search page must stay once disconnected');
+    await open(page, baseUrl, 'pages/tab-device-bt.html');
+    assert.equal(await page.locator('.product-card').count(), 10, 'device tab must show the search list after disconnect');
+
     await page.setViewportSize({ width: 320, height: 700 });
     await open(page, baseUrl, 'pages/tab-device-bt.html');
     await assertNoHorizontalOverflow(page, '320px Bluetooth devices');
