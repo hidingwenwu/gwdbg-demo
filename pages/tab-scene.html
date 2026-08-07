@@ -2,14 +2,9 @@
 <html lang="zh-CN">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>场景</title><link rel="stylesheet" href="../assets/app/app.css">
 <style>
-  .scene-card { display: grid; gap: 8px; padding: 14px 15px; }
+  .scene-card { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px; }
   .scene-card > strong { font-size: 15px; }
-  .scene-meta { display: flex; flex-wrap: wrap; gap: 7px; }
-  .scene-meta span { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
-  .scene-meta .scene-ac { background: var(--blue-soft); color: var(--blue); }
-  .scene-meta .scene-gw { border: 1px solid var(--line); color: var(--ink); }
-  .scene-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 1px; color: var(--faint); font-size: 11px; }
-  .scene-foot .scene-arrow { font-size: 16px; }
+  .scene-arrow { color: var(--faint); font-size: 16px; }
 </style>
 </head>
 <body>
@@ -29,9 +24,7 @@
   <script src="../assets/app/product-data.js"></script>
   <script>
     document.getElementById('scene-list').innerHTML = GWDBG_DATA.scenes.map(function (s, index) {
-      return '<a class="card scene-card" href="scene-detail.html?scene=' + index + '"><strong>' + s.title + '</strong>' +
-        '<div class="scene-meta"><span class="scene-ac">' + s.ac + '</span><span class="scene-gw">网关：' + s.products + '</span></div>' +
-        '<div class="scene-foot"><span>痛点 · 方案 · 价值</span><span class="scene-arrow">›</span></div></a>';
+      return '<a class="card scene-card" href="scene-detail.html?scene=' + index + '"><strong>' + s.title + '</strong><span class="scene-arrow">›</span></a>';
     }).join('');
   </script>
   <script src="../assets/app/ai-assistant.js"></script>
