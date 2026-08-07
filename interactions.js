@@ -380,9 +380,9 @@
               <a href="tool-fluoro-input.html">氟机选型</a>
               <a href="tool-fluoro-result.html">选型结果</a>
               <a href="tool-fluoro-submit.html">未收录提交</a>
-              <a href="tool-wiring.html">接线指导</a>
+              <a href="tool-wiring.html">空调接线</a>
               <a href="tool-videos.html">安装视频</a>
-              <a href="tool-errcode.html">故障码</a>
+              <a href="tool-errcode.html">空调故障码</a>
             </div>
           </div>
         </div>

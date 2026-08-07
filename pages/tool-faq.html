@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>常见问题答疑</title><link rel="stylesheet" href="../assets/app/app.css">
+<style>
+  .faq-item { border-top: 1px solid var(--line); }
+  .faq-item:first-child { border-top: 0; }
+  .faq-q { display: flex; align-items: center; gap: 10px; width: 100%; padding: 14px; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+  .faq-badge { flex: 0 0 auto; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 6px; background: var(--blue-soft); color: var(--blue); font-size: 11px; font-weight: 800; }
+  .faq-title { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; line-height: 1.5; }
+  .faq-arrow { color: var(--faint); font-size: 15px; transition: transform .2s; }
+  .faq-item.open .faq-arrow { transform: rotate(90deg); }
+  .faq-a { display: none; padding: 0 14px 14px 46px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+  .faq-item.open .faq-a { display: block; }
+  .faq-more { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 14px; font-size: 12px; color: var(--muted); }
+  .faq-more a { color: var(--blue); font-weight: 650; }
+</style>
+</head>
+<body>
+  <main class="app-shell">
+    <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
+    <header class="topbar"><a class="back" id="nav-back" href="tab-tools.html">‹</a><div class="topbar-title">常见问题答疑</div><div class="capsule">··· ○</div></header>
+    <div class="page no-tab">
+      <section class="card list-card" id="faq-list"></section>
+      <div class="faq-more">未解决你的问题？<a href="feedback.html">去留言反馈 ›</a></div>
+    </div>
+  </main>
+  <script src="../assets/app/product-data.js"></script>
+  <script>
+    var list = document.getElementById('faq-list');
+    list.innerHTML = GWDBG_DATA.faqList.map(function (f) {
+      return '<div class="faq-item"><button class="faq-q" type="button">' +
+        '<span class="faq-badge">问</span><span class="faq-title">' + f.q + '</span><span class="faq-arrow">›</span></button>' +
+        '<div class="faq-a">' + f.a + '</div></div>';
+    }).join('');
+    list.addEventListener('click', function (event) {
+      var btn = event.target.closest('.faq-q');
+      if (btn) btn.parentElement.classList.toggle('open');
+    });
+    document.getElementById('nav-back').addEventListener('click', function (event) {
+      if (window.history.length > 1) { event.preventDefault(); window.history.back(); }
+    });
+  </script>
+  <script src="../assets/app/ai-assistant.js"></script>
+</body></html>

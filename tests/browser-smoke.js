@@ -244,8 +244,14 @@ async function assertNoHorizontalOverflow(page, route) {
     assert.equal(await page.locator('#tool-hero').count(), 1, 'tools must lead with the fluoro support query hero');
     assert.match(await page.locator('#tool-hero').textContent(), /氟机支持查询/);
     assert.equal(await page.locator('#tool-cards .tool-mini').count(), 4, 'frequent tools must render as cards');
-    assert.equal(await page.locator('#tool-menu .list-row').count(), 1, 'services menu must keep only feedback');
+    assert.equal(await page.locator('#tool-menu .list-row').count(), 2, 'services menu must lead with the faq column then feedback');
     assert.equal(await page.getByText('专业版切换').count(), 0, 'tools must remove the pro-version switch');
+    await page.locator('#tool-menu .list-row', { hasText: '常见问题答疑' }).click();
+    await page.waitForLoadState('networkidle');
+    assert.ok((await page.locator('#faq-list .faq-item').count()) >= 5, 'faq page must render the maintained Q&A entries');
+    await page.locator('.faq-q').first().click();
+    assert.equal(await page.locator('.faq-item.open').count(), 1, 'faq entry must expand on tap');
+    await open(page, baseUrl, 'pages/tab-tools.html');
     assert.equal(await page.locator('.aa-ball').count(), 1, 'tools page must show the ai assistant ball');
     await page.locator('.aa-ball').click();
     await page.waitForTimeout(400);

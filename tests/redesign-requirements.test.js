@@ -83,16 +83,17 @@ assert.equal(data.toolHero.title, '氟机支持查询', 'fluorine support query 
 assert(data.toolHero.href === 'tool-fluoro-input.html', 'fluorine support query must enter the query flow');
 assert.deepEqual(
   data.toolCards.map((item) => item.title),
-  ['接线指导', '操作指引', '故障码查询', '远程协助'],
+  ['空调接线', '操作指引', '空调故障码', '远程协助'],
   'frequent tools must render as cards'
 );
 assert(data.toolCards.find((item) => item.title === '远程协助').href === 'tool-remote.html', 'remote assist tool must enter the remote assist flow');
 assert(data.toolCards.find((item) => item.title === '操作指引').href === 'tool-guide.html', 'operation guide tool must enter the guide hub');
 assert.deepEqual(
   data.toolMenu.map((item) => item.title),
-  ['留言反馈'],
-  'services menu must keep only feedback'
+  ['常见问题答疑', '留言反馈'],
+  'services menu must lead with the faq column then feedback'
 );
+assert(data.faqList.length >= 5 && data.faqList.every((f) => f.q && f.a), 'faq column must provide maintained Q&A entries');
 for (const removed of ['产品方案', '飞奕公众号', '使用说明']) {
   assert(!JSON.stringify(data.toolMenu).includes(removed), `services menu must remove ${removed}`);
 }
@@ -272,7 +273,8 @@ const publicPages = [
   'pages/product-catalog.html', 'pages/tool-wiring.html', 'pages/tool-guide.html',
   'pages/tool-videos.html', 'pages/tool-errcode.html', 'pages/tool-fluoro-input.html', 'pages/tool-fluoro-result.html',
   'pages/tool-fluoro-submit.html', 'pages/feedback.html',
-  'pages/tool-remote.html', 'pages/tool-remote-assisted.html', 'pages/tool-remote-assist.html'
+  'pages/tool-remote.html', 'pages/tool-remote-assisted.html', 'pages/tool-remote-assist.html',
+  'pages/platform-videos.html', 'pages/tool-faq.html'
 ];
 for (const file of publicPages) {
   const html = read(file);
@@ -285,7 +287,7 @@ const fluoroInput = read('pages/tool-fluoro-input.html');
 const fluoroResult = read('pages/tool-fluoro-result.html');
 const fluoroSubmit = read('pages/tool-fluoro-submit.html');
 assert(fluoroInput.includes('氟机支持查询') && fluoroInput.includes('空调品牌') && fluoroInput.includes('外机完整型号'), 'fluoro query must take brand and full model');
-for (const text of ['支持接入', '接线指导', '主从判断', '安装调试视频']) {
+for (const text of ['支持接入', '空调接线', '主从判断', '安装调试视频']) {
   assert(fluoroResult.includes(text), `supported result must include ${text}`);
 }
 for (const text of ['暂未收录', '留言反馈', '铭牌照片', '电路图']) {
@@ -315,6 +317,19 @@ const platformVideos = read('pages/platform-videos.html');
 for (const text of ['平台操作专栏', 'platformGuideCats', '视频播放', 'tool-guide.html']) {
   assert(platformVideos.includes(text), `platform videos page must include ${text}`);
 }
+const wiringPage = read('pages/tool-wiring.html');
+assert(wiringPage.includes('空调接线') && !wiringPage.includes('nav-title">接线指导'), 'wiring page must be renamed to 空调接线');
+const errcodePage = read('pages/tool-errcode.html');
+for (const text of ['空调故障码', '请先选择空调品牌', 'ec-result']) {
+  assert(errcodePage.includes(text), `errcode page must include ${text}`);
+}
+for (const removed of ['关联网关侧表现', '相关文章', 'chip active']) {
+  assert(!errcodePage.includes(removed), `errcode page must remove ${removed}`);
+}
+const faqPage = read('pages/tool-faq.html');
+for (const text of ['常见问题答疑', 'faqList', '去留言反馈', 'feedback.html']) {
+  assert(faqPage.includes(text), `faq page must include ${text}`);
+}
 const productIntro = read('pages/product-intro.html');
 for (const text of ['介绍视频', '手册与文档', 'guideSeries']) {
   assert(productIntro.includes(text), `series hub must include ${text}`);
@@ -329,7 +344,7 @@ for (const text of ['奕', 'pointermove', 'docked', 'placeDefault']) {
 }
 assert(!aiAssistant.includes("innerHTML = 'AI"), 'assistant ball must not keep the old AI glyph');
 for (const page of ['tab-tools', 'tool-fluoro-input', 'tool-fluoro-result', 'tool-fluoro-submit', 'tool-wiring', 'tool-videos', 'tool-errcode', 'feedback',
-  'tool-remote', 'tool-remote-assisted', 'tool-remote-assist', 'tool-guide',
+  'tool-remote', 'tool-remote-assisted', 'tool-remote-assist', 'tool-guide', 'tool-faq', 'platform-videos',
   'tab-device-bt', 'tab-mine', 'mine-devices', 'product-intro',
   'device-quick', 'device-detail', 'device-more', 'device-setting', 'device-a01-ac', 'device-fd01g', 'device-fd01g-more',
   'device-e50', 'device-e50-detail', 'device-e50-ai', 'device-e50-ac', 'device-e50-report', 'device-e50-upgrade',

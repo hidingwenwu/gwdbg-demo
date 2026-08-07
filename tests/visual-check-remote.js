@@ -81,6 +81,22 @@ function startServer() {
   await page.goto(`${baseUrl}/pages/platform-videos.html?cat=jf`, { waitUntil: 'networkidle' });
   await shot('21-platform-videos-jf');
 
+  await page.goto(`${baseUrl}/pages/tool-faq.html`, { waitUntil: 'networkidle' });
+  await page.locator('.faq-q').nth(0).click();
+  await page.locator('.faq-q').nth(2).click();
+  await shot('22-tool-faq');
+
+  await page.goto(`${baseUrl}/pages/tool-errcode.html`, { waitUntil: 'networkidle' });
+  await shot('23-tool-errcode');
+  await page.locator('.brand-chips .chip').first().click();
+  await page.locator('#ec-input').fill('U4');
+  await page.locator('#ec-input').press('Enter');
+  await page.waitForTimeout(300);
+  await shot('24-tool-errcode-result');
+
+  await page.goto(`${baseUrl}/pages/tool-wiring.html`, { waitUntil: 'networkidle' });
+  await shot('25-tool-wiring');
+
   await page.goto(`${baseUrl}/pages/product-intro.html?series=a01`, { waitUntil: 'networkidle' });
   await shot('17-series-hub');
   await page.locator('[data-tab="docs"]').click();
