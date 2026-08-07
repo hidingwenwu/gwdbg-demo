@@ -1,13 +1,1 @@
-<!doctype html>
-<html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>产品方案</title><link rel="stylesheet" href="../assets/app/app.css"></head>
-<body>
-  <main class="app-shell"><div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div><header class="topbar"><a class="back" href="tab-tools.html">‹</a><div class="topbar-title">产品方案</div><div class="capsule">··· ○</div></header><div class="page no-tab"><input class="search-input" id="solution-search" placeholder="搜索产品型号"><div class="stack" id="solution-list" style="margin-top:12px"></div></div></main>
-  <script src="../assets/app/product-data.js"></script>
-  <script>
-    var host = document.getElementById('solution-list');
-    function render(filter) { host.innerHTML = GWDBG_DATA.products.filter(function(p){return (p.model + p.name + p.category).toLowerCase().includes(filter.toLowerCase());}).map(function(p){return '<a class="card product-head" href="product-intro.html?model=' + p.model + '"><img class="product-image" src="' + p.image + '" alt="' + p.model + '"><span><span class="product-title">' + p.model + '</span><span class="product-type">' + p.category + '<br>' + p.variant + '</span></span><span class="chevron">›</span></a>';}).join(''); }
-    document.getElementById('solution-search').addEventListener('input',function(e){render(e.target.value.trim());}); render('');
-  </script>
-  <script src="../assets/app/ai-assistant.js"></script>
-</body></html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>操作指引</title></head><body><script>(function(){location.replace('tool-guide.html');})();</script></body></html>

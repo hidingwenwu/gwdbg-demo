@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>我的设备</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<body>
+  <main class="app-shell">
+    <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
+    <header class="topbar"><a class="back" id="nav-back" href="tab-mine.html">‹</a><div class="topbar-title">我的设备</div><div class="capsule">··· ○</div></header>
+    <div class="page"><section class="card list-card" id="device-list"></section></div>
+    <div class="modal-layer" id="unbind-modal">
+      <div class="modal-mask" data-modal-close></div>
+      <section class="confirm-dialog">
+        <h2>解绑设备</h2>
+        <p id="unbind-message"></p>
+        <div class="dialog-actions"><button class="button" data-modal-close type="button">取消</button><button class="button primary" id="unbind-confirm" type="button">确认解绑</button></div>
+      </section>
+    </div>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script src="../assets/app/product-data.js"></script>
+  <script>
+    var devices = GWDBG_DATA.remoteDevices.map(function (d) {
+      return { id: d.id, name: d.name, online: d.online, meta: '4G · 更新于 ' + d.updatedAt };
+    });
+    var host = document.getElementById('device-list');
+    function render() {
+      host.innerHTML = devices.length ? devices.map(function (d) {
+        var href = 'device-e50.html?' + new URLSearchParams({ model: 'E50', device: d.id, mode: '4g' }).toString();
+        return '<div class="list-row device-cell"><img class="device-cell-img" src="../assets/products/e50.png" alt="">' +
+          '<span class="device-cell-main"><strong>' + d.name + '</strong><small>' + d.id + '</small><small>' + d.meta + '</small></span>' +
+          '<span class="device-cell-side"><span class="online-badge ' + (d.online ? 'online' : 'offline') + '"><i></i>' + (d.online ? '在线' : '离线') + '</span>' +
+          '<span class="device-cell-actions">' + (d.online ? '<a class="unbind-btn debug-link" href="' + href + '">进入调试</a>' : '') +
+          '<button class="unbind-btn" data-unbind="' + d.id + '" type="button">解绑</button></span></span></div>';
+      }).join('') : '<div class="empty">暂无绑定设备</div>';
+    }
+    render();
+
+    var modal = document.getElementById('unbind-modal');
+    var pendingId = '';
+    function showToast(message) { var toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(function () { toast.classList.remove('show'); }, 1500); }
+    host.addEventListener('click', function (event) {
+      var btn = event.target.closest('[data-unbind]');
+      if (!btn) return;
+      pendingId = btn.dataset.unbind;
+      var target = devices.filter(function (d) { return d.id === pendingId; })[0];
+      document.getElementById('unbind-message').textContent = '确定解绑 ' + target.name + ' 吗？解绑后需重新添加才能使用。';
+      modal.classList.add('show');
+    });
+    modal.addEventListener('click', function (event) {
+      if (event.target.closest('[data-modal-close]')) modal.classList.remove('show');
+    });
+    document.getElementById('unbind-confirm').addEventListener('click', function () {
+      var target = devices.filter(function (d) { return d.id === pendingId; })[0];
+      devices = devices.filter(function (d) { return d.id !== pendingId; });
+      modal.classList.remove('show');
+      render();
+      showToast('已解绑 ' + target.name);
+    });
+    document.getElementById('nav-back').addEventListener('click', function (event) {
+      if (window.history.length > 1) { event.preventDefault(); window.history.back(); }
+    });
+  </script>
+  <script src="../assets/app/ai-assistant.js"></script>
+</body></html>

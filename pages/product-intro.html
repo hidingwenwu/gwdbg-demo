@@ -1,82 +1,83 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>产品介绍</title><link rel="stylesheet" href="../assets/app/app.css">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>产品指引</title><link rel="stylesheet" href="../assets/app/app.css">
 <style>
   .intro-hero { padding: 20px 16px 18px; text-align: center; }
   .intro-hero .intro-image { width: 100%; height: 128px; object-fit: contain; mix-blend-mode: multiply; }
   .intro-hero .intro-model { margin-top: 12px; font-size: 24px; font-weight: 800; letter-spacing: .3px; }
   .intro-hero .intro-name { margin-top: 6px; color: var(--muted); font-size: 13px; }
-  .intro-tags { margin-top: 12px; display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; }
-  .intro-tag {
-    display: inline-flex; align-items: center; min-height: 26px; padding: 0 11px;
-    border-radius: 8px; background: var(--blue-soft); color: var(--blue);
-    font-size: 12px; font-weight: 650;
-  }
   .intro-desc { padding: 14px 15px; color: var(--ink); font-size: 13px; line-height: 1.8; }
-  .feature-list { padding: 4px 15px; }
-  .feature-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 12px 0; border-top: 1px solid var(--line);
-    font-size: 13px; color: var(--ink); line-height: 1.6;
-  }
-  .feature-item:first-child { border-top: 0; }
-  .feature-item::before {
-    content: '✓'; flex: 0 0 auto;
-    width: 18px; height: 18px; margin-top: 1px;
-    display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 50%; background: var(--blue-soft); color: var(--blue);
-    font-size: 11px; font-weight: 800;
-  }
-  .spec-list { padding: 0 15px; }
-  .spec-row {
-    min-height: 46px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    border-top: 1px solid var(--line); font-size: 13px;
-  }
-  .spec-row:first-child { border-top: 0; }
-  .spec-row .spec-label { color: var(--muted); flex: 0 0 auto; }
-  .spec-row .spec-value { color: var(--ink); font-weight: 650; text-align: right; }
+  .res-tabs { display: flex; gap: 8px; margin: 12px 0; }
+  .doc-list { overflow: hidden; }
+  .doc-row { display: flex; align-items: center; gap: 10px; padding: 13px 14px; border-top: 1px solid var(--line); }
+  .doc-row:first-child { border-top: 0; }
+  .doc-badge { flex: 0 0 auto; padding: 3px 7px; border-radius: 6px; background: var(--blue-soft); color: var(--blue); font-size: 10px; font-weight: 700; }
+  .doc-title { flex: 1; min-width: 0; font-size: 13px; }
+  .doc-arrow { color: var(--faint); font-size: 15px; }
 </style>
 </head>
 <body>
   <main class="app-shell">
     <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
-    <header class="topbar"><a class="back" href="product-catalog.html">‹</a><div class="topbar-title">产品介绍</div><div class="capsule">··· ○</div></header>
-    <div class="page no-tab" id="intro-page"></div>
+    <header class="topbar"><a class="back" id="nav-back" href="tool-guide.html">‹</a><div class="topbar-title" id="intro-title">产品指引</div><div class="capsule">··· ○</div></header>
+    <div class="page no-tab">
+      <section class="card intro-hero" id="intro-hero"></section>
+      <section class="card intro-desc" id="intro-desc"></section>
+      <div class="res-tabs" id="res-tabs">
+        <button class="guide-tab active" data-tab="videos" type="button">介绍视频</button>
+        <button class="guide-tab" data-tab="docs" type="button">手册与文档</button>
+      </div>
+      <div id="res-list"></div>
+    </div>
+    <div class="toast" id="toast">加载中</div>
   </main>
   <script src="../assets/app/product-data.js"></script>
   <script>
-    var model = new URLSearchParams(location.search).get('model');
-    var product = GWDBG_DATA.products.find(function (p) { return p.model === model; }) || GWDBG_DATA.products[0];
-    document.title = product.model + ' 产品介绍';
+    var params = new URLSearchParams(location.search);
+    var key = params.get('series');
+    var model = (params.get('model') || '').toUpperCase();
+    var series = GWDBG_DATA.guideSeries.find(function (s) { return s.key === key; });
+    if (!series && model) series = GWDBG_DATA.guideSeries.find(function (s) { return s.rep === model || s.models.split(' / ').indexOf(model) >= 0; });
+    if (!series) series = GWDBG_DATA.guideSeries[0];
+    var product = GWDBG_DATA.products.find(function (p) { return p.model === series.rep; });
 
-    var tags = [product.category, product.variant];
-    var html = '<section class="card intro-hero">' +
-      '<img class="intro-image" src="' + product.image + '" alt="' + product.model + '">' +
-      '<div class="intro-model">' + product.model + '</div>' +
-      '<div class="intro-name">' + product.name + '</div>' +
-      '<div class="intro-tags">' + tags.map(function (t) { return '<span class="intro-tag">' + t + '</span>'; }).join('') + '</div>' +
-      '</section>';
+    document.title = series.title + ' 产品指引';
+    document.getElementById('intro-title').textContent = series.title;
+    document.getElementById('intro-hero').innerHTML =
+      '<img class="intro-image" src="' + product.image + '" alt="' + series.title + '">' +
+      '<div class="intro-model">' + series.title + '</div>' +
+      '<div class="intro-name">' + series.models + ' · ' + series.desc + '</div>';
+    document.getElementById('intro-desc').textContent = product.intro || '';
 
-    if (product.intro) {
-      html += '<div class="section-label">产品介绍</div>' +
-        '<section class="card intro-desc">' + product.intro + '</section>';
+    var toast = document.getElementById('toast');
+    function showToast(message) { toast.textContent = message; toast.classList.add('show'); setTimeout(function () { toast.classList.remove('show'); }, 1300); }
+
+    var activeTab = 'videos';
+    var resList = document.getElementById('res-list');
+    function renderList() {
+      if (activeTab === 'videos') {
+        resList.innerHTML = '<div class="guide-list">' + series.videos.map(function (title) {
+          return '<button class="guide-card" data-act="video" type="button"><span class="guide-thumb"><span class="guide-play"></span></span><span class="guide-card-title">' + title + '</span></button>';
+        }).join('') + '</div>';
+        return;
+      }
+      resList.innerHTML = '<section class="card doc-list">' + series.docs.map(function (doc) {
+        return '<button class="doc-row" data-act="doc" type="button"><span class="doc-badge">' + doc[0] + '</span><span class="doc-title">' + doc[1] + '</span><span class="doc-arrow">›</span></button>';
+      }).join('') + '</section>';
     }
-    if (product.features && product.features.length) {
-      html += '<div class="section-label">核心能力</div>' +
-        '<section class="card feature-list">' +
-        product.features.map(function (f) { return '<div class="feature-item">' + f + '</div>'; }).join('') +
-        '</section>';
-    }
-    html += '<div class="section-label">规格参数</div>' +
-      '<section class="card spec-list">' +
-      '<div class="spec-row"><span class="spec-label">产品型号</span><span class="spec-value">' + product.model + '</span></div>' +
-      '<div class="spec-row"><span class="spec-label">产品类别</span><span class="spec-value">' + product.category + '</span></div>' +
-      '<div class="spec-row"><span class="spec-label">形态版本</span><span class="spec-value">' + product.variant + '</span></div>' +
-      '<div class="spec-row"><span class="spec-label">通道数</span><span class="spec-value">' + product.channels + ' 路</span></div>' +
-      '</section>';
-
-    document.getElementById('intro-page').innerHTML = html;
-    document.querySelector('.back').addEventListener('click', function (event) {
+    renderList();
+    document.getElementById('res-tabs').addEventListener('click', function (event) {
+      var tab = event.target.closest('[data-tab]');
+      if (!tab) return;
+      activeTab = tab.dataset.tab;
+      document.querySelectorAll('#res-tabs .guide-tab').forEach(function (item) { item.classList.toggle('active', item === tab); });
+      renderList();
+    });
+    resList.addEventListener('click', function (event) {
+      var item = event.target.closest('[data-act]');
+      if (item) showToast(item.dataset.act === 'video' ? '视频播放' : '文档打开');
+    });
+    document.getElementById('nav-back').addEventListener('click', function (event) {
       if (window.history.length > 1) { event.preventDefault(); window.history.back(); }
     });
   </script>

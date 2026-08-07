@@ -67,6 +67,25 @@ function startServer() {
   await page.waitForTimeout(500);
   await shot('10-sidebar');
 
+    await page.goto(`${baseUrl}/pages/tab-device-bt.html`, { waitUntil: 'networkidle' });
+  await shot('15-device-home');
+  await page.evaluate(() => { const el = document.querySelector('.app-content'); el.scrollTop = el.scrollHeight; });
+  await shot('15b-device-promo');
+
+  await page.goto(`${baseUrl}/pages/tool-guide.html`, { waitUntil: 'networkidle' });
+  await shot('16-tool-guide');
+
+  await page.goto(`${baseUrl}/pages/platform-videos.html?cat=jk`, { waitUntil: 'networkidle' });
+  await shot('20-platform-videos-jk');
+
+  await page.goto(`${baseUrl}/pages/platform-videos.html?cat=jf`, { waitUntil: 'networkidle' });
+  await shot('21-platform-videos-jf');
+
+  await page.goto(`${baseUrl}/pages/product-intro.html?series=a01`, { waitUntil: 'networkidle' });
+  await shot('17-series-hub');
+  await page.locator('[data-tab="docs"]').click();
+  await shot('18-series-docs');
+
   await page.goto(`${baseUrl}/pages/device-a01-ac.html?model=A01F&device=A01F-3F903E&mode=bt`, { waitUntil: 'networkidle' });
   await page.locator('.unit-check input').nth(0).check();
   await page.locator('.unit-check input').nth(1).check();
@@ -74,6 +93,9 @@ function startServer() {
 
   await page.goto(`${baseUrl}/pages/tab-mine.html`, { waitUntil: 'networkidle' });
   await shot('13-mine');
+
+  await page.goto(`${baseUrl}/pages/mine-devices.html`, { waitUntil: 'networkidle' });
+  await shot('19-mine-devices');
 
   await page.goto(`${baseUrl}/pages/device-setting.html?model=A01F&device=A01F-3F903E&mode=bt&setting=server`, { waitUntil: 'networkidle' });
   await shot('12-setting-header');

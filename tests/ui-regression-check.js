@@ -38,9 +38,11 @@ assert(deviceList.includes('model-expansion'), 'expanded Bluetooth devices must 
 assert(appCss.includes('aspect-ratio: 430 / 932'), 'desktop prototype must use a large-phone aspect ratio');
 assert(/\.app-content\s*\{[^}]*overflow-y:\s*auto/.test(appCss), 'long pages must scroll inside the phone frame');
 
-assert(remotePage.includes('id="remote-list"'), '4G tab must expose the remote device host');
-assert(deviceList.includes("model: 'E50'"), 'remote device links must identify E50 explicitly');
-assert(deviceList.includes("mode: '4g'"), 'remote device links must enter 4G mode');
+assert(remotePage.includes('tab-mine.html') && remotePage.includes('location.replace'), 'legacy 4G tab must redirect to mine');
+assert(read('pages/tab-mine.html').includes('mine-devices.html'), 'mine must expose the bound devices entry');
+const mineDevicesPage = read('pages/mine-devices.html');
+assert(mineDevicesPage.includes("model: 'E50'"), 'remote device links must identify E50 explicitly');
+assert(mineDevicesPage.includes("mode: '4g'"), 'remote device links must enter 4G mode');
 
 assert(!quickPage.includes('跳过快速配置'), 'shared quick flow must remove skipping configuration');
 assert(quickPage.includes('更多配置'), 'shared quick flow must link the full configuration page');
@@ -50,6 +52,7 @@ assert(acPage.includes('id="ac-groups"'), 'air-conditioner management must rende
 assert(acPage.includes('neiji.png') && acPage.includes('fancoil.svg') && acPage.includes('unit-machine'), 'air-conditioner cards must switch icons by unit type');
 assert(acPage.includes('id="batch-control"') && acPage.includes('id="all-on"') && acPage.includes('id="all-off"'), 'air-conditioner management must support batch, all-on and all-off control');
 assert(!acPage.includes('参数查看') && !acPage.includes('unit-detail'), 'non-E50 ac page must remove indoor parameter viewing');
+assert(acPage.includes('id="channel-tabs"'), 'air-conditioner management must switch channels via top tabs');
 
 for (const route of ['device-e50-detail.html', 'device-e50-ac.html', 'device-e50-guide.html']) {
   assert(e50Page.includes(route), `E50 setup must link to ${route}`);
@@ -87,7 +90,9 @@ const legacyRedirects = {
   'pages/device-e50g-indoor-params.html': 'device-e50-detail.html?model=E50&type=indoor',
   'pages/device-e50g-ai.html': 'device-e50-ai.html?model=E50',
   'pages/finish-with-cta.html': 'tab-tools.html',
-  'pages/partner-jump.html': 'tab-tools.html'
+  'pages/partner-jump.html': 'tab-tools.html',
+  'pages/tab-device-4g.html': 'tab-mine.html',
+  'pages/product-catalog.html': 'tool-guide.html'
 };
 
 for (const [file, target] of Object.entries(legacyRedirects)) {

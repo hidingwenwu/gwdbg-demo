@@ -56,6 +56,8 @@ async function assertNoHorizontalOverflow(page, route) {
     assert(shell.width <= 431 && shell.height <= 933, 'desktop prototype must use a 430 × 932 large-phone frame');
     assert(Math.abs(shell.width / shell.height - 430 / 932) < 0.01, 'desktop prototype must preserve the 430:932 phone ratio');
     assert.equal(await page.locator('.product-card').count(), 10, 'Bluetooth page must render ten independent model cards');
+    assert.equal(await page.locator('.scan-tip').count(), 1, 'device page must show the nearby-scan hint');
+    assert.match(await page.locator('.scheme-entry').getAttribute('href'), /tool-guide\.html/, 'device page must expose the product scheme entry');
     await page.locator('[data-model="A01F"] .product-head').click();
     assert.match(await page.locator('[data-model="A01F"]').getAttribute('class'), /open/);
     assert.equal(await page.locator('[data-model="A01F"] .product-type').count(), 0, 'model cards must only show image and model');
@@ -75,20 +77,16 @@ async function assertNoHorizontalOverflow(page, route) {
     assert.equal(await page.locator('#quick-tasks .task-row').count(), 4, 'A01F must expose four quick tasks');
     assert.equal(await page.getByText('跳过快速配置').count(), 0, 'quick setup must not expose the removed skip action');
 
-    assert.equal(await page.locator('#quick-resources .list-row').count(), 2, 'quick page must expose model resource links');
-    await page.locator('#quick-resources .list-row', { hasText: '安装调试视频' }).click();
+    assert.match(await page.locator('#guide-link').getAttribute('href'), /product-intro\.html\?series=a01/, 'quick guide entry must target the A01 series hub');
+    await page.locator('#guide-link').click();
     await page.waitForLoadState('networkidle');
-    assert.equal(await page.locator('.filter-row .chip.active').textContent(), '集控主机', 'videos must preselect the connected model category');
-    assert.equal(await page.locator('.video-card:visible').count(), 2, 'videos must filter by the model category');
-    await page.locator('.nav-back').click();
+    assert.match(await page.locator('#intro-title').textContent(), /A01 系列/, 'series hub must render the A01 series');
+    assert.equal(await page.locator('.guide-card').count(), 3, 'series hub must list intro videos');
+    await page.locator('[data-tab="docs"]').click();
+    assert.match(await page.locator('#res-list').textContent(), /产品手册/, 'series hub must list manuals and docs');
+    await page.locator('#nav-back').click();
     await page.waitForLoadState('networkidle');
-    assert.match(await page.locator('#page-title').textContent(), /快速配置/, 'videos back must return to the quick page');
-    await page.locator('#quick-resources .list-row', { hasText: '产品方案介绍' }).click();
-    await page.waitForLoadState('networkidle');
-    assert.match(await page.locator('.intro-model').textContent(), /A01F/, 'product intro must match the connected model');
-    await page.locator('.back').click();
-    await page.waitForLoadState('networkidle');
-    assert.match(await page.locator('#page-title').textContent(), /快速配置/, 'intro back must return to the quick page');
+    assert.match(await page.locator('#page-title').textContent(), /快速配置/, 'guide hub back must return to the quick page');
 
     await page.locator('#detail-link').click();
     await page.waitForLoadState('networkidle');
@@ -105,6 +103,10 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.locator('.hero-disconnect').click();
     assert.equal(await page.locator('#connection-modal').getByText('确认断开').count(), 1, 'disconnect must require confirmation');
     await page.locator('[data-modal-close]').last().click();
+
+    await open(page, baseUrl, 'pages/tool-videos.html?model=A01F');
+    assert.equal(await page.locator('.filter-row .chip.active').textContent(), '集控主机', 'videos must preselect the connected model category');
+    assert.equal(await page.locator('.video-card:visible').count(), 2, 'videos must filter by the model category');
 
     await open(page, baseUrl, 'pages/device-setting.html?model=A01F&device=A01F-3F903E&mode=bt&setting=brand-batch');
     assert.equal(await page.locator('#nav-back').count(), 1, 'setting sub-page must expose a back button');
@@ -125,14 +127,17 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.getByText('通讯正常').waitFor();
 
     await open(page, baseUrl, 'pages/device-a01-ac.html?model=A01F&device=A01F-3F903E&mode=bt');
-    assert.equal(await page.locator('.channel-group').count(), 4, 'A01F air-conditioner management must group units by four channels');
-    assert.equal(await page.locator('.indoor-card').count(), 8, 'A01F air-conditioner management must render indoor-unit cards');
+    assert.equal(await page.locator('.channel-tab').count(), 4, 'A01F air-conditioner management must render channel tabs');
+    assert.equal(await page.locator('.indoor-card').count(), 8, 'A01F air-conditioner management must render the active channel units');
     await page.locator('.unit-check input').nth(0).check();
     await page.locator('.unit-check input').nth(1).check();
     assert.match(await page.locator('#selection-count').textContent(), /2/);
     await page.locator('#batch-control').click();
     assert(await page.locator('#control-sheet').evaluate((sheet) => sheet.classList.contains('show')));
     await page.locator('#send-control').click();
+    await page.locator('.channel-tab', { hasText: '通道 2' }).click();
+    assert.equal(await page.locator('.indoor-card').count(), 8, 'switching channel must render its units');
+    assert.match(await page.locator('#selection-count').textContent(), /已选 0 台/, 'switching channel must clear the selection');
 
     const forgedDevice = '<img src=x onerror="window.deviceInjected=true">';
     await open(page, baseUrl, `pages/device-quick.html?model=F16G&device=${encodeURIComponent(forgedDevice)}&mode=4g`);
@@ -229,13 +234,17 @@ async function assertNoHorizontalOverflow(page, route) {
     assert.equal(await page.getByText('单独保存电流阈值').count(), 1);
 
     await open(page, baseUrl, 'pages/tab-device-4g.html');
-    assert.equal(await page.locator('.remote-card').count(), 2, '4G page must only render the approved E50 list');
-    assert.equal(await page.getByText('退出远程调试').count(), 0);
+    await page.waitForLoadState('networkidle');
+    assert.match(page.url(), /tab-mine\.html/, 'legacy 4G tab must redirect to mine');
+    await page.locator('.list-row', { hasText: '我的设备' }).click();
+    await page.waitForLoadState('networkidle');
+    assert.equal(await page.locator('#device-list .device-cell').count(), 2, 'mine devices must render the bound device list');
+    assert.equal(await page.locator('.debug-link').count(), 1, 'only the online device must expose remote debugging');
     await open(page, baseUrl, 'pages/tab-tools.html');
     assert.equal(await page.locator('#tool-hero').count(), 1, 'tools must lead with the fluoro support query hero');
     assert.match(await page.locator('#tool-hero').textContent(), /氟机支持查询/);
     assert.equal(await page.locator('#tool-cards .tool-mini').count(), 4, 'frequent tools must render as cards');
-    assert.equal(await page.locator('#tool-menu .list-row').count(), 4, 'remaining services must collapse into a menu list');
+    assert.equal(await page.locator('#tool-menu .list-row').count(), 1, 'services menu must keep only feedback');
     assert.equal(await page.getByText('专业版切换').count(), 0, 'tools must remove the pro-version switch');
     assert.equal(await page.locator('.aa-ball').count(), 1, 'tools page must show the ai assistant ball');
     await page.locator('.aa-ball').click();

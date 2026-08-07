@@ -6,6 +6,7 @@
     <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
     <div class="wb-hero-zone"><div class="hero-float-row"><button class="hero-back-pill" id="nav-back" type="button" aria-label="返回">‹</button><button class="hero-menu-float" id="menu-trigger" type="button" aria-label="打开菜单"><span class="hero-menu-icon">☰</span><span class="hero-menu-label">更多功能</span></button><div class="capsule">··· ○</div></div><div class="wb-hero-title">空调管理</div></div>
     <div class="page no-tab ac-page-body">
+      <div class="channel-tabs" id="channel-tabs"></div>
       <section class="ac-toolbar card"><label class="check-action"><input id="select-all" type="checkbox"><span>全选</span></label><div><button class="text-button" id="all-on" type="button">全开</button><button class="text-button danger-text" id="all-off" type="button">全关</button></div></section>
       <div id="ac-groups"></div>
     </div>
@@ -27,55 +28,97 @@
   (function () {
     var context = window.GWDBG_WORKBENCH, product = context.product;
     var host = document.getElementById('ac-groups'), channels = product.channels || 1;
-    var unitsPerChannel = product.family === 'indoor' ? 1 : 2;
+    var unitsPerChannel = product.family === 'indoor' ? 1 : 8;
+    var activeChannel = 1;
+    var powerState = {};
+    var selectedIds = [];
+    var cards = [];
+
     function unitIcon() {
       if (product.family === 'fd01g') return '<div class="unit-machine"><i></i></div>';
       if (product.model === 'F16G' || product.model === 'F17G') return '<img class="unit-type-icon" src="../assets/products/fancoil.svg" alt="风机盘管">';
       return '<img class="unit-type-icon" src="../assets/products/neiji.png" alt="多联机内机">';
     }
+    function unitId(channel, unit) { return String((channel - 1) * unitsPerChannel + unit).padStart(2, '0'); }
     function unitCard(channel, unit) {
-      var id = String((channel - 1) * unitsPerChannel + unit).padStart(2, '0');
-      return '<article class="indoor-card" data-unit="' + id + '" data-channel="' + channel + '"><div class="indoor-card-top"><label class="unit-check"><input type="checkbox"><span></span></label><b class="unit-power on">开</b></div><div class="unit-visual">' + unitIcon() + '<strong>内机 ' + id + '</strong><small>地址 ' + id + '</small></div><div class="unit-state"><strong>26℃</strong><span>回风 24.8℃</span><span>制冷 · 自动风</span></div><div class="unit-actions"><button class="small-button unit-control" type="button">控制</button></div></article>';
+      var id = unitId(channel, unit);
+      var on = powerState[id] !== false;
+      return '<article class="indoor-card" data-unit="' + id + '"><div class="indoor-card-top"><label class="unit-check"><input type="checkbox"><span></span></label><b class="unit-power' + (on ? ' on' : '') + '">' + (on ? '开' : '关') + '</b></div><div class="unit-visual">' + unitIcon() + '<strong>内机 ' + id + '</strong><small>地址 ' + id + '</small></div><div class="unit-state"><strong>26℃</strong><span>回风 24.8℃</span><span>制冷 · 自动风</span></div><div class="unit-actions"><button class="small-button unit-control" type="button">控制</button></div></article>';
     }
-    var html = '';
-    for (var channel = 1; channel <= channels; channel += 1) {
-      html += '<section class="channel-group"><div class="channel-group-title"><span>通道 ' + channel + '</span><small>' + unitsPerChannel + ' 台内机</small></div><div class="indoor-grid">';
-      for (var unit = 1; unit <= unitsPerChannel; unit += 1) html += unitCard(channel, unit);
-      html += '</div></section>';
+
+    var tabsHost = document.getElementById('channel-tabs');
+    function renderTabs() {
+      if (channels < 2) { tabsHost.hidden = true; return; }
+      tabsHost.innerHTML = '';
+      for (var channel = 1; channel <= channels; channel += 1) {
+        tabsHost.innerHTML += '<button class="channel-tab' + (channel === activeChannel ? ' active' : '') + '" data-channel="' + channel + '" type="button">通道 ' + channel + '</button>';
+      }
     }
-    host.innerHTML = html;
-    var cards = Array.from(document.querySelectorAll('.indoor-card'));
+
     var selectAll = document.getElementById('select-all');
-    function selected() { return cards.filter(function (card) { return card.querySelector('input').checked; }); }
     function updateSelection() {
-      var count = selected().length;
-      cards.forEach(function (card) { card.classList.toggle('selected', card.querySelector('input').checked); });
-      document.getElementById('selection-count').textContent = '已选 ' + count + ' 台';
-      document.getElementById('selection-bar').classList.toggle('show', count > 0);
-      selectAll.checked = count === cards.length;
-      selectAll.indeterminate = count > 0 && count < cards.length;
+      cards.forEach(function (card) {
+        var checked = selectedIds.indexOf(card.dataset.unit) >= 0;
+        card.querySelector('input').checked = checked;
+        card.classList.toggle('selected', checked);
+      });
+      document.getElementById('selection-count').textContent = '已选 ' + selectedIds.length + ' 台';
+      document.getElementById('selection-bar').classList.toggle('show', selectedIds.length > 0);
+      selectAll.checked = cards.length > 0 && selectedIds.length === cards.length;
+      selectAll.indeterminate = selectedIds.length > 0 && selectedIds.length < cards.length;
     }
-    selectAll.onchange = function () { cards.forEach(function (card) { card.querySelector('input').checked = selectAll.checked; }); updateSelection(); };
-    cards.forEach(function (card) {
-      card.querySelector('.unit-check input').onchange = updateSelection;
-      card.querySelector('.unit-control').onclick = function () { openControl([card]); };
+    function renderUnits() {
+      var html = '<div class="indoor-grid">';
+      for (var unit = 1; unit <= unitsPerChannel; unit += 1) html += unitCard(activeChannel, unit);
+      host.innerHTML = html + '</div>';
+      cards = Array.from(host.querySelectorAll('.indoor-card'));
+      cards.forEach(function (card) {
+        card.querySelector('.unit-check input').onchange = function () {
+          var id = card.dataset.unit;
+          var index = selectedIds.indexOf(id);
+          if (index >= 0) selectedIds.splice(index, 1);
+          else selectedIds.push(id);
+          updateSelection();
+        };
+        card.querySelector('.unit-control').onclick = function () { openControl([card.dataset.unit]); };
+      });
+      updateSelection();
+    }
+
+    tabsHost.addEventListener('click', function (event) {
+      var tab = event.target.closest('[data-channel]');
+      if (!tab) return;
+      activeChannel = +tab.dataset.channel;
+      selectedIds = [];
+      renderTabs();
+      renderUnits();
     });
+
+    selectAll.onchange = function () {
+      selectedIds = selectAll.checked ? cards.map(function (card) { return card.dataset.unit; }) : [];
+      updateSelection();
+    };
     function setAll(on) {
-      cards.forEach(function (card) { var power = card.querySelector('.unit-power'); power.textContent = on ? '开' : '关'; power.classList.toggle('on', on); });
-      showToast(on ? '全部内机已开启' : '全部内机已关闭');
+      cards.forEach(function (card) { powerState[card.dataset.unit] = on; });
+      renderUnits();
+      showToast('通道 ' + activeChannel + ' 内机已全部' + (on ? '开启' : '关闭'));
     }
     document.getElementById('all-on').onclick = function () { setAll(true); };
     document.getElementById('all-off').onclick = function () { setAll(false); };
-    document.getElementById('batch-control').onclick = function () { openControl(selected()); };
+    document.getElementById('batch-control').onclick = function () { openControl(selectedIds.slice()); };
+
     var sheet = document.getElementById('control-sheet'), mask = document.getElementById('control-mask'), targets = [];
-    function openControl(nextTargets) { targets = nextTargets; document.getElementById('control-target').textContent = targets.length > 1 ? targets.length + ' 台内机' : '内机 ' + targets[0].dataset.unit; sheet.classList.add('show'); mask.classList.add('show'); }
+    function openControl(nextTargets) { targets = nextTargets; document.getElementById('control-target').textContent = targets.length > 1 ? targets.length + ' 台内机' : '内机 ' + targets[0]; sheet.classList.add('show'); mask.classList.add('show'); }
     function closeControl() { sheet.classList.remove('show'); mask.classList.remove('show'); }
     mask.onclick = closeControl; document.getElementById('sheet-close').onclick = closeControl;
     document.querySelectorAll('[data-chip-group]').forEach(function (group) { group.onclick = function (event) { var chip = event.target.closest('.chip'); if (!chip) return; group.querySelectorAll('.chip').forEach(function (item) { item.classList.toggle('active', item === chip); }); }; });
     document.getElementById('temp-down').onclick = function () { var value = document.getElementById('temp-value'); value.textContent = Math.max(16, +value.textContent - 1); };
     document.getElementById('temp-up').onclick = function () { var value = document.getElementById('temp-value'); value.textContent = Math.min(30, +value.textContent + 1); };
-    document.getElementById('send-control').onclick = function () { var on = document.getElementById('control-power').checked; targets.forEach(function (card) { var power = card.querySelector('.unit-power'); power.textContent = on ? '开' : '关'; power.classList.toggle('on', on); }); closeControl(); showToast('控制指令已下发'); };
+    document.getElementById('send-control').onclick = function () { var on = document.getElementById('control-power').checked; targets.forEach(function (id) { powerState[id] = on; }); closeControl(); renderUnits(); showToast('控制指令已下发'); };
     function showToast(message) { var toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(function () { toast.classList.remove('show'); }, 1500); }
+
+    renderTabs();
+    renderUnits();
   })();
   </script>
   <script src="../assets/app/ai-assistant.js"></script>

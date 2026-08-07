@@ -98,23 +98,6 @@
     }
   }
 
-  function renderRemoteDevices() {
-    var host = document.getElementById('remote-list');
-    if (!host) return;
-    host.innerHTML = data.remoteDevices.map(function (device) {
-      var href = 'device-e50.html?' + new URLSearchParams({ model: 'E50', device: device.id, mode: '4g' });
-      return '<section class="card remote-card">' +
-        '<div class="remote-top"><div><div class="remote-name">' + escapeHtml(device.name) + '</div>' +
-        '<div class="remote-id">' + escapeHtml(device.id) + '</div></div>' +
-        '<span class="status ' + (device.online ? '' : 'offline') + '">' + (device.online ? '在线' : '离线') + '</span></div>' +
-        '<div class="remote-foot"><span class="list-value">更新于 ' + escapeHtml(device.updatedAt) + '</span>' +
-        (device.online ? '<a class="small-button" href="' + href + '">进入调试</a>' : '<span class="small-button disabled">离线</span>') +
-        '</div></section>';
-    }).join('');
-  }
-
   window.renderBluetoothProducts = renderBluetoothProducts;
-  window.renderRemoteDevices = renderRemoteDevices;
   renderBluetoothProducts();
-  renderRemoteDevices();
 })();

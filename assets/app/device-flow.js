@@ -48,9 +48,8 @@
         '<span class="task-meta">' + task.meta + '</span></span><span class="task-state">配置</span></a>';
     }).join('');
     document.getElementById('more-link').href = workbench.link('device-more.html');
-    document.getElementById('quick-resources').innerHTML =
-      '<a class="list-row" href="tool-videos.html?model=' + product.model + '"><span class="list-icon">播</span><span class="list-title">安装调试视频</span><span class="row-arrow">›</span></a>' +
-      '<a class="list-row" href="product-intro.html?model=' + product.model + '"><span class="list-icon">案</span><span class="list-title">产品方案介绍</span><span class="row-arrow">›</span></a>';
+    var series = data.guideSeries.find(function (item) { return item.rep === product.model || item.models.split(' / ').indexOf(product.model) >= 0; }) || data.guideSeries[0];
+    document.getElementById('guide-link').href = 'product-intro.html?series=' + series.key;
   }
 
   function renderMore() {
@@ -77,7 +76,7 @@
       ['硬件版本', 'V1.3'], ['信号强度', mode === '4g' ? '-71 dBm' : '-58 dBm'], ['设备时间', '2026-07-24 17:41:26'],
       ['累计运行时间', '2,846 小时'],
       isF16g ? ['管制线阀类型', '2管制2线阀'] : ['空调品牌', '格力'],
-      ['已识别内机', (product.channels || 1) * 2 + ' 台']
+      ['已识别内机', (product.family === 'indoor' ? 1 : (product.channels || 1) * 8) + ' 台']
     ];
     if (isF16g) rows.push(['温度传感器补偿', '正 0℃']);
     if (product.family === 'outdoor') rows.push(['通道数量', product.channels + ' 路'], ['电表通讯', '正常']);

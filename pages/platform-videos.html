@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>平台操作专栏</title><link rel="stylesheet" href="../assets/app/app.css">
+<style>
+  .video-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 0; border-top: 1px solid var(--line); background: none; font: inherit; text-align: left; cursor: pointer; }
+  .video-row:first-child { border-top: 0; }
+  .video-thumb { flex: 0 0 auto; width: 74px; height: 52px; border-radius: 8px; background: linear-gradient(135deg, #dde7f7, #c8d8f2); display: grid; place-items: center; }
+  .video-play { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,.92); }
+  .video-play::after { content: ''; display: block; margin: 7px 0 0 10px; border: 6px solid transparent; border-left: 9px solid var(--blue); }
+  .video-main { flex: 1; min-width: 0; display: grid; gap: 3px; }
+  .video-title { font-size: 13px; font-weight: 700; }
+  .video-desc { color: var(--muted); font-size: 11px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+</style>
+</head>
+<body>
+  <main class="app-shell">
+    <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
+    <header class="topbar"><a class="back" id="nav-back" href="tool-guide.html">‹</a><div class="topbar-title" id="cat-title">平台操作专栏</div><div class="capsule">··· ○</div></header>
+    <div class="page no-tab">
+      <section class="card list-card" id="video-list"></section>
+    </div>
+    <div class="toast" id="toast">视频播放</div>
+  </main>
+  <script src="../assets/app/product-data.js"></script>
+  <script>
+    var params = new URLSearchParams(location.search);
+    var cat = GWDBG_DATA.platformGuideCats.find(function (c) { return c.key === params.get('cat'); });
+    if (!cat) {
+      location.replace('tool-guide.html');
+    } else {
+      document.title = cat.title + ' · 平台操作专栏';
+      document.getElementById('cat-title').textContent = cat.title;
+      document.getElementById('video-list').innerHTML = cat.videos.map(function (v) {
+        return '<button class="video-row" type="button">' +
+          '<span class="video-thumb"><span class="video-play"></span></span>' +
+          '<span class="video-main"><span class="video-title">' + v[0] + '</span><span class="video-desc">' + v[1] + '</span></span>' +
+          '</button>';
+      }).join('');
+      var toast = document.getElementById('toast');
+      document.getElementById('video-list').addEventListener('click', function () {
+        toast.classList.add('show');
+        setTimeout(function () { toast.classList.remove('show'); }, 1300);
+      });
+    }
+    document.getElementById('nav-back').addEventListener('click', function (event) {
+      if (window.history.length > 1) { event.preventDefault(); window.history.back(); }
+    });
+  </script>
+  <script src="../assets/app/ai-assistant.js"></script>
+</body></html>

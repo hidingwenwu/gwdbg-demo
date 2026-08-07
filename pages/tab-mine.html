@@ -18,6 +18,7 @@
           <span class="mine-phone" id="mine-phone"></span>
         </span>
       </section>
+      <section class="card list-card"><a class="list-row has-value" href="mine-devices.html"><span class="list-icon">设</span><span class="list-title">我的设备</span><span class="list-value" id="mine-device-count"></span><span class="row-arrow">›</span></a></section>
       <button class="button danger mine-logout" id="logout-btn" type="button">退出登录</button>
       <div class="mine-version" id="mine-version"></div>
     </div>
@@ -40,6 +41,7 @@
     document.getElementById('mine-phone').textContent = mine.phone;
     document.getElementById('mine-avatar').textContent = mine.name.slice(-2, -1);
     document.getElementById('mine-version').textContent = '版本 ' + mine.version;
+    document.getElementById('mine-device-count').textContent = GWDBG_DATA.remoteDevices.length + ' 台';
 
     var logoutModal = document.getElementById('logout-modal');
     document.getElementById('logout-btn').addEventListener('click', function () { logoutModal.classList.add('show'); });
