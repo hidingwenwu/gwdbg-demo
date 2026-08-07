@@ -1,22 +1,64 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>FD01G 调试</title><link rel="stylesheet" href="../assets/app/app.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>FD01G 调试</title><link rel="stylesheet" href="../assets/app/app.css">
+<style>
+  .hero-find { margin-top: 12px; width: 100%; min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid #c6d6f5; border-radius: 9px; background: #fff; color: var(--blue); font-size: 13px; font-weight: 700; cursor: pointer; }
+  .hero-find small { color: var(--muted); font-size: 10px; font-weight: 500; }
+  .hero-find.finding { border-color: var(--blue); background: var(--blue-soft); }
+  .hero-find:disabled { cursor: default; }
+</style>
+</head>
 <body>
   <main class="app-shell workbench" id="fd-home">
     <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
     <div class="wb-hero-zone"><div class="hero-float-row"><button class="hero-back-pill" id="nav-back" type="button" aria-label="返回">‹</button><button class="hero-menu-float" id="menu-trigger" type="button" aria-label="打开菜单"><span class="hero-menu-icon">☰</span><span class="hero-menu-label">更多功能</span></button><a class="hero-menu-float" id="guide-link" href="product-intro.html?series=fd01g"><span class="hero-menu-label">操作指引</span><span class="hero-menu-icon">▶</span></a><div class="capsule">··· ○</div></div><div class="wb-hero-title">快速配置</div></div>
     <div class="page no-tab">
-      <section class="card hero-card"><div><div class="hero-model">FD01G</div><div class="hero-name">分体空调控制器<br><span id="device-id">FD01G-7319E2</span></div><div class="hero-status-row"><span class="hero-status">已连接 · 蓝牙</span><button class="hero-disconnect" id="hero-disconnect" type="button">断开连接</button></div></div><img class="hero-image" src="../assets/products/fd01g.png" alt="FD01G"></section>
-      <div class="section-label">红外码库选型匹配</div>
-      <section class="card fd-code-card"><input class="search-input" id="brand-search" placeholder="品牌搜索" aria-label="品牌搜索"><div class="section-label">热门品牌</div><div class="brand-grid" id="brand-grid"><button class="brand-chip active" type="button">格力</button><button class="brand-chip" type="button">美的</button><button class="brand-chip" type="button">海尔</button><button class="brand-chip" type="button">奥克斯</button><button class="brand-chip" type="button">TCL</button><button class="brand-chip" type="button">大金</button><button class="brand-chip" type="button">松下</button><button class="brand-chip" type="button">海信</button><button class="brand-chip" type="button">三菱重工</button></div><div class="code-selector"><button id="prev-code" type="button">‹</button><div><small>当前码库</small><strong id="code-label">格力 · 第 1/8 套</strong></div><button id="next-code" type="button">›</button></div><button class="button primary" id="test-code" type="button" style="width:100%">下发码库测试指令</button><div class="match-result" id="match-result" hidden><span>空调是否正确响应？</span><div><button class="button" id="match-no" type="button">否，下一套</button><button class="button primary" id="match-yes" type="button">是，匹配成功</button></div></div></section>
-      <div class="section-label">电流阈值设置</div><section class="card form-card"><div class="field"><label>电流阈值</label><input id="current-threshold" type="number" min="50" max="5000" value="420" inputmode="numeric"></div><div class="field"><label>当前电流</label><input value="318 mA" readonly></div></section><button class="button primary" id="save-threshold" type="button" style="width:100%;margin-top:12px">保存并下发</button>
-      <div class="section-label">设备功能</div><section class="card list-card"><a class="list-row" data-fd01g-view="control" href="device-fd01g-more.html?view=control"><span class="list-icon">控</span><span class="list-title">空调管理</span><span class="row-arrow">›</span></a><a class="list-row" data-fd01g-view="learning" href="device-fd01g-more.html?view=learning"><span class="list-icon">学</span><span class="list-title">红外学习</span><span class="row-arrow">›</span></a><a class="list-row" data-fd01g-view="current" href="device-fd01g-more.html?view=current"><span class="list-icon">流</span><span class="list-title">电流检测</span><span class="list-value">318 mA ›</span></a><a class="list-row" data-fd01g-view="electric" href="device-fd01g-more.html?view=electric"><span class="list-icon">电</span><span class="list-title">电量采集配置</span><span class="row-arrow">›</span></a><a class="list-row" data-fd01g-view="upgrade" href="device-fd01g-more.html?view=upgrade"><span class="list-icon">升</span><span class="list-title">固件升级</span><span class="row-arrow">›</span></a></section>
+      <section class="card hero-card"><div><div class="hero-model">FD01G</div><div class="hero-name">分体空调控制器<br><span id="device-id">FD01G-7319E2</span></div><div class="hero-status-row"><span class="hero-status">已连接 · 蓝牙</span><button class="hero-disconnect" id="hero-disconnect" type="button">断开连接</button></div><button class="hero-find" id="hero-find" type="button">寻找设备<small>按下后设备蜂鸣 3 轮</small></button></div><div class="hero-side"><img class="hero-image" src="../assets/products/fd01g.png" alt="FD01G"><a class="hero-detail-link" id="detail-link" href="device-fd01g-detail.html">进入设备详情 ›</a></div></section>
+      <div class="section-label">快速配置</div>
+      <section class="card task-card" id="quick-tasks">
+        <a class="task-row" data-fd01g-view="code" href="device-fd01g-view.html?view=code"><span class="task-index">1</span><span><span class="task-title">码库匹配</span><span class="task-meta">红外码库选型与下发测试</span></span><span class="task-state">配置</span></a>
+        <a class="task-row" data-fd01g-view="server" href="device-fd01g-view.html?view=server"><span class="task-index">2</span><span><span class="task-title">服务器设定</span><span class="task-meta">IP / 域名与协议配置</span></span><span class="task-state">配置</span></a>
+        <a class="task-row" data-fd01g-view="current" href="device-fd01g-view.html?view=current"><span class="task-index">3</span><span><span class="task-title">电流检测</span><span class="task-meta">一键检测运行电流</span></span><span class="task-state">配置</span></a>
+        <a class="task-row" data-fd01g-view="electric" href="device-fd01g-view.html?view=electric"><span class="task-index">4</span><span><span class="task-title">电量采集设置</span><span class="task-meta">采集周期与校准系数</span></span><span class="task-state">配置</span></a>
+        <a class="task-row" data-fd01g-view="control" href="device-fd01g-view.html?view=control"><span class="task-index">5</span><span><span class="task-title">空调控制</span><span class="task-meta">开关 · 温度 · 模式 · 风速</span></span><span class="task-state">配置</span></a>
+      </section>
+      <div class="action-bar single"><a class="button primary" id="more-link" href="device-fd01g-more.html">更多配置</a></div>
     </div>
     <div class="side-menu-overlay" id="side-menu-overlay"></div><aside class="side-menu-panel" id="side-menu" aria-label="设备功能"></aside><div class="toast" id="toast"></div>
   </main>
   <script src="../assets/app/product-data.js"></script><script src="../assets/app/connection-state.js"></script><script src="../assets/app/workbench.js"></script>
   <script>
-  (function(){var context=window.GWDBG_WORKBENCH,current=1,total=8,brand='格力';document.getElementById('device-id').textContent=context.device;var heroDisconnect=document.getElementById('hero-disconnect');if(heroDisconnect)heroDisconnect.onclick=context.confirmDisconnect;document.querySelectorAll('[data-fd01g-view]').forEach(function(link){link.href=context.link('device-fd01g-more.html',{view:link.dataset.fd01gView});});function updateCode(){document.getElementById('code-label').textContent=brand+' · 第 '+current+'/'+total+' 套';document.getElementById('match-result').hidden=true;}document.getElementById('brand-grid').onclick=function(event){var chip=event.target.closest('.brand-chip');if(!chip)return;document.querySelectorAll('.brand-chip').forEach(function(item){item.classList.toggle('active',item===chip);});brand=chip.textContent;current=1;updateCode();};document.getElementById('brand-search').oninput=function(event){document.querySelectorAll('.brand-chip').forEach(function(chip){chip.hidden=!chip.textContent.toLowerCase().includes(event.target.value.trim().toLowerCase());});};document.getElementById('prev-code').onclick=function(){current=Math.max(1,current-1);updateCode();};document.getElementById('next-code').onclick=function(){current=Math.min(total,current+1);updateCode();};document.getElementById('test-code').onclick=function(){var result=document.getElementById('match-result');result.hidden=false;result.scrollIntoView({behavior:'smooth',block:'nearest'});};document.getElementById('match-no').onclick=function(){if(current<total){current+=1;updateCode();showToast('已切换下一套码库');}else showToast('已无更多码库可切换');};document.getElementById('match-yes').onclick=function(){document.getElementById('match-result').innerHTML='<strong class="match-success">✓ 码库匹配成功</strong>';showToast('码库配置已保存');};document.getElementById('save-threshold').onclick=function(){var value=+document.getElementById('current-threshold').value;if(value<50){showToast('电流阈值必须不小于 50 mA');return;}showToast('电流阈值已保存并下发');};function showToast(message){var toast=document.getElementById('toast');toast.textContent=message;toast.classList.add('show');setTimeout(function(){toast.classList.remove('show');},1500);}})();
+  (function(){
+    var context = window.GWDBG_WORKBENCH;
+    document.getElementById('device-id').textContent = context.device;
+    document.getElementById('hero-disconnect').onclick = context.confirmDisconnect;
+    document.getElementById('detail-link').href = context.link('device-fd01g-detail.html');
+    document.getElementById('more-link').href = context.link('device-fd01g-more.html');
+    document.querySelectorAll('[data-fd01g-view]').forEach(function (link) {
+      link.href = context.link('device-fd01g-view.html', { view: link.dataset.fd01gView });
+    });
+    function showToast(message) { var toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(function () { toast.classList.remove('show'); }, 1500); }
+    var findBtn = document.getElementById('hero-find');
+    findBtn.onclick = function () {
+      if (findBtn.disabled) return;
+      findBtn.disabled = true;
+      findBtn.classList.add('finding');
+      var round = 0;
+      var tick = function () {
+        round += 1;
+        if (round <= 3) {
+          findBtn.textContent = '蜂鸣中 · 第 ' + round + '/3 轮';
+          setTimeout(tick, 800);
+          return;
+        }
+        findBtn.classList.remove('finding');
+        findBtn.innerHTML = '寻找设备<small>按下后设备蜂鸣 3 轮</small>';
+        findBtn.disabled = false;
+        showToast('寻找完成，设备已蜂鸣 3 轮');
+      };
+      tick();
+    };
+  })();
   </script>
   <script src="../assets/app/ai-assistant.js"></script>
 </body></html>

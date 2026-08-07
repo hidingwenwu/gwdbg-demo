@@ -60,14 +60,14 @@ for (const route of ['device-e50-detail.html', 'device-e50-ac.html', 'device-e50
 assert(read('pages/device-e50-detail.html').includes('device-e50-ai.html'), 'E50 detail must link to the AI doctor');
 assert(read('pages/device-e50-ai.html').includes('device-e50-report.html'), 'E50 ai-home must link to the diagnosis report');
 assert(e50Page.includes('assets/app/e50.js'), 'E50 setup must use the shared e50 shell');
-for (const view of ['control', 'learning', 'current', 'electric', 'upgrade']) {
-  assert(fd01gPage.includes(`view=${view}`), `FD01G must link to ${view}`);
+for (const view of ['code', 'server', 'current', 'electric', 'control']) {
+  assert(fd01gPage.includes(`view=${view}`), `FD01G quick config must link to ${view}`);
 }
 assert(!fd01gPage.includes("query.get('mode') === '4g'"), 'FD01G home must ignore forged 4G mode');
 assert(!fd01gPage.includes('tab-device-4g.html'), 'FD01G home must always return to Bluetooth devices');
-const fd01gMorePage = read('pages/device-fd01g-more.html');
-assert(!fd01gMorePage.includes("q.get('mode')==='4g'"), 'FD01G secondary views must ignore forged 4G mode');
-assert(!fd01gMorePage.includes('4G \\u8fdc\\u7a0b'), 'FD01G secondary views must never render a 4G state');
+const fd01gViewPage = read('pages/device-fd01g-view.html');
+assert(!fd01gViewPage.includes("q.get('mode')==='4g'"), 'FD01G secondary views must ignore forged 4G mode');
+assert(!fd01gViewPage.includes('4G \\u8fdc\\u7a0b'), 'FD01G secondary views must never render a 4G state');
 
 const legacyRedirects = {
   'pages/device-a01-ac-ctrl.html': 'device-setting.html?model=A01&setting=control',

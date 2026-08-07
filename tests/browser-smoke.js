@@ -221,17 +221,34 @@ async function assertNoHorizontalOverflow(page, route) {
 
     await open(page, baseUrl, 'pages/device-fd01g.html?model=FD01G&device=FD01G-7319E2&mode=4g');
     assert.match(await page.locator('.hero-status').textContent(), /蓝牙/, 'FD01G must reject forged 4G mode');
+    await page.locator('#hero-find').click();
+    assert.match(await page.locator('#hero-find').textContent(), /蜂鸣中 · 第 \d\/3 轮/, 'find device must start the three-round beeping');
+    await page.getByText('寻找完成，设备已蜂鸣 3 轮').waitFor({ timeout: 8000 });
+    await page.locator('[data-fd01g-view="code"]').click();
+    await page.waitForLoadState('networkidle');
     await page.locator('#test-code').click();
     assert.match(await page.locator('#match-result').textContent(), /空调是否正确响应/);
     await page.locator('#match-no').click();
     assert.match(await page.locator('#code-label').textContent(), /第 2\/8 套/);
+    await open(page, baseUrl, 'pages/tab-device-bt.html?pick=1');
+    await page.locator('[data-model="FD01G"] .product-head').click();
+    await page.locator('[data-expansion-model="FD01G"] .connect-button').first().click();
+    await page.waitForLoadState('networkidle');
     await page.locator('[data-fd01g-view="current"]').click();
     await page.waitForLoadState('networkidle');
     await page.locator('#detect').click();
     await page.getByText('电流检测完成，曲线已生成').waitFor();
     await open(page, baseUrl, 'pages/device-fd01g-more.html?model=FD01G&device=FD01G-7319E2&mode=bt&view=electric');
+    assert.match(page.url(), /device-fd01g-view\.html/, 'legacy more view links must redirect to the view host');
     assert.equal(await page.getByText('保存采集配置').count(), 1);
     assert.equal(await page.getByText('单独保存电流阈值').count(), 1);
+    await open(page, baseUrl, 'pages/device-fd01g-more.html?model=FD01G&device=FD01G-7319E2&mode=bt');
+    for (const label of ['固件升级', '红外学习', '重启设备', '恢复出厂设置']) {
+      assert.equal(await page.locator('.list-row', { hasText: label }).count(), 1, `FD01G more config must list ${label}`);
+    }
+    await open(page, baseUrl, 'pages/device-fd01g-detail.html?model=FD01G&device=FD01G-7319E2&mode=bt');
+    assert.equal(await page.getByText('服务器配置信息').count(), 1, 'FD01G detail must show the server config section');
+    assert.equal(await page.getByText('设备编号（SN）').count(), 1, 'FD01G detail must show the device SN');
 
     await open(page, baseUrl, 'pages/tab-device-4g.html');
     await page.waitForLoadState('networkidle');
@@ -358,7 +375,7 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.setViewportSize({ width: 320, height: 700 });
     await open(page, baseUrl, 'pages/tab-device-bt.html');
     await assertNoHorizontalOverflow(page, '320px Bluetooth devices');
-    await open(page, baseUrl, 'pages/device-fd01g-more.html?model=FD01G&device=FD01G-7319E2&mode=bt&view=control');
+    await open(page, baseUrl, 'pages/device-fd01g-view.html?model=FD01G&device=FD01G-7319E2&mode=bt&view=control');
     await assertNoHorizontalOverflow(page, '320px FD01G control');
     assert(errors.length === 0, `browser console must stay clean:\n${errors.join('\n')}`);
     console.log('Browser smoke checks passed');

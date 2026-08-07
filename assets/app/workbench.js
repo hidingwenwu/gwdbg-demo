@@ -23,6 +23,7 @@
     if (product.family === 'fd01g') {
       return [
         ['home', '快速配置', 'device-fd01g.html', '配', 'c1'],
+        ['detail', '设备详情', 'device-fd01g-detail.html', '详', 'c2'],
         ['more', '更多配置', 'device-fd01g-more.html', '置', 'c3']
       ];
     }
@@ -35,7 +36,6 @@
 
   function itemHref(item) {
     if (item[2].indexOf('tab-') === 0) return item[2];
-    if (item[0] === 'more' && product.family === 'fd01g') return link(item[2], { view: 'control' });
     if (item[0] === 'home' || item[0] === 'quick' || item[0] === 'detail' || item[0] === 'more') return link(item[2]);
     return link(item[2], { view: item[0] });
   }
@@ -43,8 +43,12 @@
   function currentKey() {
     var pathname = root.location.pathname;
     if (pathname.indexOf('device-quick') >= 0) return 'quick';
-    if (pathname.indexOf('device-detail') >= 0) return 'detail';
+    if (pathname.indexOf('device-detail') >= 0 || pathname.indexOf('device-fd01g-detail') >= 0) return 'detail';
     if (pathname.indexOf('device-more') >= 0 || pathname.indexOf('device-fd01g-more') >= 0) return 'more';
+    if (pathname.indexOf('device-fd01g-view') >= 0) {
+      var fdView = params.get('view') || '';
+      return ['learning', 'upgrade', 'reboot', 'reset'].indexOf(fdView) >= 0 ? 'more' : 'home';
+    }
     if (pathname.indexOf('device-setting') >= 0 || pathname.indexOf('device-a01-ac') >= 0) return 'more';
     if (pathname.indexOf('device-e50.html') >= 0 || pathname.indexOf('device-fd01g.html') >= 0) return 'home';
     return params.get('view') || params.get('setting') || '';
@@ -94,7 +98,7 @@
     }
     document.getElementById('connection-modal-title').textContent = title;
     document.getElementById('connection-modal-message').textContent = message;
-    document.getElementById('connection-confirm').textContent = title === '切换到 4G 模式' ? '断开并切换' : '确认断开';
+    document.getElementById('connection-confirm').textContent = title === '切换到 4G 模式' ? '断开并切换' : title === '断开蓝牙连接' ? '确认断开' : '确认';
     confirmAction = action;
     modal.classList.add('show');
   }
@@ -147,7 +151,7 @@
         if (root.history.length > 1) { root.history.back(); return; }
         var pathname = root.location.pathname;
         if (product.family === 'fd01g') {
-          root.location.href = pathname.indexOf('device-fd01g-more') >= 0 ? link('device-fd01g.html') : 'tab-device-bt.html?pick=1';
+          root.location.href = pathname.indexOf('device-fd01g-') >= 0 ? link('device-fd01g.html') : 'tab-device-bt.html?pick=1';
         } else if (pathname.indexOf('device-quick') >= 0) {
           root.location.href = 'tab-device-bt.html?pick=1';
         } else {

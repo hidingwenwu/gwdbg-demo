@@ -193,10 +193,14 @@ assert(connectionState.includes('disconnectBluetooth'), 'switching E50 from Blue
 
 const fd01gPage = read('pages/device-fd01g.html');
 const e50Page = read('pages/device-e50.html');
-for (const text of ['品牌搜索', '热门品牌', '码库测试', '电流阈值', '红外学习', '电流检测']) {
-  assert(fd01gPage.includes(text), `FD01G must include ${text}`);
+for (const text of ['寻找设备', '蜂鸣 3 轮', '码库匹配', '服务器设定', '电流检测', '电量采集设置', '空调控制', 'device-fd01g-detail.html', 'device-fd01g-view.html', 'device-fd01g-more.html']) {
+  assert(fd01gPage.includes(text), `FD01G quick config must include ${text}`);
 }
-assert(!fd01gPage.includes('服务器'), 'FD01G page must not expose server settings');
+assert(!fd01gPage.includes('fd-code-card'), 'FD01G quick page must move code matching into its own view');
+const fd01gDetail = read('pages/device-fd01g-detail.html');
+for (const text of ['设备型号', '设备编号（SN）', '服务器配置信息', '服务器域名', '发布主题', '订阅主题']) {
+  assert(fd01gDetail.includes(text), `FD01G detail must include ${text}`);
+}
 const e50Shared = read('assets/app/e50.js');
 for (const text of ['连接设备', '选择空调品牌', '搜索空调', '模拟内机数量', '模拟内机', '模拟外机', '搜索附近设备', '重新搜索', '重新选择', '设备信息', '查看接线图', '选择品牌', '操作指引', '更多功能', '室外机模块（主）', '室外机模块（从）', '室内机数量', 'device-e50-detail.html', 'device-e50-ac.html', 'device-e50-guide.html']) {
   assert(e50Page.includes(text), `E50 setup must include ${text}`);
@@ -250,11 +254,18 @@ for (const page of [e50Page, e50DetailPage, e50AiPage, e50AcPage, e50ReportPage,
   assert(page.includes('e50.js'), 'E50 pages must use the shared e50 shell');
   assert(page.includes('connection-state.js'), 'E50 pages must load persistent connection state');
 }
-const fd01gMorePage = read('pages/device-fd01g-more.html');
-for (const view of ['control', 'learning', 'current', 'electric', 'upgrade']) {
-  assert(fd01gMorePage.includes(`'${view}'`), `FD01G more page must support ${view}`);
-  assert(fd01gPage.includes(`view=${view}`), `FD01G home must link to ${view}`);
+const fd01gViewPage = read('pages/device-fd01g-view.html');
+for (const view of ['code', 'server', 'current', 'electric', 'control', 'learning', 'upgrade', 'reboot', 'reset']) {
+  assert(fd01gViewPage.includes(`'${view}'`), `FD01G view host must support ${view}`);
 }
+for (const view of ['code', 'server', 'current', 'electric', 'control']) {
+  assert(fd01gPage.includes(`view=${view}`), `FD01G quick config must link to ${view}`);
+}
+const fd01gMorePage = read('pages/device-fd01g-more.html');
+for (const view of ['upgrade', 'learning', 'reboot', 'reset']) {
+  assert(fd01gMorePage.includes(`view=${view}`), `FD01G more page must link to ${view}`);
+}
+assert(fd01gMorePage.includes('device-fd01g-view.html') && fd01gMorePage.includes('location.replace'), 'FD01G more page must redirect legacy view links to the view host');
 
 const legacyRoutes = {
   'pages/device-a01-home.html': 'device-quick.html?model=A01F',
@@ -275,6 +286,7 @@ const publicPages = [
   'pages/device-more.html', 'pages/device-fd01g.html', 'pages/device-e50.html', 'pages/device-e50-detail.html',
   'pages/device-e50-ai.html', 'pages/device-e50-ac.html', 'pages/device-e50-report.html', 'pages/device-e50-upgrade.html',
   'pages/device-e50-devices.html', 'pages/device-e50-service.html', 'pages/device-e50-contact.html', 'pages/device-e50-guide.html',
+  'pages/device-fd01g-detail.html', 'pages/device-fd01g-view.html',
   'pages/product-catalog.html', 'pages/tool-wiring.html', 'pages/tool-guide.html',
   'pages/tool-videos.html', 'pages/tool-errcode.html', 'pages/tool-fluoro-input.html', 'pages/tool-fluoro-result.html',
   'pages/tool-fluoro-submit.html', 'pages/feedback.html',
@@ -352,7 +364,7 @@ assert(!aiAssistant.includes("innerHTML = 'AI"), 'assistant ball must not keep t
 for (const page of ['tab-tools', 'tool-fluoro-input', 'tool-fluoro-result', 'tool-fluoro-submit', 'tool-wiring', 'tool-videos', 'tool-errcode', 'feedback',
   'tool-remote', 'tool-remote-assisted', 'tool-remote-assist', 'tool-guide', 'tool-faq', 'platform-videos',
   'tab-device-bt', 'tab-mine', 'mine-devices', 'product-intro',
-  'device-quick', 'device-detail', 'device-more', 'device-setting', 'device-a01-ac', 'device-fd01g', 'device-fd01g-more',
+  'device-quick', 'device-detail', 'device-more', 'device-setting', 'device-a01-ac', 'device-fd01g', 'device-fd01g-more', 'device-fd01g-detail', 'device-fd01g-view',
   'device-e50', 'device-e50-detail', 'device-e50-ai', 'device-e50-ac', 'device-e50-report', 'device-e50-upgrade',
   'device-e50-devices', 'device-e50-service', 'device-e50-contact', 'device-e50-guide']) {
   assert(read(`pages/${page}.html`).includes('ai-assistant.js'), `${page} must load the ai assistant globally`);
