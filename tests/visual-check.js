@@ -52,7 +52,6 @@ const server = http.createServer((req, res) => {
     ['e50-upgrade-progress', `pages/device-e50-upgrade.html${q}`, async () => { await page.locator('#start-upgrade').click(); await page.waitForTimeout(2600); }],
     ['e50-devices', `pages/device-e50-devices.html${q}`],
     ['e50-service', `pages/device-e50-service.html${q}`],
-    ['e50-contact', `pages/device-e50-contact.html${q}`],
     ['e50-guide', `pages/device-e50-guide.html${q}`],
     ['tools-ai-ball', 'pages/tab-tools.html'],
     ['tools-ai-chat', 'pages/tab-tools.html', async () => { await page.locator('.aa-ball').click(); await page.waitForTimeout(400); }],

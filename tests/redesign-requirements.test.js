@@ -90,10 +90,13 @@ assert(data.toolCards.find((item) => item.title === '远程协助').href === 'to
 assert(data.toolCards.find((item) => item.title === '操作指引').href === 'tool-guide.html', 'operation guide tool must enter the guide hub');
 assert.deepEqual(
   data.toolMenu.map((item) => item.title),
-  ['常见问题答疑', '留言反馈'],
-  'services menu must lead with the faq column then feedback'
+  ['技术&服务', '留言反馈'],
+  'services menu must lead with tech-service then feedback'
 );
-assert(data.faqList.length >= 5 && data.faqList.every((f) => f.q && f.a), 'faq column must provide maintained Q&A entries');
+assert(data.toolMenu[0].action === 'ai-service', 'tech-service entry must open the AI assistant chat directly');
+assert(!data.faqList, 'faq column must be removed in favour of the AI assistant');
+assert(data.scenes.length === 8 && data.scenes.every((s) => s.tag && s.title && s.desc && s.products && s.series), 'scene tab must present product solutions');
+assert(data.scenes.every((s) => data.guideSeries.some((g) => g.key === s.series)), 'scene cards must map to existing guide series');
 for (const removed of ['产品方案', '飞奕公众号', '使用说明']) {
   assert(!JSON.stringify(data.toolMenu).includes(removed), `services menu must remove ${removed}`);
 }
@@ -114,7 +117,8 @@ const minePage = read('pages/tab-mine.html');
 
 assert(bluetoothPage.includes('id="product-list"'), 'Bluetooth page must render the grouped product list');
 assert(bluetoothPage.includes('device-list.js'), 'Bluetooth page must use shared device-list behavior');
-for (const forbidden of ['promo-banner', '按型号查找', '现场工具', '型号目录', 'page-intro', 'mode-switch', '4G 远程']) {
+assert(bluetoothPage.includes('tab-scene.html') && toolsPage.includes('tab-scene.html') && minePage.includes('tab-scene.html'), 'all tab pages must include the scene tab');
+for (const forbidden of ['promo-banner', '按型号查找', '现场工具', '型号目录', 'page-intro', 'mode-switch', '4G 远程', 'scheme-entry']) {
   assert(!bluetoothPage.includes(forbidden), `Bluetooth page must remove ${forbidden}`);
 }
 assert(bluetoothPage.includes('scan-tip'), 'bluetooth page must show the nearby-scan hint');
@@ -123,7 +127,6 @@ assert(read('assets/app/connection-state.js').includes('flowHref'), 'connection 
 const workbenchJs = read('assets/app/workbench.js');
 assert(workbenchJs.includes('switchBtn.addEventListener') && workbenchJs.includes('confirmDisconnect'), 'switching products must route through the disconnect confirmation');
 assert(read('assets/app/e50.js').includes('switchBtn.addEventListener'), 'e50 sidebar must route switching products through the disconnect confirmation');
-assert(bluetoothPage.includes('scheme-entry') && bluetoothPage.includes('tool-guide.html'), 'bluetooth page must expose the product scheme entry');
 assert(legacy4gPage.includes('tab-mine.html') && legacy4gPage.includes('location.replace'), 'legacy 4G tab must redirect to mine');
 assert(minePage.includes('mine-devices.html') && minePage.includes('我的设备'), 'mine page must expose the bound-devices entry');
 const mineDevicesPage = read('pages/mine-devices.html');
@@ -208,9 +211,10 @@ for (const text of ['连接设备', '选择空调品牌', '搜索空调', '模�
 for (const text of ['日立', '格力', '海信', '青岛约克', '美的家用', '模拟器', 'FE50G-A8C4', '已识别空调系统', 'detailDatasets', 'reportDatasets', 'EL15']) {
   assert(e50Shared.includes(text), `E50 shared data must include ${text}`);
 }
-for (const text of ['切换其他产品', '检修抓码', '设备升级', '设备列表', '技术&服务', '联系我们', '>工具<', '>我的<', 'tab-tools.html', 'tab-mine.html']) {
+for (const text of ['切换其他产品', '检修抓码', '设备升级', '设备列表', '技术&服务', '>工具<', '>我的<', 'tab-tools.html', 'tab-mine.html']) {
   assert(e50Shared.includes(text), `E50 sidebar must include ${text}`);
 }
+assert(!e50Shared.includes('联系我们'), 'E50 sidebar must remove the contact entry');
 for (const forbidden of ['演示环境', '暖通合伙人']) {
   assert(!e50Page.includes(forbidden), `E50 must remove ${forbidden}`);
 }
@@ -242,15 +246,11 @@ const e50ServicePage = read('pages/device-e50-service.html');
 for (const text of ['技术支持', '转人工', '转接人工客服', '发送消息']) {
   assert(e50ServicePage.includes(text), `E50 service must include ${text}`);
 }
-const e50ContactPage = read('pages/device-e50-contact.html');
-for (const text of ['联系我们', '问题描述', '请输入姓名', '请输入手机号']) {
-  assert(e50ContactPage.includes(text), `E50 contact must include ${text}`);
-}
 const e50GuidePage = read('pages/device-e50-guide.html');
 for (const text of ['操作指引', '暂无视频']) {
   assert(e50GuidePage.includes(text), `E50 guide must include ${text}`);
 }
-for (const page of [e50Page, e50DetailPage, e50AiPage, e50AcPage, e50ReportPage, e50UpgradePage, e50DevicesPage, e50ServicePage, e50ContactPage, e50GuidePage]) {
+for (const page of [e50Page, e50DetailPage, e50AiPage, e50AcPage, e50ReportPage, e50UpgradePage, e50DevicesPage, e50ServicePage, e50GuidePage]) {
   assert(page.includes('e50.js'), 'E50 pages must use the shared e50 shell');
   assert(page.includes('connection-state.js'), 'E50 pages must load persistent connection state');
 }
@@ -285,14 +285,14 @@ const publicPages = [
   'pages/tab-mine.html', 'pages/mine-devices.html', 'pages/device-quick.html', 'pages/device-detail.html', 'pages/device-setting.html',
   'pages/device-more.html', 'pages/device-fd01g.html', 'pages/device-e50.html', 'pages/device-e50-detail.html',
   'pages/device-e50-ai.html', 'pages/device-e50-ac.html', 'pages/device-e50-report.html', 'pages/device-e50-upgrade.html',
-  'pages/device-e50-devices.html', 'pages/device-e50-service.html', 'pages/device-e50-contact.html', 'pages/device-e50-guide.html',
-  'pages/device-fd01g-detail.html', 'pages/device-fd01g-view.html',
+  'pages/device-e50-devices.html', 'pages/device-e50-service.html', 'pages/device-e50-guide.html',
+  'pages/device-fd01g-detail.html', 'pages/device-fd01g-view.html', 'pages/tab-scene.html',
   'pages/product-catalog.html', 'pages/tool-wiring.html', 'pages/tool-guide.html',
   'pages/product-manual.html',
   'pages/tool-videos.html', 'pages/tool-errcode.html', 'pages/tool-fluoro-input.html', 'pages/tool-fluoro-result.html',
   'pages/tool-fluoro-submit.html', 'pages/feedback.html',
   'pages/tool-remote.html', 'pages/tool-remote-assisted.html', 'pages/tool-remote-assist.html',
-  'pages/platform-videos.html', 'pages/tool-faq.html'
+  'pages/platform-videos.html'
 ];
 for (const file of publicPages) {
   const html = read(file);
@@ -345,9 +345,9 @@ assert(errcodePage.indexOf('brand-select') < errcodePage.indexOf('ec-input'), 'b
 for (const removed of ['关联网关侧表现', '相关文章', 'chip active', 'brand-chips']) {
   assert(!errcodePage.includes(removed), `errcode page must remove ${removed}`);
 }
-const faqPage = read('pages/tool-faq.html');
-for (const text of ['常见问题答疑', 'faqList', '去留言反馈', 'feedback.html']) {
-  assert(faqPage.includes(text), `faq page must include ${text}`);
+const scenePage = read('pages/tab-scene.html');
+for (const text of ['场景', 'scenes', 'scene-card', 'product-manual.html?series=', 'tab-scene.html']) {
+  assert(scenePage.includes(text), `scene tab must include ${text}`);
 }
 const productIntro = read('pages/product-intro.html');
 for (const text of ['介绍视频', '手册与文档', 'guideSeries', 'product-manual.html?series=']) {
@@ -375,11 +375,11 @@ for (const text of ['奕', 'pointermove', 'docked', 'placeDefault']) {
 }
 assert(!aiAssistant.includes("innerHTML = 'AI"), 'assistant ball must not keep the old AI glyph');
 for (const page of ['tab-tools', 'tool-fluoro-input', 'tool-fluoro-result', 'tool-fluoro-submit', 'tool-wiring', 'tool-videos', 'tool-errcode', 'feedback',
-  'tool-remote', 'tool-remote-assisted', 'tool-remote-assist', 'tool-guide', 'tool-faq', 'platform-videos',
-  'tab-device-bt', 'tab-mine', 'mine-devices', 'product-intro', 'product-manual',
+  'tool-remote', 'tool-remote-assisted', 'tool-remote-assist', 'tool-guide', 'platform-videos',
+  'tab-device-bt', 'tab-mine', 'tab-scene', 'mine-devices', 'product-intro', 'product-manual',
   'device-quick', 'device-detail', 'device-more', 'device-setting', 'device-a01-ac', 'device-fd01g', 'device-fd01g-more', 'device-fd01g-detail', 'device-fd01g-view',
   'device-e50', 'device-e50-detail', 'device-e50-ai', 'device-e50-ac', 'device-e50-report', 'device-e50-upgrade',
-  'device-e50-devices', 'device-e50-service', 'device-e50-contact', 'device-e50-guide']) {
+  'device-e50-devices', 'device-e50-service', 'device-e50-guide']) {
   assert(read(`pages/${page}.html`).includes('ai-assistant.js'), `${page} must load the ai assistant globally`);
 }
 

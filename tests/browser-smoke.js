@@ -57,7 +57,8 @@ async function assertNoHorizontalOverflow(page, route) {
     assert(Math.abs(shell.width / shell.height - 430 / 932) < 0.01, 'desktop prototype must preserve the 430:932 phone ratio');
     assert.equal(await page.locator('.product-card').count(), 10, 'Bluetooth page must render ten independent model cards');
     assert.equal(await page.locator('.scan-tip').count(), 1, 'device page must show the nearby-scan hint');
-    assert.match(await page.locator('.scheme-entry').getAttribute('href'), /tool-guide\.html/, 'device page must expose the product scheme entry');
+    assert.equal(await page.locator('.scheme-entry').count(), 0, 'device page must remove the product scheme entry');
+    assert.deepEqual(await page.locator('.tab').allTextContents(), ['设备', '工具', '场景', '我的'], 'tabbar must order device, tools, scene, mine');
     await page.locator('[data-model="A01F"] .product-head').click();
     assert.match(await page.locator('[data-model="A01F"]').getAttribute('class'), /open/);
     assert.equal(await page.locator('[data-model="A01F"] .product-type').count(), 0, 'model cards must only show image and model');
@@ -209,9 +210,10 @@ async function assertNoHorizontalOverflow(page, route) {
 
     await open(page, baseUrl, 'pages/device-e50.html?model=E50&device=FE50G-A8C4&mode=bt');
     await page.locator('#menu-trigger').click();
-    for (const label of ['切换其他产品', '检修抓码', '设备升级', '设备列表', '技术&服务', '联系我们', '工具', '我的']) {
+    for (const label of ['切换其他产品', '检修抓码', '设备升级', '设备列表', '技术&服务', '工具', '我的']) {
       assert((await page.locator('#side-menu').getByText(label, { exact: false }).count()) >= 1, `E50 sidebar must include ${label}`);
     }
+    assert.equal(await page.locator('#side-menu').getByText('联系我们').count(), 0, 'E50 sidebar must remove the contact entry');
     await page.locator('.side-nav-item', { hasText: '检修抓码' }).click();
     assert.match(await page.locator('#capture-sheet').textContent(), /抓码原因/, 'capture sheet must open from the sidebar');
 
@@ -261,13 +263,22 @@ async function assertNoHorizontalOverflow(page, route) {
     assert.equal(await page.locator('#tool-hero').count(), 1, 'tools must lead with the fluoro support query hero');
     assert.match(await page.locator('#tool-hero').textContent(), /氟机支持查询/);
     assert.equal(await page.locator('#tool-cards .tool-mini').count(), 4, 'frequent tools must render as cards');
-    assert.equal(await page.locator('#tool-menu .list-row').count(), 2, 'services menu must lead with the faq column then feedback');
+    assert.equal(await page.locator('#tool-menu .list-row').count(), 2, 'services menu must lead with tech-service then feedback');
     assert.equal(await page.getByText('专业版切换').count(), 0, 'tools must remove the pro-version switch');
-    await page.locator('#tool-menu .list-row', { hasText: '常见问题答疑' }).click();
+    await page.locator('#tool-menu .list-row', { hasText: '技术&服务' }).click();
+    await page.waitForTimeout(400);
+    assert.equal(await page.locator('.aa-chat.show').count(), 1, 'tech-service entry must open the AI assistant chat directly');
+    assert.ok((await page.locator('.aa-row').count()) >= 2, 'ai chat must render preset messages after opening from tech-service');
+    await page.locator('.aa-back').click();
+    await page.waitForTimeout(300);
+    assert.equal(await page.locator('.aa-chat.show').count(), 0, 'ai chat must close after tech-service check');
+    await open(page, baseUrl, 'pages/tab-scene.html');
+    assert.equal(await page.locator('.scene-card').count(), 8, 'scene tab must render the eight product solutions');
+    assert.equal(await page.locator('.tab.active').textContent(), '场景', 'scene tab must mark itself active');
+    await page.locator('.scene-card').first().click();
     await page.waitForLoadState('networkidle');
-    assert.ok((await page.locator('#faq-list .faq-item').count()) >= 5, 'faq page must render the maintained Q&A entries');
-    await page.locator('.faq-q').first().click();
-    assert.equal(await page.locator('.faq-item.open').count(), 1, 'faq entry must expand on tap');
+    assert.match(page.url(), /product-manual\.html\?series=a01&doc=1/, 'scene cards must open the solution reader');
+    assert.ok((await page.locator('.manual-sec').count()) >= 3, 'solution reader must render the solution sections');
     await open(page, baseUrl, 'pages/tab-tools.html');
     assert.equal(await page.locator('.aa-ball').count(), 1, 'tools page must show the ai assistant ball');
     await page.locator('.aa-ball').click();

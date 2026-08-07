@@ -292,8 +292,7 @@
     ['capture', '检修抓码', '', '抓', 'c4'],
     ['upgrade', '设备升级', 'device-e50-upgrade.html', '升', 'c2'],
     ['devices', '设备列表', 'device-e50-devices.html', '列', 'c1'],
-    ['service', '技术&服务', 'device-e50-service.html', '服', 'c5'],
-    ['contact', '联系我们', 'feedback.html', '系', 'c3']
+    ['service', '技术&服务', 'device-e50-service.html', '服', 'c5']
   ];
   function renderMenu(active) {
     var host = document.getElementById('side-menu');

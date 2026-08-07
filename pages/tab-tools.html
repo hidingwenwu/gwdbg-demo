@@ -18,7 +18,7 @@
       <section class="card list-card" id="tool-menu"></section>
     </div>
     <nav class="tabbar">
-      <a class="tab" href="tab-device-bt.html">设备</a><a class="tab active" href="tab-tools.html">工具</a><a class="tab" href="tab-mine.html">我的</a>
+      <a class="tab" href="tab-device-bt.html">设备</a><a class="tab active" href="tab-tools.html">工具</a><a class="tab" href="tab-scene.html">场景</a><a class="tab" href="tab-mine.html">我的</a>
     </nav>
   </main>
   <div class="toast" id="toast"></div>
@@ -44,6 +44,10 @@
       var action = event.target.closest('[data-action]');
       if (!action) return;
       event.preventDefault();
+      if (action.dataset.action === 'ai-service') {
+        if (window.GWDBG_AI_ASSISTANT) window.GWDBG_AI_ASSISTANT.open();
+        return;
+      }
       var toast = document.getElementById('toast');
       toast.textContent = action.dataset.action === 'wechat' ? '飞奕公众号' : '使用说明';
       toast.classList.add('show');

@@ -327,6 +327,7 @@
               <a href="tab-device-bt.html">设备·蓝牙</a>
               <a href="tab-device-4g.html">设备·4G</a>
               <a href="tab-tools.html">工具</a>
+              <a href="tab-scene.html">场景</a>
               <a href="tab-mine.html">我的</a>
               <a href="product-catalog.html">型号目录</a>
             </div>

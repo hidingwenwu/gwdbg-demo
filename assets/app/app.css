@@ -172,18 +172,6 @@ a { color: inherit; text-decoration: none; }
   font-weight: 650;
 }
 .stack { display: grid; gap: 10px; }
-.scheme-entry {
-  display: flex; align-items: center; gap: 12px;
-  margin-top: 14px; padding: 16px;
-  border-radius: 14px; color: #fff;
-  background: linear-gradient(135deg, #2457d6 0%, #4a7ef0 100%);
-  box-shadow: 0 10px 24px rgba(36, 87, 214, 0.22);
-}
-.scheme-entry:active { transform: scale(.985); }
-.scheme-entry-main { flex: 1; min-width: 0; display: grid; gap: 5px; }
-.scheme-entry-main strong { font-size: 15px; font-weight: 750; }
-.scheme-entry-main small { font-size: 11px; opacity: .84; }
-.scheme-entry-arrow { font-size: 19px; opacity: .8; }
 .product-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
 .card {
   background: var(--surface);
@@ -260,7 +248,7 @@ a { color: inherit; text-decoration: none; }
   left: 0; right: 0; bottom: 0;
   min-height: 68px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   padding: 8px 12px max(8px, env(safe-area-inset-bottom));
   background: rgba(255,255,255,.97);
   border-top: 1px solid var(--line);

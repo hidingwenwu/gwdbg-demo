@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>场景</title><link rel="stylesheet" href="../assets/app/app.css">
+<style>
+  .scene-intro { margin: 4px 2px 12px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+  .scene-list { display: grid; gap: 10px; }
+  .scene-card { display: grid; gap: 6px; padding: 14px 15px; }
+  .scene-tag { justify-self: start; padding: 3px 8px; border-radius: 6px; background: var(--blue-soft); color: var(--blue); font-size: 10px; font-weight: 700; }
+  .scene-card strong { font-size: 14px; }
+  .scene-card small { color: var(--muted); font-size: 11px; line-height: 1.6; }
+  .scene-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }
+  .scene-product { padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); font-size: 10px; font-weight: 650; }
+  .scene-arrow { color: var(--faint); font-size: 16px; }
+</style>
+</head>
+<body>
+  <main class="app-shell">
+    <div class="statusbar"><span>17:41</span><span class="status-icons">● ● 68%</span></div>
+    <header class="topbar home"><div class="topbar-title">场景</div><div class="capsule">··· ○</div></header>
+    <div class="page">
+      <div class="scene-intro">按现场场景选型，找到适合的飞奕集控方案。点击方案卡查看完整方案介绍。</div>
+      <div class="scene-list" id="scene-list"></div>
+    </div>
+    <nav class="tabbar">
+      <a class="tab" href="tab-device-bt.html">设备</a>
+      <a class="tab" href="tab-tools.html">工具</a>
+      <a class="tab active" href="tab-scene.html">场景</a>
+      <a class="tab" href="tab-mine.html">我的</a>
+    </nav>
+  </main>
+  <script src="../assets/app/product-data.js"></script>
+  <script>
+    document.getElementById('scene-list').innerHTML = GWDBG_DATA.scenes.map(function (s) {
+      return '<a class="card scene-card" href="product-manual.html?series=' + s.series + '&doc=1">' +
+        '<span class="scene-tag">' + s.tag + '</span><strong>' + s.title + '</strong><small>' + s.desc + '</small>' +
+        '<span class="scene-foot"><span class="scene-product">适用产品：' + s.products + '</span><span class="scene-arrow">›</span></span></a>';
+    }).join('');
+  </script>
+  <script src="../assets/app/ai-assistant.js"></script>
+</body>
+</html>

@@ -67,7 +67,7 @@ function startServer() {
   await page.waitForTimeout(500);
   await shot('10-sidebar');
 
-    await page.goto(`${baseUrl}/pages/tab-device-bt.html`, { waitUntil: 'networkidle' });
+    await page.goto(`${baseUrl}/pages/tab-device-bt.html?pick=1`, { waitUntil: 'networkidle' });
   await shot('15-device-home');
   await page.evaluate(() => { const el = document.querySelector('.app-content'); el.scrollTop = el.scrollHeight; });
   await shot('15b-device-promo');
@@ -81,10 +81,8 @@ function startServer() {
   await page.goto(`${baseUrl}/pages/platform-videos.html?cat=jf`, { waitUntil: 'networkidle' });
   await shot('21-platform-videos-jf');
 
-  await page.goto(`${baseUrl}/pages/tool-faq.html`, { waitUntil: 'networkidle' });
-  await page.locator('.faq-q').nth(0).click();
-  await page.locator('.faq-q').nth(2).click();
-  await shot('22-tool-faq');
+  await page.goto(`${baseUrl}/pages/tab-scene.html`, { waitUntil: 'networkidle' });
+  await shot('22-tab-scene');
 
   await page.goto(`${baseUrl}/pages/tool-errcode.html`, { waitUntil: 'networkidle' });
   await shot('23-tool-errcode');
