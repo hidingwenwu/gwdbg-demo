@@ -2,9 +2,11 @@
 <html lang="zh-CN">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>场景</title><link rel="stylesheet" href="../assets/app/app.css">
 <style>
-  .scene-card { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px; }
-  .scene-card > strong { font-size: 15px; }
-  .scene-arrow { color: var(--faint); font-size: 16px; }
+  .scene-card { display: flex; align-items: center; gap: 10px; padding: 14px 15px; }
+  .scene-card-main { flex: 1; min-width: 0; display: grid; gap: 5px; }
+  .scene-card-main > strong { font-size: 15px; }
+  .scene-card-main > small { color: var(--muted); font-size: 11px; }
+  .scene-arrow { flex: 0 0 auto; color: var(--faint); font-size: 16px; }
 </style>
 </head>
 <body>
@@ -24,7 +26,9 @@
   <script src="../assets/app/product-data.js"></script>
   <script>
     document.getElementById('scene-list').innerHTML = GWDBG_DATA.scenes.map(function (s, index) {
-      return '<a class="card scene-card" href="scene-detail.html?scene=' + index + '"><strong>' + s.title + '</strong><span class="scene-arrow">›</span></a>';
+      return '<a class="card scene-card" href="scene-detail.html?scene=' + index + '">' +
+        '<span class="scene-card-main"><strong>' + s.title + '</strong><small>' + s.ac + ' / ' + s.products + '</small></span>' +
+        '<span class="scene-arrow">›</span></a>';
     }).join('');
   </script>
   <script src="../assets/app/ai-assistant.js"></script>
