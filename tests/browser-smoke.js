@@ -98,7 +98,7 @@ async function assertNoHorizontalOverflow(page, route) {
     assert.match(await page.locator('.menu-switch-btn').textContent(), /切换其他产品/);
     assert.equal(await page.locator('.side-nav-item').count(), 3, 'sidebar must merge settings into quick config, device details and more config');
     assert.equal(await page.locator('.side-nav-item', { hasText: '更多配置' }).count(), 1, 'sidebar must merge remaining settings into 更多配置');
-    assert.equal(await page.locator('.side-app-btn').count(), 2, 'sidebar must expose prominent tools and mine entries');
+    assert.equal(await page.locator('.side-app-btn').count(), 3, 'sidebar must expose prominent tools, scene and mine entries');
     assert.equal(await page.getByText('断开蓝牙连接').count(), 0, 'non-E50 sidebar must not keep the Bluetooth disconnect');
     await page.locator('#side-menu-overlay').click();
     await page.locator('.hero-disconnect').click();

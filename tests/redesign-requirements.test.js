@@ -212,7 +212,7 @@ for (const text of ['连接设备', '选择空调品牌', '搜索空调', '模�
 for (const text of ['日立', '格力', '海信', '青岛约克', '美的家用', '模拟器', 'FE50G-A8C4', '已识别空调系统', 'detailDatasets', 'reportDatasets', 'EL15']) {
   assert(e50Shared.includes(text), `E50 shared data must include ${text}`);
 }
-for (const text of ['切换其他产品', '检修抓码', '设备升级', '设备列表', '技术&服务', '>工具<', '>我的<', 'tab-tools.html', 'tab-mine.html']) {
+for (const text of ['切换其他产品', '检修抓码', '设备升级', '设备列表', '技术&服务', '>工具<', '>场景<', '>我的<', 'tab-tools.html', 'tab-scene.html', 'tab-mine.html']) {
   assert(e50Shared.includes(text), `E50 sidebar must include ${text}`);
 }
 assert(!e50Shared.includes('联系我们'), 'E50 sidebar must remove the contact entry');

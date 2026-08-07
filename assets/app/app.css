@@ -699,11 +699,12 @@ a { color: inherit; text-decoration: none; }
 /* 侧边菜单（白底 + 切换产品按钮） */
 .side-menu-body { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; max-height: 100%; overflow-y: auto; padding-top: max(18px, env(safe-area-inset-top)); scrollbar-width: none; }
 .side-menu-body::-webkit-scrollbar { display: none; }
-.side-app-entry { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 12px max(12px, env(safe-area-inset-bottom)); padding: 12px 10px; border: 1px solid #e6ecf6; border-radius: 14px; background: linear-gradient(180deg, #f8faff, #f1f5fb); }
+.side-app-entry { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 6px 12px max(12px, env(safe-area-inset-bottom)); padding: 12px 10px; border: 1px solid #e6ecf6; border-radius: 14px; background: linear-gradient(180deg, #f8faff, #f1f5fb); }
 .side-app-btn { display: grid; justify-items: center; gap: 9px; padding: 15px 8px 13px; background: #fff; border: 1px solid #e2e8f4; border-radius: 12px; box-shadow: 0 3px 10px rgba(30,45,68,.06); transition: transform .16s ease, box-shadow .16s ease; }
 .side-app-btn:active { transform: scale(.95); box-shadow: 0 2px 6px rgba(30,45,68,.08); }
 .side-app-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; background: linear-gradient(135deg, #4a7ef0, #2457d6); color: #fff; box-shadow: 0 5px 12px rgba(36,87,214,.26); }
 .side-app-btn.mine .side-app-icon { background: linear-gradient(135deg, #8b6cf0, #6543d8); box-shadow: 0 5px 12px rgba(109,79,196,.3); }
+.side-app-btn.scene .side-app-icon { background: linear-gradient(135deg, #2fbf8f, #129a8c); box-shadow: 0 5px 12px rgba(18,154,140,.3); }
 .side-app-icon svg { width: 20px; height: 20px; }
 .side-app-label { font-size: 13px; font-weight: 700; }
 .menu-switch-wrap { padding: 2px 18px 10px; }
