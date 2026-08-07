@@ -22,9 +22,9 @@
     }
     .demo-launch {
       position: relative;
-      width: min(100%, 390px);
-      min-height: min(760px, calc(100vh - 48px));
-      min-height: min(760px, calc(100svh - 48px));
+      width: min(430px, 96vw, calc(96svh * 430 / 932));
+      height: min(932px, 96svh, calc(96vw * 932 / 430));
+      aspect-ratio: 430 / 932;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -166,6 +166,7 @@
       .demo-stage { display: block; padding: 0; }
       .demo-launch {
         width: 100%;
+        height: auto;
         min-height: 100vh;
         min-height: 100svh;
         border: 0;
@@ -177,7 +178,6 @@
       .launch-foot { padding-left: 20px; padding-right: 20px; }
     }
     @media (max-height: 660px) {
-      .demo-launch { min-height: calc(100svh - 24px); }
       .launch-main { padding-top: 18px; padding-bottom: 24px; }
       .product-mark { width: 72px; height: 72px; margin-bottom: 20px; }
       .product-mark img { width: 52px; height: 52px; }
