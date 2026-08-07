@@ -61,8 +61,8 @@
         }).join('') + '</div>';
         return;
       }
-      resList.innerHTML = '<section class="card doc-list">' + series.docs.map(function (doc) {
-        return '<button class="doc-row" data-act="doc" type="button"><span class="doc-badge">' + doc[0] + '</span><span class="doc-title">' + doc[1] + '</span><span class="doc-arrow">›</span></button>';
+      resList.innerHTML = '<section class="card doc-list">' + series.docs.map(function (doc, index) {
+        return '<a class="doc-row" href="product-manual.html?series=' + series.key + '&doc=' + index + '"><span class="doc-badge">' + doc[0] + '</span><span class="doc-title">' + doc[1] + '</span><span class="doc-arrow">›</span></a>';
       }).join('') + '</section>';
     }
     renderList();
@@ -75,7 +75,7 @@
     });
     resList.addEventListener('click', function (event) {
       var item = event.target.closest('[data-act]');
-      if (item) showToast(item.dataset.act === 'video' ? '视频播放' : '文档打开');
+      if (item) showToast('视频播放');
     });
     document.getElementById('nav-back').addEventListener('click', function (event) {
       if (window.history.length > 1) { event.preventDefault(); window.history.back(); }

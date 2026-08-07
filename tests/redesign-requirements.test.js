@@ -288,6 +288,7 @@ const publicPages = [
   'pages/device-e50-devices.html', 'pages/device-e50-service.html', 'pages/device-e50-contact.html', 'pages/device-e50-guide.html',
   'pages/device-fd01g-detail.html', 'pages/device-fd01g-view.html',
   'pages/product-catalog.html', 'pages/tool-wiring.html', 'pages/tool-guide.html',
+  'pages/product-manual.html',
   'pages/tool-videos.html', 'pages/tool-errcode.html', 'pages/tool-fluoro-input.html', 'pages/tool-fluoro-result.html',
   'pages/tool-fluoro-submit.html', 'pages/feedback.html',
   'pages/tool-remote.html', 'pages/tool-remote-assisted.html', 'pages/tool-remote-assist.html',
@@ -349,8 +350,20 @@ for (const text of ['常见问题答疑', 'faqList', '去留言反馈', 'feedbac
   assert(faqPage.includes(text), `faq page must include ${text}`);
 }
 const productIntro = read('pages/product-intro.html');
-for (const text of ['介绍视频', '手册与文档', 'guideSeries']) {
+for (const text of ['介绍视频', '手册与文档', 'guideSeries', 'product-manual.html?series=']) {
   assert(productIntro.includes(text), `series hub must include ${text}`);
+}
+const manuals = require(path.join(root, 'assets/app/manual-data.js'));
+assert.deepEqual(Object.keys(manuals).sort(), data.guideSeries.map((s) => s.key).sort(), 'manuals must cover every guide series');
+for (const series of data.guideSeries) {
+  assert(manuals[series.key].length === series.docs.length, `${series.key} manuals must align with the doc list`);
+  manuals[series.key].forEach((sections, index) => {
+    assert(sections.length > 0 && sections.every((sec) => sec.title && (sec.text || sec.rows)), `${series.key} doc ${index} must provide titled sections`);
+  });
+}
+const productManual = read('pages/product-manual.html');
+for (const text of ['manual-toc', 'manual-sec', 'GWDBG_MANUALS', 'manual-data.js', 'product-intro.html?series=']) {
+  assert(productManual.includes(text), `manual reader must include ${text}`);
 }
 
 const aiAssistant = read('assets/app/ai-assistant.js');
@@ -363,7 +376,7 @@ for (const text of ['奕', 'pointermove', 'docked', 'placeDefault']) {
 assert(!aiAssistant.includes("innerHTML = 'AI"), 'assistant ball must not keep the old AI glyph');
 for (const page of ['tab-tools', 'tool-fluoro-input', 'tool-fluoro-result', 'tool-fluoro-submit', 'tool-wiring', 'tool-videos', 'tool-errcode', 'feedback',
   'tool-remote', 'tool-remote-assisted', 'tool-remote-assist', 'tool-guide', 'tool-faq', 'platform-videos',
-  'tab-device-bt', 'tab-mine', 'mine-devices', 'product-intro',
+  'tab-device-bt', 'tab-mine', 'mine-devices', 'product-intro', 'product-manual',
   'device-quick', 'device-detail', 'device-more', 'device-setting', 'device-a01-ac', 'device-fd01g', 'device-fd01g-more', 'device-fd01g-detail', 'device-fd01g-view',
   'device-e50', 'device-e50-detail', 'device-e50-ai', 'device-e50-ac', 'device-e50-report', 'device-e50-upgrade',
   'device-e50-devices', 'device-e50-service', 'device-e50-contact', 'device-e50-guide']) {

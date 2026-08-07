@@ -372,6 +372,15 @@ async function assertNoHorizontalOverflow(page, route) {
     await open(page, baseUrl, 'pages/tab-device-bt.html');
     assert.equal(await page.locator('.product-card').count(), 10, 'device tab must show the search list after disconnect');
 
+    await open(page, baseUrl, 'pages/product-intro.html?series=a01');
+    await page.locator('[data-tab="docs"]').click();
+    await page.locator('.doc-row').first().click();
+    await page.waitForLoadState('networkidle');
+    assert.match(page.url(), /product-manual\.html\?series=a01&doc=0/, 'doc rows must open the in-app manual reader');
+    assert.ok((await page.locator('.manual-sec').count()) >= 3, 'manual reader must render the manual sections');
+    assert.ok((await page.locator('.manual-toc button').count()) >= 3, 'manual reader must render the section toc');
+    assert.match(await page.locator('.manual-hero h1').textContent(), /产品手册/);
+
     await page.setViewportSize({ width: 320, height: 700 });
     await open(page, baseUrl, 'pages/tab-device-bt.html');
     await assertNoHorizontalOverflow(page, '320px Bluetooth devices');
