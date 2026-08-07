@@ -275,10 +275,17 @@ async function assertNoHorizontalOverflow(page, route) {
     await open(page, baseUrl, 'pages/tab-scene.html');
     assert.equal(await page.locator('.scene-card').count(), 5, 'scene tab must render the five scenario applications');
     assert.equal(await page.locator('.tab.active').textContent(), '场景', 'scene tab must mark itself active');
-    for (const label of ['痛点', '方案', '价值']) {
-      assert.equal(await page.locator('.scene-row b', { hasText: label }).count(), 5, `every scene card must carry the ${label} row`);
+    await page.locator('.scene-card').first().click();
+    await page.waitForLoadState('networkidle');
+    assert.match(page.url(), /scene-detail\.html\?scene=0/, 'scene cards must open the scene detail page');
+    for (const label of ['场景痛点', '解决方案', '落地价值']) {
+      assert.equal(await page.getByText(label, { exact: true }).count(), 1, `scene detail must show ${label}`);
     }
-    assert.match(await page.locator('.scene-list').textContent(), /节能率 15%|节能 15%/, 'scene cards must present the energy-saving value');
+    assert.match(await page.locator('#scene-video .guide-card-title').textContent(), /介绍视频/, 'scene detail must reserve the intro video slot');
+    assert.equal(await page.locator('.scene-product').count(), 2, 'office scene must list the a01 and a02 series products');
+    await page.locator('.scene-product').first().click();
+    await page.waitForLoadState('networkidle');
+    assert.match(page.url(), /product-intro\.html\?series=a01/, 'scene products must open the product intro page');
     await open(page, baseUrl, 'pages/tool-fluoro-input.html');
     await page.locator('.mtab', { hasText: '水机' }).click();
     await page.locator('#wk-brand-select').click();

@@ -96,6 +96,8 @@ assert.deepEqual(
 assert(data.toolMenu[0].action === 'ai-service', 'tech-service entry must open the AI assistant chat directly');
 assert(!data.faqList, 'faq column must be removed in favour of the AI assistant');
 assert(data.scenes.length === 5 && data.scenes.every((s) => s.title && s.ac && s.products && s.pain && s.solution && s.value), 'scene tab must present scenario applications with ac type, products, pain, solution and value');
+assert(data.scenes.every((s) => s.items && s.items.length > 0 && s.items.every((k) => data.guideSeries.some((g) => g.key === k))), 'scene products must reference valid guide series');
+assert(data.scenes.every((s) => s.video), 'every scene must reserve its intro video slot');
 for (const removed of ['产品方案', '飞奕公众号', '使用说明']) {
   assert(!JSON.stringify(data.toolMenu).includes(removed), `services menu must remove ${removed}`);
 }
@@ -285,7 +287,7 @@ const publicPages = [
   'pages/device-more.html', 'pages/device-fd01g.html', 'pages/device-e50.html', 'pages/device-e50-detail.html',
   'pages/device-e50-ai.html', 'pages/device-e50-ac.html', 'pages/device-e50-report.html', 'pages/device-e50-upgrade.html',
   'pages/device-e50-devices.html', 'pages/device-e50-service.html', 'pages/device-e50-guide.html',
-  'pages/device-fd01g-detail.html', 'pages/device-fd01g-view.html', 'pages/tab-scene.html',
+  'pages/device-fd01g-detail.html', 'pages/device-fd01g-view.html', 'pages/tab-scene.html', 'pages/scene-detail.html',
   'pages/product-catalog.html', 'pages/tool-wiring.html', 'pages/tool-guide.html',
   'pages/product-manual.html',
   'pages/tool-videos.html', 'pages/tool-errcode.html', 'pages/tool-fluoro-input.html', 'pages/tool-fluoro-result.html',
@@ -351,10 +353,14 @@ for (const removed of ['关联网关侧表现', '相关文章', 'chip active', '
   assert(!errcodePage.includes(removed), `errcode page must remove ${removed}`);
 }
 const scenePage = read('pages/tab-scene.html');
-for (const text of ['场景', 'scenes', 'scene-card', '痛点', '方案', '价值', 'tab-scene.html']) {
+for (const text of ['场景', 'scenes', 'scene-card', 'scene-detail.html?scene=', 'tab-scene.html']) {
   assert(scenePage.includes(text), `scene tab must include ${text}`);
 }
-assert(!scenePage.includes('product-manual.html'), 'scene cards must be self-contained without reader links');
+assert(!scenePage.includes('product-manual.html'), 'scene cards must not link to the manual reader directly');
+const sceneDetail = read('pages/scene-detail.html');
+for (const text of ['场景痛点', '解决方案', '落地价值', '涉及产品', 'scene-video', '视频播放', 'product-intro.html?series=', 'tab-scene.html']) {
+  assert(sceneDetail.includes(text), `scene detail must include ${text}`);
+}
 const productIntro = read('pages/product-intro.html');
 for (const text of ['介绍视频', '手册与文档', 'guideSeries', 'product-manual.html?series=']) {
   assert(productIntro.includes(text), `series hub must include ${text}`);
@@ -382,7 +388,7 @@ for (const text of ['奕', 'pointermove', 'docked', 'placeDefault']) {
 assert(!aiAssistant.includes("innerHTML = 'AI"), 'assistant ball must not keep the old AI glyph');
 for (const page of ['tab-tools', 'tool-fluoro-input', 'tool-fluoro-result', 'tool-fluoro-submit', 'tool-wiring', 'tool-videos', 'tool-errcode', 'feedback',
   'tool-remote', 'tool-remote-assisted', 'tool-remote-assist', 'tool-guide', 'platform-videos',
-  'tab-device-bt', 'tab-mine', 'tab-scene', 'mine-devices', 'product-intro', 'product-manual',
+  'tab-device-bt', 'tab-mine', 'tab-scene', 'scene-detail', 'mine-devices', 'product-intro', 'product-manual',
   'device-quick', 'device-detail', 'device-more', 'device-setting', 'device-a01-ac', 'device-fd01g', 'device-fd01g-more', 'device-fd01g-detail', 'device-fd01g-view',
   'device-e50', 'device-e50-detail', 'device-e50-ai', 'device-e50-ac', 'device-e50-report', 'device-e50-upgrade',
   'device-e50-devices', 'device-e50-service', 'device-e50-guide']) {
