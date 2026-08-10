@@ -90,8 +90,7 @@
   var seq = 0;
   var messages = [
     { id: ++seq, type: 'time', text: '今天 14:30' },
-    { id: ++seq, type: 'agent', text: WELCOME },
-    { id: ++seq, type: 'action', text: '如需人工专家支持，可随时转接。' }
+    { id: ++seq, type: 'agent', text: WELCOME }
   ];
 
   function render(area) {
@@ -105,9 +104,6 @@
         return '<div class="aa-row user"><div class="aa-bubble aa-bubble-user">' + esc(m.text) + '</div>' +
           '<span class="aa-avatar aa-avatar-user">我</span></div>';
       }
-      return '<div class="aa-row"><span class="aa-avatar aa-avatar-agent">客</span>' +
-        '<div class="aa-card"><span>' + esc(m.text) + '</span>' +
-        '<button class="aa-card-btn" type="button">转接人工客服</button></div></div>';
     }).join('');
     area.scrollTop = area.scrollHeight;
   }
@@ -224,9 +220,6 @@
     mask.addEventListener('click', close);
     chat.querySelector('.aa-back').addEventListener('click', close);
     chat.querySelector('.aa-human').addEventListener('click', requestHuman);
-    area.addEventListener('click', function (event) {
-      if (event.target.closest('.aa-card-btn')) requestHuman();
-    });
     chat.querySelector('.aa-send').addEventListener('click', sendMsg);
     input.addEventListener('keydown', function (event) {
       if (event.key === 'Enter' && !event.isComposing) sendMsg();

@@ -43,29 +43,25 @@
 
   var products = [
     {
-      model: 'A01F', name: 'A01F 室外机控制器', category: '多通道室外机控制器',
-      image: '../assets/products/a01f.png', remote: false, family: 'outdoor',
-      variant: '4 路 F 版', channels: 4, quickTasks: outdoorTasks, moreSettings: outdoorMore
-    },
-    {
-      model: 'A01E', name: 'A01E 室外机控制器', category: '多通道室外机控制器',
-      image: '../assets/products/a01e.png', remote: false, family: 'outdoor',
-      variant: '8 路 E 版', channels: 8, quickTasks: outdoorTasks, moreSettings: outdoorMore
-    },
-    {
-      model: 'A02FG', name: 'A02FG 室外机控制器', category: '多通道室外机控制器',
-      image: '../assets/products/a02fg.png', remote: false, family: 'outdoor',
-      variant: '4 路 F 版', channels: 4, quickTasks: outdoorTasks, moreSettings: outdoorMore
-    },
-    {
-      model: 'A02EG', name: 'A02EG 室外机控制器', category: '多通道室外机控制器',
-      image: '../assets/products/a02eg.png', remote: false, family: 'outdoor',
-      variant: '8 路 E 版', channels: 8, quickTasks: outdoorTasks, moreSettings: outdoorMore
-    },
-    {
       model: 'A03FG', name: 'A03FG 室外机控制器', category: '多通道室外机控制器',
       image: '../assets/products/a03fg.png', remote: false, family: 'outdoor',
       variant: '4 路 4G 版', channels: 4, quickTasks: outdoorTasks, moreSettings: outdoorMore
+    },
+    {
+      model: 'E50', name: 'E50 空调诊断设备', category: '空调诊断设备',
+      image: '../assets/products/e50.png', remote: true, family: 'e50',
+      variant: '蓝牙 / 4G', channels: 1,
+      quickTasks: [
+        { key: 'brand', title: '空调品牌', meta: '选择当前空调品牌' },
+        { key: 'system-search', title: '空调系统搜索', meta: '识别室内机与室外机' }
+      ],
+      moreSettings: [
+        { key: 'outdoor', title: '室外机参数' },
+        { key: 'indoor', title: '室内机列表' },
+        { key: 'control', title: '空调控制' },
+        { key: 'diagnosis', title: '一键诊断' },
+        { key: 'upgrade', title: '固件升级' }
+      ]
     },
     {
       model: 'F16G', name: 'F16G 室内机控制器', category: '室内机控制器',
@@ -112,22 +108,6 @@
       ]
     },
     {
-      model: 'E50', name: 'E50 空调诊断设备', category: '空调诊断设备',
-      image: '../assets/products/e50.png', remote: true, family: 'e50',
-      variant: '蓝牙 / 4G', channels: 1,
-      quickTasks: [
-        { key: 'brand', title: '空调品牌', meta: '选择当前空调品牌' },
-        { key: 'system-search', title: '空调系统搜索', meta: '识别室内机与室外机' }
-      ],
-      moreSettings: [
-        { key: 'outdoor', title: '室外机参数' },
-        { key: 'indoor', title: '室内机列表' },
-        { key: 'control', title: '空调控制' },
-        { key: 'diagnosis', title: '一键诊断' },
-        { key: 'upgrade', title: '固件升级' }
-      ]
-    },
-    {
       model: 'W01G', name: 'W01G 冷水主机控制器', category: '冷水主机控制器',
       image: '../assets/products/a01f.png', remote: false, family: 'water', contentOnly: true,
       variant: '主机通讯口直连', channels: 1, quickTasks: [], moreSettings: []
@@ -136,6 +116,26 @@
       model: 'W01P', name: 'W01P 冷水主机控制器', category: '冷水主机控制器',
       image: '../assets/products/s74g.png', remote: false, family: 'water', contentOnly: true,
       variant: '主机线控器接入', channels: 1, quickTasks: [], moreSettings: []
+    },
+    {
+      model: 'A01F', name: 'A01F 室外机控制器', category: '多通道室外机控制器',
+      image: '../assets/products/a01f.png', remote: false, family: 'outdoor',
+      variant: '4 路 F 版', channels: 4, quickTasks: outdoorTasks, moreSettings: outdoorMore
+    },
+    {
+      model: 'A01E', name: 'A01E 室外机控制器', category: '多通道室外机控制器',
+      image: '../assets/products/a01e.png', remote: false, family: 'outdoor',
+      variant: '8 路 E 版', channels: 8, quickTasks: outdoorTasks, moreSettings: outdoorMore
+    },
+    {
+      model: 'A02FG', name: 'A02FG 室外机控制器', category: '多通道室外机控制器',
+      image: '../assets/products/a02fg.png', remote: false, family: 'outdoor',
+      variant: '4 路 F 版', channels: 4, quickTasks: outdoorTasks, moreSettings: outdoorMore
+    },
+    {
+      model: 'A02EG', name: 'A02EG 室外机控制器', category: '多通道室外机控制器',
+      image: '../assets/products/a02eg.png', remote: false, family: 'outdoor',
+      variant: '8 路 E 版', channels: 8, quickTasks: outdoorTasks, moreSettings: outdoorMore
     }
   ];
 

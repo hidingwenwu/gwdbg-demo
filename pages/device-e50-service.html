@@ -20,8 +20,7 @@
     var seq = 0;
     var messages = [
       { id: ++seq, type: 'time', text: '今天 14:30' },
-      { id: ++seq, type: 'agent', text: '您好，我是飞奕技术支持助手。请问有什么可以帮您？' },
-      { id: ++seq, type: 'action', text: '如需人工专家支持，可随时转接。' }
+      { id: ++seq, type: 'agent', text: '您好，我是飞奕技术支持助手。请问有什么可以帮您？' }
     ];
     var area = document.getElementById('msg-area');
     function esc(value) {
@@ -32,14 +31,12 @@
         if (m.type === 'time') return '<div class="msg-time">' + m.text + '</div>';
         if (m.type === 'agent') return '<div class="msg-row agent"><span class="msg-avatar agent-avatar">客</span><div class="msg-bubble agent-bubble">' + esc(m.text) + '</div></div>';
         if (m.type === 'user') return '<div class="msg-row user"><div class="msg-bubble user-bubble">' + esc(m.text) + '</div><span class="msg-avatar user-avatar">我</span></div>';
-        return '<div class="msg-row agent"><span class="msg-avatar agent-avatar">客</span><div class="action-card"><span>' + esc(m.text) + '</span><button class="action-card-btn" id="action-human" type="button">转接人工客服</button></div></div>';
       }).join('');
       area.scrollTop = area.scrollHeight;
     }
     render();
     function requestHuman() { E.toast('正在为您转接人工客服'); }
     document.getElementById('human-btn').onclick = requestHuman;
-    area.addEventListener('click', function (event) { if (event.target.closest('#action-human')) requestHuman(); });
 
     var input = document.getElementById('service-input'), send = document.getElementById('service-send');
     function sendMsg() {

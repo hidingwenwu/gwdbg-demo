@@ -244,7 +244,7 @@ for (const text of ['我的设备', '解绑', '在线', '离线', 'FE50G-A8C4', 
   assert(e50DevicesPage.includes(text), `E50 devices must include ${text}`);
 }
 const e50ServicePage = read('pages/device-e50-service.html');
-for (const text of ['技术支持', '转人工', '转接人工客服', '发送消息']) {
+for (const text of ['技术支持', '转人工', '发送消息']) {
   assert(e50ServicePage.includes(text), `E50 service must include ${text}`);
 }
 const e50GuidePage = read('pages/device-e50-guide.html');
@@ -379,7 +379,7 @@ for (const text of ['manual-toc', 'manual-sec', 'GWDBG_MANUALS', 'manual-data.js
 }
 
 const aiAssistant = read('assets/app/ai-assistant.js');
-for (const text of ['AI 智能助理', '转人工', '转接人工客服', '已收到您的问题', 'aa-ball', 'aa-chat', 'GWDBG_AI_ASSISTANT']) {
+for (const text of ['AI 智能助理', '转人工', '已收到您的问题', 'aa-ball', 'aa-chat', 'GWDBG_AI_ASSISTANT']) {
   assert(aiAssistant.includes(text), `ai assistant must include ${text}`);
 }
 for (const text of ['奕', 'pointermove', 'docked', 'placeDefault']) {
