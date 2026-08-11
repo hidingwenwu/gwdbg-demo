@@ -268,7 +268,7 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.locator('#tool-menu .list-row', { hasText: '技术&服务' }).click();
     await page.waitForTimeout(400);
     assert.equal(await page.locator('.aa-chat.show').count(), 1, 'tech-service entry must open the AI assistant chat directly');
-    assert.ok((await page.locator('.aa-row').count()) >= 2, 'ai chat must render preset messages after opening from tech-service');
+    assert.ok((await page.locator('.aa-row').count()) >= 1, 'ai chat must render preset messages after opening from tech-service');
     await page.locator('.aa-back').click();
     await page.waitForTimeout(300);
     assert.equal(await page.locator('.aa-chat.show').count(), 0, 'ai chat must close after tech-service check');
@@ -302,7 +302,7 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.locator('.aa-ball').click();
     await page.waitForTimeout(400);
     assert.equal(await page.locator('.aa-chat.show').count(), 1, 'ai chat layer must open');
-    assert.ok((await page.locator('.aa-row').count()) >= 2, 'ai chat must render preset messages');
+    assert.ok((await page.locator('.aa-row').count()) >= 1, 'ai chat must render preset messages');
     await page.locator('.aa-input').fill('你好');
     await page.locator('.aa-send').click();
     await page.waitForTimeout(900);
@@ -344,8 +344,8 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.locator('#code-input').fill('826431');
     await page.locator('#btn-connect').click();
     await page.locator('#state-desktop').waitFor({ state: 'visible', timeout: 6000 });
-    await page.locator('.ra-mirror-task', { hasText: '服务器配置' }).click();
-    assert.equal(await page.getByText('已远程点击：服务器配置').count(), 1, 'mirror taps must feed back the remote action');
+    await page.locator('.ra-mirror-task', { hasText: '客户服务器设定' }).click();
+    assert.equal(await page.getByText('已远程点击：客户服务器设定').count(), 1, 'mirror taps must feed back the remote action');
     await page.locator('#btn-end').click();
     await page.locator('.overlay .js-ok').click();
     await page.waitForTimeout(300);

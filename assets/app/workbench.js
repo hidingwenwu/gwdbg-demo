@@ -47,7 +47,7 @@
     if (pathname.indexOf('device-more') >= 0 || pathname.indexOf('device-fd01g-more') >= 0) return 'more';
     if (pathname.indexOf('device-fd01g-view') >= 0) {
       var fdView = params.get('view') || '';
-      return ['learning', 'upgrade', 'reboot', 'reset'].indexOf(fdView) >= 0 ? 'more' : 'home';
+      return ['learning', 'upgrade', 'reboot', 'reset', 'server-factory'].indexOf(fdView) >= 0 ? 'more' : 'home';
     }
     if (pathname.indexOf('device-setting') >= 0 || pathname.indexOf('device-a01-ac') >= 0) return 'more';
     if (pathname.indexOf('device-e50.html') >= 0 || pathname.indexOf('device-fd01g.html') >= 0) return 'home';

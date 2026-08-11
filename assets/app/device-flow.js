@@ -21,7 +21,7 @@
 
   function hero(showDetailLink) {
     return '<section class="card hero-card"><div><div class="hero-model">' + product.model + '</div>' +
-      '<div class="hero-name">' + product.category + '<br>' + escapeHtml(deviceId) + '</div>' +
+      '<div class="hero-name">' + escapeHtml(deviceId) + '</div>' +
       '<div class="hero-status-row"><span class="hero-status">已连接 · ' + (mode === '4g' ? '4G 远程' : '蓝牙') + '</span>' +
       (mode === 'bt' ? '<button class="hero-disconnect" id="hero-disconnect" type="button">断开连接</button>' : '') +
       '</div></div>' +
@@ -143,7 +143,7 @@
     if (setting === 'brand' || setting === 'brand-batch' || setting === 'channel') return channelFields(setting);
     if (setting === 'valve') return '<section class="card form-card"><div class="field"><label>管制线阀类型</label><select><option>2管制2线阀</option><option>2管制3线阀</option><option>4管制</option></select></div></section>';
     if (setting === 'temp-comp') return '<section class="card form-card"><div class="field"><label>补偿值的正负</label><select><option>正</option><option>负</option></select></div><div class="field"><label>补偿温度值</label><input type="number" min="0" max="9" value="0" inputmode="numeric"></div></section><p class="field-note">补偿值正负：其他温度传感器显示值 - 温控器显示室内温度值</p>';
-    if (setting === 'server') return serverFields();
+    if (setting === 'server' || setting === 'server-factory') return serverFields();
     if (setting === 'meter') return '<section class="card form-card"><div class="field"><label>电表类型</label><select><option>三相四线</option><option>单相电表</option></select></div><div class="field"><label>电表地址</label><input value="1" inputmode="numeric"></div><div class="field"><label>波特率</label><select><option>9600</option><option>4800</option></select></div><div class="field"><label>数据位</label><select><option>8</option><option>7</option></select></div><div class="field"><label>校验位</label><select><option>无校验</option><option>偶校验</option></select></div><div class="field"><label>协议</label><select><option>DL/T 645-2007</option><option>Modbus RTU</option></select></div></section>';
     if (setting === 'upgrade') return '<section class="card form-card"><div class="field"><label>当前版本</label><input value="V2.6.18" readonly></div><div class="field"><label>最新版本</label><input value="V2.7.0" readonly></div><div class="field"><label>升级包</label><input value="正式版 2026.07" readonly></div></section>';
     if (setting === 'network') return '<section class="card form-card"><div class="field"><label>地址获取</label><select><option>DHCP</option><option>静态 IP</option></select></div><div class="field"><label>本机 IP</label><input value="192.168.1.100"></div><div class="field"><label>子网掩码</label><input value="255.255.255.0"></div><div class="field"><label>网关</label><input value="192.168.1.1"></div></section>';
@@ -192,12 +192,13 @@
     document.getElementById('setting-content').innerHTML = fieldsFor(setting);
     setupFieldInteractions();
     var action = document.getElementById('save-setting');
-    action.textContent = setting === 'server' ? '保存并检测通讯' : setting === 'upgrade' ? '开始升级' : setting === 'diagnosis' ? '重新检测' : (setting === 'valve' || setting === 'temp-comp') ? '确定' : '保存';
+    var isServer = setting === 'server' || setting === 'server-factory';
+    action.textContent = isServer ? '保存并检测通讯' : setting === 'upgrade' ? '开始升级' : setting === 'diagnosis' ? '重新检测' : (setting === 'valve' || setting === 'temp-comp') ? '确定' : '保存';
     action.addEventListener('click', function () {
       var result = document.getElementById('setting-result');
       result.hidden = false;
       action.disabled = true;
-      if (setting === 'server') {
+      if (isServer) {
         result.textContent = '检测通讯中';
         result.className = 'result-box checking';
         setTimeout(function () { result.textContent = '通讯正常'; result.className = 'result-box success'; action.disabled = false; }, 900);

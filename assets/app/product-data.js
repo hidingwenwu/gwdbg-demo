@@ -5,12 +5,13 @@
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   var outdoorTasks = [
     { key: 'batch-brand', title: '空调品牌批量配置', meta: '按通道统一设置', setting: 'brand-batch' },
-    { key: 'server', title: '服务器配置', meta: '保存后自动检测通讯', setting: 'server' },
+    { key: 'server', title: '客户服务器设定', meta: '保存后自动检测通讯', setting: 'server' },
     { key: 'meter', title: '电表参数', meta: '地址与通信参数下发', setting: 'meter' },
     { key: 'control', title: '空调控制验证', meta: '验证开关机与运行模式', setting: 'control' }
   ];
   var outdoorMore = [
     { key: 'channel', title: '空调品牌设置' },
+    { key: 'server-factory', title: '原厂服务器设定' },
     { key: 'network', title: '网络参数' },
     { key: 'rtu', title: 'RS485 / RTU' },
     { key: 'diagnosis', title: '设备诊断' },
@@ -96,10 +97,11 @@
       variant: '单路', channels: 1,
       quickTasks: [
         { key: 'brand', title: '空调品牌配置', meta: '设置当前空调品牌', setting: 'brand' },
-        { key: 'server', title: '服务器配置', meta: '保存后自动检测通讯', setting: 'server' },
+        { key: 'server', title: '客户服务器设定', meta: '保存后自动检测通讯', setting: 'server' },
         { key: 'control', title: '空调控制验证', meta: '验证开关机与运行模式', setting: 'control' }
       ],
       moreSettings: [
+        { key: 'server-factory', title: '原厂服务器设定' },
         { key: 'network', title: '网络参数' },
         { key: 'ac-advanced', title: '空调高级参数' },
         { key: 'diagnosis', title: '设备诊断' },
