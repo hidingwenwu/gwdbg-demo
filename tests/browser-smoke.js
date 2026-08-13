@@ -75,7 +75,8 @@ async function assertNoHorizontalOverflow(page, route) {
     assert.equal(await page.locator('#nav-back').count(), 1, 'debug pages must expose a back button');
     assert.match(await page.locator('#more-link').textContent(), /更多配置/, 'quick page bottom action must be 更多配置');
     assert.match(await page.locator('#detail-link').textContent(), /进入设备详情/, 'hero card must contain the device detail entry');
-    assert.equal(await page.locator('#quick-tasks .task-row').count(), 4, 'A01F must expose four quick tasks');
+    assert.equal(await page.locator('#quick-tasks .task-row').count(), 3, 'A01F must expose three quick tasks without meter settings');
+    assert.equal(await page.locator('#quick-tasks').getByText('电表参数').count(), 0, 'A01F quick flow must drop meter settings');
     assert.equal(await page.getByText('跳过快速配置').count(), 0, 'quick setup must not expose the removed skip action');
 
     assert.match(await page.locator('#guide-link').getAttribute('href'), /product-intro\.html\?series=a01/, 'quick guide entry must target the A01 series hub');
@@ -92,6 +93,7 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.locator('#detail-link').click();
     await page.waitForLoadState('networkidle');
     assert((await page.locator('#device-parameters .parameter-row').count()) >= 12, 'device details must expose full parameter rows');
+    assert.equal(await page.locator('#device-parameters').getByText('电表通讯').count(), 0, 'A01F details must drop the meter communication row');
     await page.locator('#menu-trigger').click();
     assert(await page.locator('body').evaluate((body) => body.classList.contains('side-menu-open')), 'menu trigger must open the left menu');
     assert.equal(await page.locator('.menu-switch-btn').count(), 1, 'sidebar must lead with 切换其他产品');
@@ -147,6 +149,10 @@ async function assertNoHorizontalOverflow(page, route) {
     assert.equal(await page.evaluate(() => Boolean(window.deviceInjected)), false, 'forged device IDs must not execute scripts');
     await open(page, baseUrl, 'pages/device-setting.html?model=S74G&device=S74G-A02C11&mode=bt&setting=meter');
     assert.equal(await page.getByText('电表地址').count(), 0, 'S74G must reject forged meter settings');
+    await open(page, baseUrl, 'pages/device-setting.html?model=A01F&device=A01F-3F903E&mode=bt&setting=meter');
+    assert.equal(await page.getByText('电表地址').count(), 0, 'A01F must reject forged meter settings');
+    await open(page, baseUrl, 'pages/device-detail.html?model=A02FG&device=A02FG-0D72F1&mode=bt');
+    assert.equal(await page.locator('#device-parameters').getByText('电表通讯').count(), 1, 'A02FG details must keep the meter communication row');
 
     await open(page, baseUrl, 'pages/device-quick.html?model=F16G&device=F16G-B7A403&mode=bt');
     assert.match(await page.locator('#quick-tasks').textContent(), /管制线阀类型/, 'F16G quick flow must lead with valve type');
@@ -344,6 +350,7 @@ async function assertNoHorizontalOverflow(page, route) {
     await page.locator('#code-input').fill('826431');
     await page.locator('#btn-connect').click();
     await page.locator('#state-desktop').waitFor({ state: 'visible', timeout: 6000 });
+    assert.equal(await page.locator('.ra-mirror-task').count(), 3, 'assist mirror must render the A01 task list without meter settings');
     await page.locator('.ra-mirror-task', { hasText: '客户服务器设定' }).click();
     assert.equal(await page.getByText('已远程点击：客户服务器设定').count(), 1, 'mirror taps must feed back the remote action');
     await page.locator('#btn-end').click();

@@ -27,12 +27,22 @@ for (const model of expectedModels) {
   assert(Array.isArray(product.moreSettings), `${model} must define more settings`);
 }
 
-for (const model of ['A01F', 'A01E', 'A02FG', 'A02EG', 'A03FG']) {
+for (const model of ['A01F', 'A01E']) {
+  assert.deepEqual(
+    byModel[model].quickTasks.map((task) => task.key),
+    ['batch-brand', 'server', 'control'],
+    `${model} must drop meter settings from the A01 quick flow`
+  );
+  assert(!JSON.stringify(byModel[model]).includes('meter'), `${model} must not expose meter settings`);
+}
+for (const model of ['A02FG', 'A02EG', 'A03FG']) {
   assert.deepEqual(
     byModel[model].quickTasks.map((task) => task.key),
     ['batch-brand', 'server', 'meter', 'control'],
-    `${model} must use the outdoor-controller quick flow`
+    `${model} must keep meter settings in the outdoor-controller quick flow`
   );
+}
+for (const model of ['A01F', 'A01E', 'A02FG', 'A02EG', 'A03FG']) {
   assert.deepEqual(
     byModel[model].moreSettings.map((setting) => setting.key),
     byModel.A01F.moreSettings.map((setting) => setting.key),

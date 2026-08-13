@@ -79,7 +79,10 @@
       ['已识别内机', (product.family === 'indoor' ? 1 : (product.channels || 1) * 8) + ' 台']
     ];
     if (isF16g) rows.push(['温度传感器补偿', '正 0℃']);
-    if (product.family === 'outdoor') rows.push(['通道数量', product.channels + ' 路'], ['电表通讯', '正常']);
+    if (product.family === 'outdoor') {
+      rows.push(['通道数量', product.channels + ' 路']);
+      if (product.quickTasks.some(function (task) { return task.key === 'meter'; })) rows.push(['电表通讯', '正常']);
+    }
     if (product.family === 'single-outdoor') rows.push(['通道数量', '1 路']);
     return rows;
   }

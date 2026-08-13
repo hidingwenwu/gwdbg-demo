@@ -9,6 +9,11 @@
     { key: 'meter', title: '电表参数', meta: '地址与通信参数下发', setting: 'meter' },
     { key: 'control', title: '空调控制验证', meta: '验证开关机与运行模式', setting: 'control' }
   ];
+  var a01Tasks = [
+    { key: 'batch-brand', title: '空调品牌批量配置', meta: '按通道统一设置', setting: 'brand-batch' },
+    { key: 'server', title: '客户服务器设定', meta: '保存后自动检测通讯', setting: 'server' },
+    { key: 'control', title: '空调控制验证', meta: '验证开关机与运行模式', setting: 'control' }
+  ];
   var outdoorMore = [
     { key: 'channel', title: '空调品牌设置' },
     { key: 'server-factory', title: '原厂服务器设定' },
@@ -122,12 +127,12 @@
     {
       model: 'A01F', name: 'A01F 室外机控制器', category: '多通道室外机控制器',
       image: '../assets/products/a01f.png', remote: false, family: 'outdoor',
-      variant: '4 路 F 版', channels: 4, quickTasks: outdoorTasks, moreSettings: outdoorMore
+      variant: '4 路 F 版', channels: 4, quickTasks: a01Tasks, moreSettings: outdoorMore
     },
     {
       model: 'A01E', name: 'A01E 室外机控制器', category: '多通道室外机控制器',
       image: '../assets/products/a01e.png', remote: false, family: 'outdoor',
-      variant: '8 路 E 版', channels: 8, quickTasks: outdoorTasks, moreSettings: outdoorMore
+      variant: '8 路 E 版', channels: 8, quickTasks: a01Tasks, moreSettings: outdoorMore
     },
     {
       model: 'A02FG', name: 'A02FG 室外机控制器', category: '多通道室外机控制器',

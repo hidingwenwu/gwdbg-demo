@@ -77,7 +77,6 @@ const legacyRedirects = {
   'pages/device-a01-debug.html': 'device-detail.html?model=A01',
   'pages/device-a01-fw.html': 'device-setting.html?model=A01&setting=upgrade',
   'pages/device-a01-lan.html': 'device-setting.html?model=A01&setting=network',
-  'pages/device-a01-meter.html': 'device-setting.html?model=A01&setting=meter',
   'pages/device-a01-rtu.html': 'device-setting.html?model=A01&setting=rtu',
   'pages/device-a01-server.html': 'device-setting.html?model=A01&setting=server',
   'pages/device-a01-wan.html': 'device-setting.html?model=A01&setting=network',
