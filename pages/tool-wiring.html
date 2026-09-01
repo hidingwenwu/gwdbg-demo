@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>空调接线 · 文章聚合</title>
+  <title>空调接线 · 主从判断与接线示意</title>
   <link rel="stylesheet" href="../_base.css">
   <style>
     .seg-filter {
       display: flex; padding: 2px;
       background: var(--ios-fill);
       border-radius: var(--radius-ios);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       overflow-x: auto; scrollbar-width: none;
       flex-wrap: nowrap; gap: 0;
     }
@@ -27,25 +27,52 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
-    .art-cell {
-      display: block; position: relative;
-      padding: 13px 16px;
-      border-top: 0.5px solid var(--line-soft);
-      color: inherit;
-    }
-    .art-cell:first-child { border-top: 0; }
-    .art-cell .a-title {
-      font-size: var(--fs-label); font-weight: 600; line-height: 1.5;
-      padding-right: 14px;
-    }
-    .art-cell .a-meta {
-      display: flex; gap: 8px; align-items: center;
-      margin-top: 6px;
+    .wiring-note {
       font-size: var(--fs-tiny); color: var(--text-secondary);
+      padding: 0 4px 10px; line-height: 1.6;
     }
-    .art-cell .a-arrow {
-      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-      color: var(--text-placeholder); font-size: 18px; font-family: Arial;
+    .wiring-card { padding: 12px; }
+    .wiring-sub {
+      font-size: var(--fs-label); font-weight: 600;
+      margin: 2px 2px 8px;
+    }
+    .wiring-sub:not(:first-child) { margin-top: 14px; }
+    .wiring-img {
+      width: 100%; display: block;
+      border-radius: 8px; border: 0.5px solid var(--line-soft);
+      cursor: zoom-in;
+    }
+    .wiring-tip {
+      text-align: center; margin-top: 10px;
+      font-size: var(--fs-tiny); color: var(--text-placeholder);
+    }
+
+    /* 全屏图片查看器 */
+    .img-viewer {
+      position: fixed; inset: 0; z-index: 900;
+      background: rgba(0, 0, 0, 0.96);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+      overflow: hidden; touch-action: none;
+    }
+    .img-viewer.show { opacity: 1; pointer-events: auto; }
+    .iv-img {
+      max-width: 100%; max-height: 100%; object-fit: contain;
+      will-change: transform; user-select: none;
+      -webkit-user-drag: none;
+    }
+    .iv-close {
+      position: absolute; top: 14px; right: 16px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18); color: #fff;
+      font-size: 20px; line-height: 30px; text-align: center;
+      cursor: pointer;
+    }
+    .iv-hint {
+      position: absolute; bottom: 18px; left: 0; right: 0;
+      text-align: center; pointer-events: none;
+      color: rgba(255, 255, 255, 0.55); font-size: 12px;
     }
   </style>
 </head>
@@ -69,42 +96,13 @@
 
   <div class="page-body no-tabbar">
 
-    <div class="seg-filter chip-group" data-select="single">
-      <span class="chip active">全部</span>
-      <span class="chip">大金</span>
-      <span class="chip">格力</span>
-      <span class="chip">美的</span>
-      <span class="chip">日立</span>
-      <span class="chip">东芝</span>
-      <span class="chip">海尔</span>
-    </div>
+    <div class="seg-filter chip-group" data-select="single" id="brand-chips"></div>
 
-    <div class="card">
-      <a class="art-cell press" href="#" onclick="showToast('正在打开文章');return false;">
-        <div class="a-title">大金 VRV 系列内外机 F1/F2 接线全图解</div>
-        <div class="a-meta"><span class="badge badge-success">公众号</span><span>阅读 3,208</span><span>2026-05-12</span></div>
-        <span class="a-arrow">›</span>
-      </a>
-      <a class="art-cell press" href="#" onclick="showToast('正在打开文章');return false;">
-        <div class="a-title">格力多联机 CAN 总线接线与端接电阻设置</div>
-        <div class="a-meta"><span class="badge badge-success">公众号</span><span>阅读 2,871</span><span>2026-04-28</span></div>
-        <span class="a-arrow">›</span>
-      </a>
-      <a class="art-cell press" href="#" onclick="showToast('正在打开文章');return false;">
-        <div class="a-title">美的 V6 系列网关接线注意事项（XYE 端子）</div>
-        <div class="a-meta"><span class="badge badge-success">公众号</span><span>阅读 2,140</span><span>2026-04-02</span></div>
-        <span class="a-arrow">›</span>
-      </a>
-      <a class="art-cell press" href="#" onclick="showToast('正在打开文章');return false;">
-        <div class="a-title">日立 VRF H-LINK 接线与地址拨码速查</div>
-        <div class="a-meta"><span class="badge badge-success">公众号</span><span>阅读 1,933</span><span>2026-03-15</span></div>
-        <span class="a-arrow">›</span>
-      </a>
-      <a class="art-cell press" href="#" onclick="showToast('正在打开文章');return false;">
-        <div class="a-title">A01 集控主机 RS485 双通道接线规范</div>
-        <div class="a-meta"><span class="badge badge-success">公众号</span><span>阅读 4,502</span><span>2026-02-20</span></div>
-        <span class="a-arrow">›</span>
-      </a>
+    <div class="wiring-note">各品牌多联机外机主从机判断与集控接线示意，切换品牌查看，点击图片可放大。</div>
+
+    <div class="card wiring-card">
+      <div id="wiring-panel"></div>
+      <div class="wiring-tip">点击示意图可全屏放大查看端子细节</div>
     </div>
 
   </div>
@@ -114,5 +112,173 @@
 
   <script src="../interactions.js"></script>
   <script src="../assets/app/ai-assistant.js"></script>
+  <script>
+    (function () {
+      var IMG_DIR = '../assets/空调主从接线/';
+      var BRANDS = [
+        { name: '格力', imgs: [{ src: '01格力.png' }] },
+        { name: '美的', imgs: [{ src: '02美的.png' }] },
+        { name: '海尔', imgs: [{ src: '03海尔.png' }] },
+        { name: '海信', imgs: [{ src: '04海信.png' }] },
+        { name: '天加', imgs: [{ src: '05天加.png' }] },
+        { name: '志高', imgs: [{ src: '06志高.png' }] },
+        { name: '大金', imgs: [{ src: '07大金.png' }] },
+        { name: '日立', imgs: [{ src: '08日立.png' }] },
+        { name: '东芝', imgs: [{ src: '09东芝23前.png', label: '2023 年前机型' }, { src: '10东芝23后.png', label: '2023 年后机型' }] },
+        { name: '三菱电机', imgs: [{ src: '11三菱电机.png' }] },
+        { name: '三菱重工', imgs: [{ src: '12三菱重工.png' }] },
+        { name: '富士通', imgs: [{ src: '13富士通.png' }] },
+        { name: 'LG', imgs: [{ src: '14LG.png' }] },
+        { name: '三星', imgs: [{ src: '15三星.png' }] },
+        { name: '松下', imgs: [{ src: '16松下.png' }] },
+        { name: '麦克维尔', imgs: [{ src: '17麦克维尔.png' }] },
+        { name: '开利', imgs: [{ src: '18开利.png' }] },
+        { name: '广州约克', imgs: [{ src: '19广州约克.png' }] },
+        { name: '青岛约克', imgs: [{ src: '20青岛约克.png' }] }
+      ];
+      /* 氟机查询页品牌名到本页品牌项的映射（名称不完全一致时） */
+      var ALIASES = { '富士通将军': '富士通' };
+
+      var chipBox = document.getElementById('brand-chips');
+      var panel = document.getElementById('wiring-panel');
+
+      chipBox.innerHTML = BRANDS.map(function (b, i) {
+        return '<span class="chip' + (i === 0 ? ' active' : '') + '" data-brand="' + b.name + '">' + b.name + '</span>';
+      }).join('');
+
+      function renderBrand(name) {
+        var b = BRANDS.find(function (x) { return x.name === name; }) || BRANDS[0];
+        panel.innerHTML = b.imgs.map(function (it) {
+          return (it.label ? '<div class="wiring-sub">' + it.label + '</div>' : '') +
+            '<img class="wiring-img" src="' + encodeURI(IMG_DIR + it.src) + '" alt="' + b.name + '外机主从机判断与接线示意图">';
+        }).join('');
+        panel.querySelectorAll('.wiring-img').forEach(function (img) {
+          img.addEventListener('click', function () { openViewer(img.src, img.alt); });
+        });
+      }
+
+      chipBox.addEventListener('chip:change', function (e) {
+        renderBrand(e.detail.chip.dataset.brand);
+      });
+
+      /* 支持 ?brand=xx 进入时直接定位品牌（来源：氟机支持查询结果页） */
+      var q = new URLSearchParams(location.search).get('brand');
+      if (q) {
+        q = ALIASES[q] || q;
+        var chip = chipBox.querySelector('[data-brand="' + q + '"]');
+        if (chip) {
+          chipBox.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('active'); });
+          chip.classList.add('active');
+          renderBrand(q);
+          chip.scrollIntoView({ block: 'nearest', inline: 'center' });
+        } else {
+          renderBrand(BRANDS[0].name);
+        }
+      } else {
+        renderBrand(BRANDS[0].name);
+      }
+
+      /* ========== 全屏图片查看器（双指缩放 / 双击放大 / 拖动） ========== */
+      var viewer = document.createElement('div');
+      viewer.className = 'img-viewer';
+      viewer.innerHTML = '<img class="iv-img" alt=""><span class="iv-close">×</span>' +
+        '<span class="iv-hint">双指缩放 · 双击放大 · 点击空白处关闭</span>';
+      document.body.appendChild(viewer);
+      var ivImg = viewer.querySelector('.iv-img');
+
+      var scale = 1, tx = 0, ty = 0;
+      var pointers = new Map();
+      var panStart = null, pinchStart = null, moved = false, lastTap = 0, downPos = null;
+
+      function clampScale(s) { return Math.max(1, Math.min(6, s)); }
+      function applyTransform() {
+        if (scale === 1) { tx = 0; ty = 0; }
+        ivImg.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+      }
+      function twoPointerState() {
+        var pts = Array.from(pointers.values());
+        return {
+          dist: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
+          cx: (pts[0].x + pts[1].x) / 2,
+          cy: (pts[0].y + pts[1].y) / 2
+        };
+      }
+
+      window.openViewer = function (src, alt) {
+        scale = 1; tx = 0; ty = 0; applyTransform();
+        ivImg.src = src; ivImg.alt = alt || '';
+        viewer.classList.add('show');
+      };
+      function closeViewer() {
+        viewer.classList.remove('show');
+        pointers.clear(); panStart = null; pinchStart = null;
+      }
+
+      viewer.addEventListener('pointerdown', function (e) {
+        if (e.target.closest('.iv-close')) return;
+        viewer.setPointerCapture(e.pointerId);
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        moved = false;
+        downPos = { x: e.clientX, y: e.clientY };
+        if (pointers.size === 1) {
+          panStart = { x: e.clientX, y: e.clientY, tx: tx, ty: ty };
+          pinchStart = null;
+        } else if (pointers.size === 2) {
+          var s = twoPointerState();
+          pinchStart = { dist: s.dist, cx: s.cx, cy: s.cy, scale: scale, tx: tx, ty: ty };
+          panStart = null;
+        }
+      });
+      viewer.addEventListener('pointermove', function (e) {
+        if (!pointers.has(e.pointerId)) return;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (downPos && Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 6) moved = true;
+        if (pointers.size === 2) moved = true;
+        if (pointers.size === 2 && pinchStart) {
+          var s = twoPointerState();
+          scale = clampScale(pinchStart.scale * s.dist / pinchStart.dist);
+          tx = pinchStart.tx + (s.cx - pinchStart.cx);
+          ty = pinchStart.ty + (s.cy - pinchStart.cy);
+          applyTransform();
+        } else if (pointers.size === 1 && panStart && scale > 1) {
+          tx = panStart.tx + (e.clientX - panStart.x);
+          ty = panStart.ty + (e.clientY - panStart.y);
+          applyTransform();
+        }
+      });
+      viewer.addEventListener('pointerup', function (e) {
+        pointers.delete(e.pointerId);
+        if (pointers.size < 2) pinchStart = null;
+        if (pointers.size === 0 && !moved) {
+          var now = Date.now();
+          if (now - lastTap < 300 && e.target === ivImg) {
+            scale = scale === 1 ? 2.5 : 1;
+            applyTransform();
+            lastTap = 0;
+          } else {
+            lastTap = now;
+            if (e.target === viewer) closeViewer();
+          }
+        }
+        if (pointers.size === 1) {
+          var p = Array.from(pointers.values())[0];
+          panStart = { x: p.x, y: p.y, tx: tx, ty: ty };
+        }
+      });
+      viewer.addEventListener('pointercancel', function (e) {
+        pointers.delete(e.pointerId);
+        if (pointers.size < 2) pinchStart = null;
+      });
+      viewer.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        scale = clampScale(scale * (e.deltaY < 0 ? 1.2 : 1 / 1.2));
+        applyTransform();
+      }, { passive: false });
+      viewer.querySelector('.iv-close').addEventListener('click', closeViewer);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeViewer();
+      });
+    })();
+  </script>
 </body>
 </html>

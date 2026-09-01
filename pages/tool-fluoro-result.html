@@ -114,7 +114,7 @@
             '<div class="card gw-card"><div class="gw-main"><div class="gw-name">W01P 冷水主机控制器</div><div class="gw-note">主机线控器接入（通讯口被占用时）</div></div></div>';
         document.getElementById('debug-points').innerHTML =
           '<div class="kv-item"><span class="kv-label">接线位置</span><span class="kv-value">' + (byTstat ? '主机线控器通讯链路' : '主机主控板通讯端子') + '</span></div>' +
-          '<a class="kv-item" href="tool-wiring.html"><span class="kv-label">主机接线</span><span class="kv-value kv-arrow text-brand">' + brand + ' 接线图文</span></a>' +
+          '<a class="kv-item" href="tool-wiring.html?brand=' + encodeURIComponent(brand) + '"><span class="kv-label">主机接线</span><span class="kv-value kv-arrow text-brand">' + brand + ' 接线图文</span></a>' +
           '<div class="kv-item"><span class="kv-label">通讯协议</span><span class="kv-value">Modbus RTU（按品牌适配）</span></div>' +
           '<a class="kv-item" href="tool-videos.html"><span class="kv-label">安装调试视频</span><span class="kv-value kv-arrow text-brand">观看演示</span></a>' +
           '<div class="kv-item"><span class="kv-label">波特率</span><span class="kv-value">9600（默认）</span></div>';
@@ -123,6 +123,7 @@
       document.getElementById('rh-model').textContent = model;
       document.getElementById('rh-brand').textContent = brand + ' · 多联机外机';
       document.getElementById('wiring-link').textContent = brand + ' 接线图文';
+      document.getElementById('wiring-link').closest('a').href = 'tool-wiring.html?brand=' + encodeURIComponent(brand);
     })();
   </script>
 </body>
