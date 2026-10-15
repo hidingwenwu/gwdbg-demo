@@ -24,12 +24,6 @@
     .gw-card .gw-main { flex: 1; min-width: 0; }
     .gw-card .gw-name { font-size: var(--fs-body); font-weight: 600; display: flex; align-items: center; gap: 8px; }
     .gw-card .gw-note { font-size: var(--fs-small); color: var(--text-secondary); margin-top: 3px; }
-    .gw-imgs { display: flex; gap: 8px; padding: 12px 16px 0; }
-    .gw-imgs .gw-img-box {
-      flex: 1; background: var(--ios-bg); border-radius: 10px;
-      padding: 8px; display: flex; align-items: center; justify-content: center;
-    }
-    .gw-imgs img { max-width: 100%; max-height: 64px; object-fit: contain; display: block; }
 
     .wk-status { padding: 2px 16px 6px; }
     .wk-status .kv-item { min-height: 46px; }
@@ -75,7 +69,6 @@
 
     <div class="section-title"><span id="gw-section-title">适配网关</span></div>
     <div class="card">
-      <div class="gw-imgs" id="gw-imgs"></div>
       <div class="kv-list" id="gw-list"></div>
     </div>
 
@@ -118,13 +111,8 @@
         document.getElementById('rh-brand').textContent = brand + ' · ' + catLabel;
         document.querySelector('.rh-verdict').textContent = '支持接入飞奕控制器';
         document.getElementById('gw-section-title').textContent = '适配控制器';
-        document.getElementById('gw-imgs').innerHTML =
-          '<div class="gw-img-box"><img src="../assets/products/w01.png" alt="W01G 冷水主机控制器"></div>' +
-          (byTstat ? '' : '<div class="gw-img-box"><img src="../assets/products/w02.png" alt="W01P 冷水主机控制器"></div>');
-        document.getElementById('gw-list').innerHTML = byTstat
-          ? '<div class="kv-item"><div class="gw-main"><div class="gw-name">W01P 冷水主机控制器 <span class="badge badge-info">推荐</span></div><div class="gw-note">主机线控器通讯链路接入</div></div></div>'
-          : '<div class="kv-item"><div class="gw-main"><div class="gw-name">W01G 冷水主机控制器 <span class="badge badge-info">推荐</span></div><div class="gw-note">主机通讯口直连</div></div></div>' +
-            '<div class="kv-item"><div class="gw-main"><div class="gw-name">W01P 冷水主机控制器</div><div class="gw-note">主机线控器接入（通讯口被占用时）</div></div></div>';
+        document.getElementById('gw-list').innerHTML =
+          '<div class="kv-item"><div class="gw-main"><div class="gw-name">W系列控制器 <span class="badge badge-info">推荐</span></div><div class="gw-note">W系列控制器，支持各类水机机组接入。</div></div></div>';
         var wkProgRow = '<div class="kv-item"><span class="kv-label">程序名称</span><span class="kv-value sv-strong">' + prog + '</span></div>';
         var wkNameplate =
           '<div class="section-title"><span>机组铭牌</span></div>' +
@@ -164,26 +152,20 @@
 
       var GW_DATA = {
         vrf: {
-          imgs: ['../assets/products/a01f.png', '../assets/products/s74g.png'],
           rows: [
-            { name: 'A系列智能控制器', badge: '推荐', note: 'A01 / A02 / A03 系列，覆盖多联机外机集控接入' },
+            { name: 'A系列智能控制器', badge: '推荐', note: 'A系列网关支持一台网关接入多路空调系统，多联机集控接入主力机型。' },
             { name: 'S74G控制器', note: '单路室外网关，小体量项目轻量接入' }
           ]
         },
         duct: {
-          imgs: ['../assets/products/b25lg.jpg'],
           rows: [{ name: 'B25LG线控网关', note: '风管机线控网关，按台接入' }]
         },
         water: {
-          imgs: ['../assets/products/w01.png'],
-          rows: [{ name: 'W系列智能控制器', note: 'W01G / W01P 冷水主机控制器' }]
+          rows: [{ name: 'W系列控制器', note: 'W系列控制器，支持各类水机机组接入。' }]
         }
       };
       function renderGw(type) {
         var d = GW_DATA[type];
-        document.getElementById('gw-imgs').innerHTML = d.imgs.map(function (src) {
-          return '<div class="gw-img-box"><img src="' + src + '" alt="适配产品"></div>';
-        }).join('');
         document.getElementById('gw-list').innerHTML = d.rows.map(function (r) {
           return '<div class="kv-item"><div class="gw-main"><div class="gw-name">' + r.name +
             (r.badge ? ' <span class="badge badge-info">' + r.badge + '</span>' : '') +
