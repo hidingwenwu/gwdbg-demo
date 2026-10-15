@@ -75,14 +75,6 @@
 
     <div class="section-title"><span id="gw-section-title">适配网关</span></div>
     <div class="card">
-      <div class="field-row" style="padding: 14px 16px 0;">
-        <label class="field-label">空调类型</label>
-        <div class="form-chips chip-group" data-select="single" id="gw-type">
-          <span class="chip active" data-value="vrf">多联机</span>
-          <span class="chip" data-value="duct">风管机</span>
-          <span class="chip" data-value="water">水机</span>
-        </div>
-      </div>
       <div class="gw-imgs" id="gw-imgs"></div>
       <div class="kv-list" id="gw-list"></div>
     </div>
@@ -121,7 +113,7 @@
       if (q.get('type') === 'water') {
         var catLabel = q.get('cat') === 'module' ? '风冷模块主机' : '螺杆离心主机';
         var byTstat = q.get('by') === 'tstat';
-        var prog = q.get('prog') || '';
+        var prog = 'YK_ELINK'; // 适配程序名由水机适配库返回，此处为示例值
         document.getElementById('rh-model').textContent = model;
         document.getElementById('rh-brand').textContent = brand + ' · ' + catLabel;
         document.querySelector('.rh-verdict').textContent = '支持接入飞奕控制器';
@@ -133,7 +125,7 @@
           ? '<div class="kv-item"><div class="gw-main"><div class="gw-name">W01P 冷水主机控制器 <span class="badge badge-info">推荐</span></div><div class="gw-note">主机线控器通讯链路接入</div></div></div>'
           : '<div class="kv-item"><div class="gw-main"><div class="gw-name">W01G 冷水主机控制器 <span class="badge badge-info">推荐</span></div><div class="gw-note">主机通讯口直连</div></div></div>' +
             '<div class="kv-item"><div class="gw-main"><div class="gw-name">W01P 冷水主机控制器</div><div class="gw-note">主机线控器接入（通讯口被占用时）</div></div></div>';
-        var wkProgRow = prog ? '<div class="kv-item"><span class="kv-label">程序名称</span><span class="kv-value sv-strong">' + prog + '</span></div>' : '';
+        var wkProgRow = '<div class="kv-item"><span class="kv-label">程序名称</span><span class="kv-value sv-strong">' + prog + '</span></div>';
         var wkNameplate =
           '<div class="section-title"><span>机组铭牌</span></div>' +
           '<div class="card nameplate-card">' +
@@ -198,10 +190,7 @@
             '</div><div class="gw-note">' + r.note + '</div></div></div>';
         }).join('');
       }
-      document.getElementById('gw-type').addEventListener('chip:change', function (e) {
-        renderGw(e.detail.chip.dataset.value);
-      });
-      renderGw('vrf');
+      renderGw(q.get('mtype') === 'duct' ? 'duct' : 'vrf');
     })();
   </script>
 </body>

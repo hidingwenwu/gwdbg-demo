@@ -161,11 +161,6 @@
         </div>
       </div>
       <div class="field-row">
-        <label class="field-label">程序名称</label>
-        <input class="input" id="wk-prog" placeholder="选填，如 YK_ELINK">
-        <div class="field-hint">按主机内程序名称检索时使用，用于准确定位适配程序</div>
-      </div>
-      <div class="field-row">
         <label class="field-label">主机品牌 <span class="required">*</span></label>
         <button class="select brand-select" id="wk-brand-select" type="button" aria-haspopup="listbox" aria-expanded="false">
           <span class="bs-value is-placeholder" id="wk-brand-value">请选择主机品牌</span>
@@ -343,8 +338,7 @@
       if (!model) { showToast('请输入' + document.getElementById('wk-model-label').textContent.replace('*', '').trim()); return; }
       var cat = document.querySelector('#wk-cat .chip.active').dataset.value;
       var by = document.querySelector('#wk-by .chip.active').dataset.value;
-      var prog = document.getElementById('wk-prog').value.trim();
-      var params = '?type=water&cat=' + cat + '&by=' + by + '&brand=' + encodeURIComponent(brands.water) + '&model=' + encodeURIComponent(model) + (prog ? '&prog=' + encodeURIComponent(prog) : '');
+      var params = '?type=water&cat=' + cat + '&by=' + by + '&brand=' + encodeURIComponent(brands.water) + '&model=' + encodeURIComponent(model);
       location.href = (brands.water === '其他品牌' ? 'tool-fluoro-submit.html' : 'tool-fluoro-result.html') + params;
     }
     document.getElementById('fl-query').addEventListener('click', doFluoroQuery);
